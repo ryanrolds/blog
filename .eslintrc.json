@@ -1,0 +1,12 @@
+{
+  "extends": ["eslint:recommended", "google"],
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "rules": {
+    "quotes": ["error", "double"]
+  },
+  "env": {
+    "node": true
+  }
+}
