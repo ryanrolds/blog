@@ -1,0 +1,8 @@
+{
+  "defaultEnv": "pg",
+  "pg": {
+    "driver": "pg",
+    "url": {"ENV": "PG_URL"}
+  }
+}
+

@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/ryanrolds/blog#readme",
   "dependencies": {
+    "bluebird": "^3.5.1",
+    "db-migrate": "^0.10.5",
+    "db-migrate-pg": "^0.3.1",
     "express": "^4.16.2",
     "pg": "^7.4.1",
     "pug": "^2.0.0",
