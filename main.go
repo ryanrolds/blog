@@ -13,11 +13,12 @@ func main() {
     port = "8080"
   }
 
-  site := &site.Site{
-    Port: port,
+  site, err := site.NewSite(port)
+  if err != nil {
+    log.Panic(err)
   }
 
-  err := site.Run()
+  err = site.Run()
   if err != nil {
     log.Panic(err)
   }

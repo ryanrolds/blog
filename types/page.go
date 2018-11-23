@@ -1,9 +1,7 @@
 package types
 
-import(
-  "bytes"
-)
+import()
 
 type Page struct {
-  Content *bytes.Buffer
+  Content *[]byte
 }

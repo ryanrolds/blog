@@ -5,6 +5,7 @@ import (
   "fmt"
   "io/ioutil"
   "log"
+  "text/template"
   "time"
 
 
@@ -13,34 +14,61 @@ import (
   "gopkg.in/russross/blackfriday.v2"
 )
 
-func NewCache() *Cache {
-  lru := ccache.New(ccache.Configure().MaxSize(100).ItemsToPrune(25))
-
-  return &Cache{
-    lru: lru,
-  }
+type TemplateDetails struct {
+  Body string
 }
 
 type Cache struct {
   lru *ccache.Cache
+  templates *template.Template
 }
+
+func NewCache() (*Cache, error) {
+  templates, err := template.ParseFiles("./site/template.html")
+  if err != nil {
+    log.Print("Unable to parse template files")
+    return nil, err
+  }
+
+  log.Print(templates.DefinedTemplates())
+
+  lru := ccache.New(ccache.Configure().MaxSize(100).ItemsToPrune(25))
+
+  return &Cache{
+    templates: templates,
+    lru: lru,
+  }, nil
+}
+
 
 func (c *Cache) Get(key string) *types.Page {
   item := c.lru.Get(key)
   if item == nil {
     // Get file contents
-    content, err := ioutil.ReadFile(fmt.Sprintf("./pages%s.md", key))
+    markdown, err := ioutil.ReadFile(fmt.Sprintf("./site/content%s.md", key))
     if err != nil {
       log.Print(err)
       return nil
     }
 
     // Process MD
-    output := blackfriday.Run(content)
+    body := blackfriday.Run(markdown)
+
+    buf := &bytes.Buffer{}
+    err = c.templates.ExecuteTemplate(buf, "template.html", &TemplateDetails{
+      Body: string(body[:]),
+    })
+    if err != nil {
+      log.Print("Problem executing template")
+      log.Print(err)
+      return nil
+    }
+
+    content := buf.Bytes()
 
     // Cache the content
     page := &types.Page{
-      Content: bytes.NewBuffer(output),
+      Content: &content,
     }
     c.lru.Set(key, page, time.Hour * 24 * 7)
 
