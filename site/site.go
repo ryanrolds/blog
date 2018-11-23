@@ -2,7 +2,6 @@ package site
 
 import(
   "fmt"
-  "log"
   "net/http"
 
   "github.com/ryanrolds/pedantic_orderliness/page_cache"
@@ -41,14 +40,10 @@ func (s *Site) Run() error {
 }
 
 func (s *Site) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-  log.Print(r.URL.Path)
-
   path := r.URL.Path
   if path == "/" {
     path = "/index"
   }
-
-  log.Print(path)
 
   page := s.cache.Get(path)
   // If we couldn't find a page, then redirect to 404
