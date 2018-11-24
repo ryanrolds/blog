@@ -22,8 +22,11 @@ func NewCache() (*Cache, error) {
 func (c *Cache) Get(key string) (*Page, error) {
 	item := c.lru.Get(key)
 	if item != nil { // Found an item in the cache
+		log.Print("cache hit")
 		return item.Value().(*Page), nil
 	}
+
+	log.Print("cache miss")
 
 	page, err := BuildPage(key)
 	if err != nil { // 500 Internal server error case
@@ -38,22 +41,4 @@ func (c *Cache) Get(key string) (*Page, error) {
 	c.lru.Set(key, page, time.Hour*24*7)
 
 	return page, nil
-}
-
-func (c *Cache) Get404() *Page {
-	page, err := c.Get("/404")
-	if err != nil {
-		log.Panic("Unable to get 404 page")
-	}
-
-	return page
-}
-
-func (c *Cache) Get500() *Page {
-	page, err := c.Get("/500")
-	if err != nil {
-		log.Panic("Unable to get 500 page")
-	}
-
-	return page
 }
