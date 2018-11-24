@@ -1,59 +1,81 @@
 package site
 
-import(
-  "fmt"
-  "net/http"
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
 
-  "github.com/ryanrolds/pedantic_orderliness/page_cache"
+	"github.com/ryanrolds/pedantic_orderliness/pages"
 )
 
 type Site struct {
-  Port string
-  cache *page_cache.Cache
+	Port  string
+	cache *pages.Cache
 }
 
 func NewSite(port string) (*Site, error) {
-  cache, err := page_cache.NewCache()
-  if err != nil {
-    return nil, err
-  }
+	cache, err := pages.NewCache()
+	if err != nil {
+		return nil, err
+	}
 
-  return &Site{
-    Port: port,
-    cache: cache,
-  }, nil
+	return &Site{
+		Port:  port,
+		cache: cache,
+	}, nil
 }
 
 func (s *Site) Run() error {
-  server := http.Server{
-    Addr: fmt.Sprintf(":%s", s.Port),
-    Handler: s,
-  }
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%s", s.Port),
+		Handler: s,
+	}
 
-  // Blocks
-  err := server.ListenAndServe()
-  if err != nil {
-    return err
-  }
+	// Blocks
+	err := server.ListenAndServe()
+	if err != nil {
+		return err
+	}
 
-  return nil
+	return nil
 }
 
 func (s *Site) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-  path := r.URL.Path
-  if path == "/" {
-    path = "/index"
-  }
+	path := r.URL.Path
 
-  page := s.cache.Get(path)
-  // If we couldn't find a page, then redirect to 404
-  if page == nil {
-    page = s.cache.Get("/404")
-    rw.WriteHeader(http.StatusNotFound)
-  } else{
-    rw.WriteHeader(http.StatusOK)
-  }
+	// We want the index file
+	if path == "/" {
+		path = "index"
+	}
 
-  rw.Header().Set("Content-Type", "text/html")
-  rw.Write(*page.Content)
+	// Help protect from reading files outside of the app
+	path = strings.TrimLeft(path, "/")
+
+	log.Print("Request: " + path)
+
+	page, err := s.cache.Get(path)
+	if err != nil { // Error getting the page
+		page, err = s.cache.Get("500")
+		if err != nil {
+			log.Panic("Unable to get 500 page")
+		}
+
+		rw.WriteHeader(http.StatusInternalServerError)
+	}
+
+	// If we couldn't find a page, then redirect to 404
+	if page == nil { // No page was found
+		page, err = s.cache.Get("404")
+		if err != nil {
+			log.Panic("Unable to get 404 page")
+		}
+
+		rw.WriteHeader(http.StatusNotFound)
+	} else {
+		rw.WriteHeader(http.StatusOK)
+	}
+
+	rw.Header().Set("Content-Type", "text/html")
+	rw.Write(*page.Content)
 }
