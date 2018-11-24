@@ -1,7 +1,19 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <style>
+      .center {
+        margin: auto;
+	width: 50%;
+	max-width: 1024px;
+      }
+    </style>
+    {{.CSS}}
+    {{.JavaScript}}
   </head>
   <body>
-  {{.Body}}
+    <div class="center">
+      {{.Body}}
+    </div>
   </body>
 </html>

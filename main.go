@@ -13,7 +13,12 @@ func main() {
 		port = "8080"
 	}
 
-	site, err := site.NewSite(port)
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "production"
+	}
+
+	site, err := site.NewSite(port, env)
 	if err != nil {
 		log.Panic(err)
 	}

@@ -6,22 +6,24 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ryanrolds/pedantic_orderliness/pages"
+	"github.com/ryanrolds/pedantic_orderliness/site/pages"
 )
 
 type Site struct {
 	Port  string
+	Env   string
 	cache *pages.Cache
 }
 
-func NewSite(port string) (*Site, error) {
-	cache, err := pages.NewCache()
+func NewSite(port string, env string) (*Site, error) {
+	cache, err := pages.NewCache(env)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Site{
 		Port:  port,
+		Env:   env,
 		cache: cache,
 	}, nil
 }
