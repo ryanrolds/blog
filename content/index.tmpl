@@ -2,18 +2,42 @@
 <html lang="en">
   <head>
     <style>
-      .center {
-        margin: auto;
-	width: 50%;
-	max-width: 1024px;
-      }
+			header h1 {
+				border-bottom: 0.1em solid #000000;
+			}
+
+			@media only screen and (min-width: 960px) {
+				.center {
+					margin: auto;
+					max-width: 1024px;
+				}
+			}
+			
+			@media only screen {
+				body {
+					padding: 1em;
+				}
+			}
     </style>
     {{.CSS}}
     {{.JavaScript}}
   </head>
   <body>
-    <div class="center">
+    <header class="center">
+			<h1>Pedantic Orderliness</h1>
+    </header>
+		<section class="center">
+			<h1>Posts</h1>
+			<article class="post">
+				<h2></h2>
+				<p></p>
+			</article>
+		</section>
+    <main role="main" class="center">
       {{.Body}}
-    </div>
+    </main>
+		<footer class="center">
+			<p>&copy; Copyright 2018 Ryan R. Olds. All rights reserved</p>
+		</footer>
   </body>
 </html>
