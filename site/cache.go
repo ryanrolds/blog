@@ -1,45 +1,33 @@
-package pages
+package site
 
 import (
 	"log"
 )
 
-type ContentCache map[string]*Page
+type ContentCache map[string]interface{}
 
 type Cache struct {
 	cache ContentCache
-	env   string
 }
 
-func NewCache(env string) (*Cache, error) {
+func NewCache() *Cache {
 	return &Cache{
 		cache: ContentCache{},
-		env:   env,
-	}, nil
+	}
 }
 
-func (c *Cache) Get(key string) (*Page, error) {
+func (c *Cache) Get(key string) interface{} {
 	item, exists := c.cache[key]
 	if exists { // Found an item in the cache
 		log.Print("cache hit")
-		return item, nil
+		return item
 	}
 
 	log.Print("cache miss/stale")
 
-	page, err := BuildPage(key)
-	if err != nil { // 500 Internal server error case
-		return nil, err
-	}
+	return item
+}
 
-	if page == nil { // 404 Not Found case
-		return nil, nil
-	}
-
-	// Add item to cache
-	if c.env == "production" {
-		c.cache[key] = page
-	}
-
-	return page, nil
+func (c *Cache) Set(key string, item interface{}) {
+	c.cache[key] = item
 }

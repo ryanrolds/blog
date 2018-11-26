@@ -1,35 +1,61 @@
-package pages
+package site
 
 import (
 	"bytes"
-	"io/ioutil"
-	"os"
 	"text/template"
 
 	"gopkg.in/russross/blackfriday.v2"
 )
 
-const (
-	ContentDir   = "./content/"
-	PagesDir     = ContentDir + "pages/"
-	PostsDir     = ContentDir + "posts/"
-	StaticDir    = ContentDir + "static/"
-	TemplateFile = ContentDir + "template.html"
-	IndexFile    = PagesDir + "index.md"
-)
+type Page struct {
+	Content *[]byte
+}
 
-type TemplateDetails struct {
+type PageManager struct {
+	dir       string
+	templates *template.Template
+	cache     *Cache
+}
+
+func NewPageManager(dir string, templates *template.Template) *PageManager {
+	return &PageManager{
+		dir:       dir,
+		templates: templates,
+		cache:     NewCache(),
+	}
+}
+
+func (p *PageManager) Load() error {
+	keys, err := getKeys(p.dir, ".md")
+	if err != nil {
+		return err
+	}
+
+	for _, key := range keys {
+		page, err := p.buildPage(key)
+		if err != nil {
+			return err
+		}
+
+		p.cache.Set(key, page)
+	}
+
+	return nil
+}
+
+func (p *PageManager) Get(key string) *Page {
+	item := p.cache.Get(key)
+	return item.(*Page)
+}
+
+type PageTemplate struct {
 	JavaScript string
 	CSS        string
 	Body       string
 }
 
-type Page struct {
-	Content *[]byte
-}
-
-func BuildPage(key string) (*Page, error) {
-	markdown, err := getContent(key)
+func (p *PageManager) buildPage(key string) (*Page, error) {
+	markdown, err := getMarkdown(key)
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +63,6 @@ func BuildPage(key string) (*Page, error) {
 	// Page does not exist
 	if markdown == nil {
 		return nil, nil
-	}
-
-	template, err := getTemplate(key)
-	if err != nil {
-		return nil, err
 	}
 
 	css, err := getCSS(key)
@@ -57,8 +78,9 @@ func BuildPage(key string) (*Page, error) {
 	// Process MD
 	body := blackfriday.Run(*markdown)
 
+	// Run markdown through page template
 	buf := &bytes.Buffer{}
-	err = template.Execute(buf, &TemplateDetails{
+	err = p.templates.ExecuteTemplate(buf, "page.tmpl", &PageTemplate{
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
 		Body:       string(body[:]),
@@ -72,62 +94,4 @@ func BuildPage(key string) (*Page, error) {
 	return &Page{
 		Content: &content,
 	}, nil
-}
-
-func getTemplate(key string) (*template.Template, error) {
-	tmpl, err := template.ParseFiles(ContentDir + key + ".tmpl")
-	if err != nil {
-		if key == "index" {
-			return nil, err
-		}
-
-		tmpl, err = template.ParseFiles(ContentDir + "index.tmpl")
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return tmpl, nil
-}
-
-func getCSS(key string) (*[]byte, error) {
-	// Get file contents
-	css, err := ioutil.ReadFile(ContentDir + key + ".css")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return &[]byte{}, nil
-		}
-
-		return nil, err
-	}
-
-	return &css, nil
-}
-
-func getJavaScript(key string) (*[]byte, error) {
-	// Get file contents
-	javaScript, err := ioutil.ReadFile(ContentDir + key + ".js")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return &[]byte{}, nil
-		}
-
-		return nil, err
-	}
-
-	return &javaScript, nil
-}
-
-func getContent(key string) (*[]byte, error) {
-	// Get file contents
-	content, err := ioutil.ReadFile(ContentDir + key + ".md")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-
-	return &content, nil
 }

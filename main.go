@@ -18,12 +18,8 @@ func main() {
 		env = "production"
 	}
 
-	site, err := site.NewSite(port, env)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = site.Run()
+	site := site.NewSite(port, env)
+	err := site.Run()
 	if err != nil {
 		log.Panic(err)
 	}
