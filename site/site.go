@@ -108,8 +108,6 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	log.Print(vars)
-
 	// The root page uses the "index" key
 	if key == "" {
 		key = "index"
@@ -117,7 +115,7 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Try to get cache page
 	page := s.pages.Get(key)
-	if page != nil {
+	if page == nil {
 		s.Handle404(w, r)
 		return
 	}
@@ -131,11 +129,9 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	log.Print(vars)
-
 	// Try to get cache page
 	post := s.posts.Get(key)
-	if post != nil {
+	if post == nil {
 		s.Handle404(w, r)
 		return
 	}
@@ -149,11 +145,9 @@ func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	log.Print(vars)
-
 	// Try to get cache page
 	asset := s.assets.Get(key)
-	if asset != nil {
+	if asset == nil {
 		s.Handle404(w, r)
 		return
 	}
@@ -188,44 +182,3 @@ func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.Write(*page.Content)
 }
-
-/*
-func (s *Site) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-
-	// We want the index file
-	if path == "/" {
-		path = "index"
-	}
-
-	// Help protect from reading files outside of the app
-	path = strings.TrimLeft(path, "/")
-
-	log.Print("Request: " + path)
-
-	page, err := s.cache.Get(path)
-	if err != nil { // Error getting the page
-		page, err = s.cache.Get("500")
-		if err != nil {
-			log.Panic("Unable to get 500 page")
-		}
-
-		rw.WriteHeader(http.StatusInternalServerError)
-	}
-
-	// If we couldn't find a page, then redirect to 404
-	if page == nil { // No page was found
-		page, err = s.cache.Get("404")
-		if err != nil {
-			log.Panic("Unable to get 404 page")
-		}
-
-		rw.WriteHeader(http.StatusNotFound)
-	} else {
-		rw.WriteHeader(http.StatusOK)
-	}
-
-	rw.Header().Set("Content-Type", "text/html")
-	rw.Write(*page.Content)
-}
-*/

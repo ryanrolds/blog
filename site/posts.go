@@ -45,6 +45,10 @@ func (p *PostManager) Load() error {
 
 func (p *PostManager) Get(key string) *Post {
 	item := p.cache.Get(key)
+	if item == nil {
+		return nil
+	}
+
 	return item.(*Post)
 }
 

@@ -39,6 +39,10 @@ func (p *AssetManager) Load() error {
 
 func (p *AssetManager) Get(key string) *Asset {
 	item := p.cache.Get(key)
+	if item == nil {
+		return nil
+	}
+
 	return item.(*Asset)
 }
 

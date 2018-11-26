@@ -14,7 +14,7 @@ func getKeys(dir string, suffix string) ([]string, error) {
 
 	var keys []string
 	for _, file := range files {
-		if !strings.HasSuffix(file.Name(), suffix) {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), suffix) {
 			key := strings.TrimSuffix(file.Name(), suffix)
 			keys = append(keys, key)
 		}
@@ -25,7 +25,7 @@ func getKeys(dir string, suffix string) ([]string, error) {
 
 func getAsset(filename string) (*[]byte, error) {
 	// Get file contents
-	contents, err := ioutil.ReadFile(ContentDir + filename)
+	contents, err := ioutil.ReadFile(AssetsDir + filename)
 	if err != nil {
 		return nil, err
 	}

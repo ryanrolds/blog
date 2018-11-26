@@ -2,6 +2,7 @@ package site
 
 import (
 	"bytes"
+	"log"
 	"text/template"
 
 	"gopkg.in/russross/blackfriday.v2"
@@ -40,11 +41,20 @@ func (p *PageManager) Load() error {
 		p.cache.Set(key, page)
 	}
 
+	keys = p.cache.GetKeys()
+	for _, key := range keys {
+		log.Print(key)
+	}
+
 	return nil
 }
 
 func (p *PageManager) Get(key string) *Page {
 	item := p.cache.Get(key)
+	if item == nil {
+		return nil
+	}
+
 	return item.(*Page)
 }
 
