@@ -2,9 +2,9 @@ package site
 
 import (
 	"bytes"
-	"log"
 	"text/template"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -43,7 +43,7 @@ func (p *PageManager) Load() error {
 
 	keys = p.cache.GetKeys()
 	for _, key := range keys {
-		log.Print(key)
+		log.Debug(key)
 	}
 
 	return nil

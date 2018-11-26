@@ -2,13 +2,13 @@ package site
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	//"strings"
 	"text/template"
 	"time"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 type pageManager interface {
@@ -95,6 +95,8 @@ func (s *Site) Run() error {
 		ReadTimeout:  15 * time.Second,
 	}
 
+	log.Info("Starting server")
+
 	// Run server and block
 	err = server.ListenAndServe()
 	if err != nil {
@@ -174,7 +176,7 @@ func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 
 	page := s.pages.Get("500")
 	if page == nil {
-		log.Print("Unable to get 500 page")
+		log.Warn("Unable to get 500 page")
 		w.Write([]byte("Internal Server Error"))
 		return
 	}

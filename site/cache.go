@@ -1,7 +1,7 @@
 package site
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 type ContentCache map[string]interface{}
@@ -28,11 +28,11 @@ func (c *Cache) GetKeys() []string {
 func (c *Cache) Get(key string) interface{} {
 	item, exists := c.cache[key]
 	if exists { // Found an item in the cache
-		log.Print("cache hit")
+		log.Debug("cache hit")
 		return item
 	}
 
-	log.Print("cache miss/stale")
+	log.Debug("cache miss/stale")
 
 	return item
 }
