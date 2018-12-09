@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func getKeys(dir string, suffix string) ([]string, error) {
@@ -35,7 +37,7 @@ func getAsset(filename string) (*[]byte, error) {
 
 func getCSS(key string) (*[]byte, error) {
 	// Get file contents
-	css, err := ioutil.ReadFile(ContentDir + key + ".css")
+	css, err := ioutil.ReadFile(key + ".css")
 	if err != nil {
 		if os.IsNotExist(err) {
 			return &[]byte{}, nil
@@ -49,7 +51,7 @@ func getCSS(key string) (*[]byte, error) {
 
 func getJavaScript(key string) (*[]byte, error) {
 	// Get file contents
-	javaScript, err := ioutil.ReadFile(ContentDir + key + ".js")
+	javaScript, err := ioutil.ReadFile(key + ".js")
 	if err != nil {
 		if os.IsNotExist(err) {
 			return &[]byte{}, nil
@@ -63,7 +65,8 @@ func getJavaScript(key string) (*[]byte, error) {
 
 func getMarkdown(key string) (*[]byte, error) {
 	// Get file contents
-	content, err := ioutil.ReadFile(ContentDir + key + ".md")
+	log.Info("Loading file ", key+".md")
+	content, err := ioutil.ReadFile(key + ".md")
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil

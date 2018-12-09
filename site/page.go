@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"text/template"
 
-	log "github.com/sirupsen/logrus"
+	//log "github.com/sirupsen/logrus"
 	"gopkg.in/russross/blackfriday.v2"
 )
+
+const numRecent = 6
 
 type Page struct {
 	Content *[]byte
@@ -16,13 +18,15 @@ type PageManager struct {
 	dir       string
 	templates *template.Template
 	cache     *Cache
+	posts     *PostManager
 }
 
-func NewPageManager(dir string, templates *template.Template) *PageManager {
+func NewPageManager(dir string, templates *template.Template, posts *PostManager) *PageManager {
 	return &PageManager{
 		dir:       dir,
 		templates: templates,
 		cache:     NewCache(),
+		posts:     posts,
 	}
 }
 
@@ -33,17 +37,12 @@ func (p *PageManager) Load() error {
 	}
 
 	for _, key := range keys {
-		page, err := p.buildPage(key)
+		page, err := p.buildPage(p.dir + key)
 		if err != nil {
 			return err
 		}
 
 		p.cache.Set(key, page)
-	}
-
-	keys = p.cache.GetKeys()
-	for _, key := range keys {
-		log.Debug(key)
 	}
 
 	return nil
@@ -62,6 +61,7 @@ type PageTemplate struct {
 	JavaScript string
 	CSS        string
 	Body       string
+	Posts      []*Post
 }
 
 func (p *PageManager) buildPage(key string) (*Page, error) {
@@ -94,6 +94,7 @@ func (p *PageManager) buildPage(key string) (*Page, error) {
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
 		Body:       string(body[:]),
+		Posts:      p.posts.GetRecent(numRecent),
 	})
 	if err != nil {
 		return nil, err

@@ -11,21 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type pageManager interface {
-	Get(string) *Page
-	Load() error
-}
-
-type postManager interface {
-	Get(string) *Post
-	Load() error
-}
-
-type assetManager interface {
-	Get(string) *Asset
-	Load() error
-}
-
 const (
 	ContentDir  = "./content/"
 	TemplateDir = ContentDir
@@ -40,9 +25,9 @@ type Site struct {
 
 	router *mux.Router
 
-	pages     pageManager
-	posts     postManager
-	assets    assetManager
+	pages     *PageManager
+	posts     *PostManager
+	assets    *AssetManager
 	templates *template.Template
 }
 
@@ -62,14 +47,14 @@ func (s *Site) Run() error {
 		return err
 	}
 
-	// Create caches for our various content types
-	s.pages = NewPageManager(PagesDir, s.templates)
-	if err := s.pages.Load(); err != nil {
+	s.posts = NewPostManager(PostsDir, s.templates)
+	if err := s.posts.Load(); err != nil {
 		return err
 	}
 
-	s.posts = NewPostManager(PostsDir, s.templates)
-	if err := s.posts.Load(); err != nil {
+	// Create caches for our various content types
+	s.pages = NewPageManager(PagesDir, s.templates, s.posts)
+	if err := s.pages.Load(); err != nil {
 		return err
 	}
 

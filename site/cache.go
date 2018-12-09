@@ -25,6 +25,15 @@ func (c *Cache) GetKeys() []string {
 	return keys
 }
 
+func (c *Cache) GetValues() []interface{} {
+	var values []interface{}
+	for _, value := range c.cache {
+		values = append(values, value)
+	}
+
+	return values
+}
+
 func (c *Cache) Get(key string) interface{} {
 	item, exists := c.cache[key]
 	if exists { // Found an item in the cache

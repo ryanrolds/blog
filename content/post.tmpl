@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{ template "header.tmpl" }}
+    {{.CSS}}
+    {{.JavaScript}}
+  </head>
+  <body>
+    <div class="container">
+      {{ template "nav.tmpl" }}
+      <div class="row">
+        {{.Body}}
+      </div>
+      <div class="row">
+        <p>&copy; Copyright 2018 Ryan R. Olds. All rights reserved</p>
+      </div>
+    </div>
+    {{ template "footer.tmpl"}}
+  </body>
+</html>
