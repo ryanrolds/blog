@@ -139,10 +139,9 @@ func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info(asset.Mime)
-
-	w.WriteHeader(http.StatusOK)
+	log.Info(key, asset.Mime)
 	w.Header().Set("Content-Type", asset.Mime)
+	w.WriteHeader(http.StatusOK)
 	w.Write(*asset.Content)
 }
 

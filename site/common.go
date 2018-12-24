@@ -1,10 +1,10 @@
 package site
 
 import (
-	"filepath"
 	"io/ioutil"
 	"mime"
 	"os"
+	"path/filepath"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -31,15 +31,11 @@ func getAsset(filename string) (*[]byte, string, error) {
 	// Get file contents
 	contents, err := ioutil.ReadFile(AssetsDir + filename)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	ext := filepath.Ext(filename)
 	mimeType := mime.TypeByExtension(ext)
-
-	log.Warn(filename, ext, mimeType)
-
-	log.Error("asdfasdf", mimeType)
 
 	return &contents, mimeType, nil
 }
