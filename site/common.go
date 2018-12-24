@@ -1,7 +1,9 @@
 package site
 
 import (
+	"filepath"
 	"io/ioutil"
+	"mime"
 	"os"
 	"strings"
 
@@ -25,14 +27,21 @@ func getKeys(dir string, suffix string) ([]string, error) {
 	return keys, nil
 }
 
-func getAsset(filename string) (*[]byte, error) {
+func getAsset(filename string) (*[]byte, string, error) {
 	// Get file contents
 	contents, err := ioutil.ReadFile(AssetsDir + filename)
 	if err != nil {
 		return nil, err
 	}
 
-	return &contents, nil
+	ext := filepath.Ext(filename)
+	mimeType := mime.TypeByExtension(ext)
+
+	log.Warn(filename, ext, mimeType)
+
+	log.Error("asdfasdf", mimeType)
+
+	return &contents, mimeType, nil
 }
 
 func getCSS(key string) (*[]byte, error) {

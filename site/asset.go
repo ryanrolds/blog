@@ -1,6 +1,8 @@
 package site
 
-import ()
+import (
+	log "github.com/sirupsen/logrus"
+)
 
 type Asset struct {
 	Mime    string
@@ -47,13 +49,15 @@ func (p *AssetManager) Get(key string) *Asset {
 }
 
 func (p *AssetManager) buildAsset(filename string) (*Asset, error) {
-	asset, err := getAsset(filename)
+	asset, mime, err := getAsset(filename)
 	if err != nil {
 		return nil, err
 	}
 
+	log.Info(filename, mime, err)
+
 	return &Asset{
-		Mime:    "TODO",
+		Mime:    mime,
 		Content: asset,
 	}, nil
 }

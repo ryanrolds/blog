@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="grid">
+      {{ template "header.tmpl" }}
+      {{ template "sidebar.tmpl" }}
+      <div class="content">
+				<h1>Body</h1>
+      </div>
+      <div class="footer">
+        {{ template "footer.tmpl" }}
+      </div>
+    </div>
+  </body>
+</html>
