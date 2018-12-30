@@ -50,7 +50,6 @@ func (p *PageManager) Load() error {
 	}
 
 	// Build index/home
-
 	posts := p.posts.GetRecent(numRecent)
 
 	// Run markdown through page template
@@ -61,7 +60,7 @@ func (p *PageManager) Load() error {
 		Content:    "",
 		Posts:      &posts,
 		Site:       p.site,
-		Generated:  time.Now().Format(time.RFC3339),
+		Generated:  time.Now(),
 	})
 	if err != nil {
 		return err
@@ -91,7 +90,7 @@ type PageTemplate struct {
 	Content    string
 	Posts      *[]*Post
 	Site       *Site
-	Generated  string
+	Generated  time.Time
 }
 
 func (p *PageManager) buildPage(key string) (*Page, error) {
@@ -127,7 +126,7 @@ func (p *PageManager) buildPage(key string) (*Page, error) {
 		Content:    string(body[:]),
 		Posts:      &posts,
 		Site:       p.site,
-		Generated:  time.Now().Format(time.RFC3339),
+		Generated:  time.Now(),
 	})
 	if err != nil {
 		return nil, err

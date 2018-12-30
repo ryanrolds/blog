@@ -158,11 +158,9 @@ func (s *Site) robotsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info(robotsFile, asset.Mime)
 	w.Header().Set("Content-Type", asset.Mime)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*asset.Content)
-
 }
 
 func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {

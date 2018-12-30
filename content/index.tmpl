@@ -1,13 +1,15 @@
 {{ template "preamble.tmpl" . }}      
 <div class="content post-list">
   {{ range .Posts}}
-    <div class="post-list-item">
-      <h1>{{ .Title }}</h1>
-      <p>{{ .Intro }}</p>
-      <span class="read-more">Read More</span>
-      <span class="created-at">{{ .CreatedAt }}</span> 
-      <div class="clear"></div>
-    </div>
+    <a href="/posts/{{ .Slug }}">
+      <div class="post-list-item">
+        <h1>{{ .Title }}</h1>
+        <p>{{ .Intro }}</p>
+        <span class="read-more">Read More</span>
+        <span class="created-at">{{ FormatDate .CreatedAt }}</span> 
+        <div class="clear"></div>
+      </div>
+    </a>
   {{ end }}
 </div>
 {{ template "epilogue.tmpl" . }}

@@ -13,6 +13,7 @@ import (
 )
 
 type Post struct {
+	Slug      string
 	Title     string
 	Intro     string
 	Image     string
@@ -91,7 +92,7 @@ type PostTemplate struct {
 	CSS        string
 	Content    string
 	Site       *Site
-	Generated  string
+	Generated  time.Time
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
@@ -138,7 +139,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		JavaScript: string((*javaScript)[:]),
 		Content:    string(body[:]),
 		Site:       p.site,
-		Generated:  time.Now().Format(time.RFC3339),
+		Generated:  time.Now(),
 	})
 	if err != nil {
 		return nil, err
@@ -147,6 +148,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	content := buf.Bytes()
 
 	return &Post{
+		Slug:      key,
 		Title:     title,
 		Image:     "",
 		Intro:     intro,
