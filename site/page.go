@@ -3,12 +3,14 @@ package site
 import (
 	"bytes"
 	"text/template"
+	"time"
 
 	//log "github.com/sirupsen/logrus"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
 const numRecent = 6
+const indexKey = "index"
 
 type Page struct {
 	Content *[]byte
@@ -47,6 +49,30 @@ func (p *PageManager) Load() error {
 		p.cache.Set(key, page)
 	}
 
+	// Build index/home
+
+	posts := p.posts.GetRecent(numRecent)
+
+	// Run markdown through page template
+	buf := &bytes.Buffer{}
+	err = p.templates.ExecuteTemplate(buf, "index.tmpl", &PageTemplate{
+		CSS:        "",
+		JavaScript: "",
+		Content:    "",
+		Posts:      &posts,
+		Site:       p.site,
+		Generated:  time.Now().Format(time.RFC3339),
+	})
+	if err != nil {
+		return err
+	}
+
+	body := buf.Bytes()
+
+	p.cache.Set(indexKey, &Page{
+		Content: &body,
+	})
+
 	return nil
 }
 
@@ -62,9 +88,10 @@ func (p *PageManager) Get(key string) *Page {
 type PageTemplate struct {
 	JavaScript string
 	CSS        string
-	Body       string
-	Posts      []*Post
+	Content    string
+	Posts      *[]*Post
 	Site       *Site
+	Generated  string
 }
 
 func (p *PageManager) buildPage(key string) (*Page, error) {
@@ -90,15 +117,17 @@ func (p *PageManager) buildPage(key string) (*Page, error) {
 
 	// Process MD
 	body := blackfriday.Run(*markdown)
+	posts := p.posts.GetRecent(numRecent)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "page.tmpl", &PageTemplate{
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
-		Body:       string(body[:]),
-		Posts:      p.posts.GetRecent(numRecent),
+		Content:    string(body[:]),
+		Posts:      &posts,
 		Site:       p.site,
+		Generated:  time.Now().Format(time.RFC3339),
 	})
 	if err != nil {
 		return nil, err

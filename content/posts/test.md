@@ -1,3 +1,3 @@
-# Test 1
+<div id="created-at">2018-10-10T01:01:01Z</div>
 
-<p>Posted: <span id="created_at">2018-10-11T01:01:01Z</span></p>
+# Test 1

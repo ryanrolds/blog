@@ -14,8 +14,11 @@ import (
 
 type Post struct {
 	Title     string
-	CreatedAt time.Time
+	Intro     string
+	Image     string
 	Content   *[]byte
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type PostManager struct {
@@ -58,7 +61,7 @@ func (p *PostManager) Load() error {
 	}
 
 	sort.Slice(posts, func(i, j int) bool {
-		return posts[i].CreatedAt.Before(posts[j].CreatedAt)
+		return posts[i].CreatedAt.After(posts[j].CreatedAt)
 	})
 
 	p.orderedList = posts
@@ -86,8 +89,9 @@ func (p *PostManager) GetRecent(num int) []*Post {
 type PostTemplate struct {
 	JavaScript string
 	CSS        string
-	Body       string
+	Content    string
 	Site       *Site
+	Generated  string
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
@@ -116,18 +120,25 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	// Process MD
 	body := blackfriday.Run(*markdown)
 
+	log.Infof("%s", body)
+
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
 
 	title := getTitle(doc)
 	createdAt := getCreatedAt(doc)
+	intro := getIntro(doc)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &PostTemplate{
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
-		Body:       string(body[:]),
+		Content:    string(body[:]),
 		Site:       p.site,
+		Generated:  time.Now().Format(time.RFC3339),
 	})
 	if err != nil {
 		return nil, err
@@ -137,6 +148,8 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 
 	return &Post{
 		Title:     title,
+		Image:     "",
+		Intro:     intro,
 		CreatedAt: createdAt,
 		Content:   &content,
 	}, nil
@@ -144,7 +157,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 
 func getCreatedAt(doc *html.Node) time.Time {
 	createdAt := time.Now()
-	createdAtElm := htmlquery.FindOne(doc, "//p/span[@id='created_at']")
+	createdAtElm := htmlquery.FindOne(doc, "//div[@id='created-at']")
 	if createdAtElm != nil {
 		createdAtValue := htmlquery.InnerText(createdAtElm)
 		createdAtParsed, err := time.Parse(time.RFC3339, createdAtValue)
@@ -162,7 +175,7 @@ func getCreatedAt(doc *html.Node) time.Time {
 
 func getTitle(doc *html.Node) string {
 	title := "Title"
-	titleElm := htmlquery.FindOne(doc, "//h1[0]")
+	titleElm := htmlquery.FindOne(doc, "//h1")
 	if titleElm != nil {
 		title = htmlquery.InnerText(titleElm)
 	} else {
@@ -170,4 +183,18 @@ func getTitle(doc *html.Node) string {
 	}
 
 	return title
+}
+
+func getIntro(doc *html.Node) string {
+	intro := "Intro"
+	introElm := htmlquery.FindOne(doc, "//p")
+	if introElm != nil {
+		intro = htmlquery.InnerText(introElm)
+	} else {
+		log.Warn("Intro not found for post")
+	}
+
+	log.Info(intro)
+
+	return intro
 }
