@@ -1,4 +1,4 @@
-.PHONY: install build all
+.PHONY: install build all push_prod push_test 
 
 install:
 	go get -u gopkg.in/russross/blackfriday.v2
@@ -8,6 +8,16 @@ install:
 
 build:
 	go build
+
+push_prod: 
+	docker build -t pedantic .
+	docker tag pedantic:latest 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:latest
+	docker push 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:latest
+
+push_test:
+	docker build -t pedantic:test .
+	docker tag pedantic:test 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:test
+	docker push 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:test
 
 all: install build
 
