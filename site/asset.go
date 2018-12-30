@@ -7,6 +7,7 @@ import (
 type Asset struct {
 	Mime    string
 	Content *[]byte
+	Etag    string
 }
 
 type AssetManager struct {
@@ -49,13 +50,14 @@ func (p *AssetManager) Get(key string) *Asset {
 }
 
 func (p *AssetManager) buildAsset(filename string) (*Asset, error) {
-	asset, mime, err := getAsset(filename)
+	buffer, mime, err := getAsset(filename)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Asset{
 		Mime:    mime,
-		Content: asset,
+		Content: buffer,
+		Etag:    getEtag(buffer),
 	}, nil
 }

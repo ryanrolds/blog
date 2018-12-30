@@ -1,6 +1,8 @@
 package site
 
 import (
+	"crypto/md5"
+	"fmt"
 	"io/ioutil"
 	"mime"
 	"os"
@@ -81,4 +83,11 @@ func getMarkdown(key string) (*[]byte, error) {
 	}
 
 	return &content, nil
+}
+
+func getEtag(buffer *[]byte) string {
+	hash := md5.Sum(*buffer)
+	size := len(*buffer)
+
+	return fmt.Sprintf("%x_%d", hash, size)
 }

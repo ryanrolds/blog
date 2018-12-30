@@ -14,6 +14,7 @@ const indexKey = "index"
 
 type Page struct {
 	Content *[]byte
+	Etag    string
 }
 
 type PageManager struct {
@@ -70,6 +71,7 @@ func (p *PageManager) Load() error {
 
 	p.cache.Set(indexKey, &Page{
 		Content: &body,
+		Etag:    getEtag(&body),
 	})
 
 	return nil

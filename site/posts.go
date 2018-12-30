@@ -20,6 +20,7 @@ type Post struct {
 	Content   *[]byte
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Etag      string
 }
 
 type PostManager struct {
@@ -154,6 +155,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		Intro:     intro,
 		CreatedAt: createdAt,
 		Content:   &content,
+		Etag:      getEtag(&content),
 	}, nil
 }
 

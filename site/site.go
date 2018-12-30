@@ -67,6 +67,7 @@ func (s *Site) Run() error {
 	router := mux.NewRouter()
 	router.HandleFunc("/posts/{key}", s.postHandler).Methods("GET")
 	router.HandleFunc("/static/{key}", s.staticHandler).Methods("GET")
+	router.HandleFunc("/favicon.ico", s.faviconHandler).Methods("GET")
 	router.HandleFunc("/robots.txt", s.robotsHandler).Methods("GET")
 	router.HandleFunc("/{key}", s.pageHandler).Methods("GET")
 	router.HandleFunc("/", s.pageHandler).Methods("GET")
@@ -108,7 +109,14 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Header.Get("If-None-Match") == page.Etag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
 	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Cache-Control", "public, must-revalidate")
+	w.Header().Set("Etag", page.Etag)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*page.Content)
 }
@@ -124,8 +132,15 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	if r.Header.Get("If-None-Match") == post.Etag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Cache-Control", "public, must-revalidate")
+	w.Header().Set("Etag", post.Etag)
 	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
 	w.Write(*post.Content)
 }
 
@@ -140,7 +155,27 @@ func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info(key, asset.Mime)
+	if r.Header.Get("If-None-Match") == asset.Etag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Cache-Control", "public, must-revalidate")
+	w.Header().Set("Etag", asset.Etag)
+	w.Header().Set("Content-Type", asset.Mime)
+	w.WriteHeader(http.StatusOK)
+	w.Write(*asset.Content)
+}
+
+func (s *Site) faviconHandler(w http.ResponseWriter, r *http.Request) {
+	asset := s.assets.Get("favicon.ico")
+	if asset == nil {
+		s.Handle404(w, r)
+		return
+	}
+
+	w.Header().Set("Cache-Control", "public, must-revalidate")
+	w.Header().Set("Etag", asset.Etag)
 	w.Header().Set("Content-Type", asset.Mime)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*asset.Content)
@@ -170,8 +205,8 @@ func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNotFound)
 	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusNotFound)
 	w.Write(*page.Content)
 }
 
@@ -186,5 +221,6 @@ func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(*page.Content)
 }
