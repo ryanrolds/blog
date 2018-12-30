@@ -13,11 +13,13 @@ push_prod:
 	docker build -t pedantic .
 	docker tag pedantic:latest 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:latest
 	docker push 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:latest
+	aws ecs update-service --cluster pedantic --service pedantic-prod --force-new-deployment
 
 push_test:
 	docker build -t pedantic:test .
 	docker tag pedantic:test 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:test
 	docker push 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:test
+	aws ecs update-service --cluster pedantic --service pedantic-test --force-new-deployment
 
 all: install build
 
