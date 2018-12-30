@@ -21,7 +21,7 @@ const (
 
 type Site struct {
 	port string
-	env  string
+	Env  string
 
 	router *mux.Router
 
@@ -34,7 +34,7 @@ type Site struct {
 func NewSite(port string, env string) *Site {
 	return &Site{
 		port: port,
-		env:  env,
+		Env:  env,
 	}
 }
 
@@ -47,13 +47,13 @@ func (s *Site) Run() error {
 		return err
 	}
 
-	s.posts = NewPostManager(PostsDir, s.templates)
+	s.posts = NewPostManager(s, PostsDir, s.templates)
 	if err := s.posts.Load(); err != nil {
 		return err
 	}
 
 	// Create caches for our various content types
-	s.pages = NewPageManager(PagesDir, s.templates, s.posts)
+	s.pages = NewPageManager(s, PagesDir, s.templates, s.posts)
 	if err := s.pages.Load(); err != nil {
 		return err
 	}
@@ -67,6 +67,7 @@ func (s *Site) Run() error {
 	router := mux.NewRouter()
 	router.HandleFunc("/posts/{key}", s.postHandler).Methods("GET")
 	router.HandleFunc("/static/{key}", s.staticHandler).Methods("GET")
+	router.HandleFunc("/robots.txt", s.robotsHandler).Methods("GET")
 	router.HandleFunc("/{key}", s.pageHandler).Methods("GET")
 	router.HandleFunc("/", s.pageHandler).Methods("GET")
 	router.HandleFunc("", s.pageHandler).Methods("GET")
@@ -107,8 +108,8 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
 	w.Write(*page.Content)
 }
 
@@ -145,8 +146,27 @@ func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(*asset.Content)
 }
 
+func (s *Site) robotsHandler(w http.ResponseWriter, r *http.Request) {
+	robotsFile := "allow.txt"
+	if s.Env != "production" {
+		robotsFile = "disallow.txt"
+	}
+
+	asset := s.assets.Get(robotsFile)
+	if asset == nil {
+		s.Handle404(w, r)
+		return
+	}
+
+	log.Info(robotsFile, asset.Mime)
+	w.Header().Set("Content-Type", asset.Mime)
+	w.WriteHeader(http.StatusOK)
+	w.Write(*asset.Content)
+
+}
+
 func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
-	page := s.pages.Get("400")
+	page := s.pages.Get("404")
 	if page == nil {
 		s.Handle500(w, r)
 		return

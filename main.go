@@ -17,7 +17,7 @@ func main() {
 
 	env := os.Getenv("ENV")
 	if env == "" {
-		env = "production"
+		env = "test"
 	}
 
 	site := site.NewSite(port, env)

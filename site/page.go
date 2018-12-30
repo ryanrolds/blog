@@ -19,14 +19,16 @@ type PageManager struct {
 	templates *template.Template
 	cache     *Cache
 	posts     *PostManager
+	site      *Site
 }
 
-func NewPageManager(dir string, templates *template.Template, posts *PostManager) *PageManager {
+func NewPageManager(site *Site, dir string, templates *template.Template, posts *PostManager) *PageManager {
 	return &PageManager{
 		dir:       dir,
 		templates: templates,
 		cache:     NewCache(),
 		posts:     posts,
+		site:      site,
 	}
 }
 
@@ -62,6 +64,7 @@ type PageTemplate struct {
 	CSS        string
 	Body       string
 	Posts      []*Post
+	Site       *Site
 }
 
 func (p *PageManager) buildPage(key string) (*Page, error) {
@@ -95,6 +98,7 @@ func (p *PageManager) buildPage(key string) (*Page, error) {
 		JavaScript: string((*javaScript)[:]),
 		Body:       string(body[:]),
 		Posts:      p.posts.GetRecent(numRecent),
+		Site:       p.site,
 	})
 	if err != nil {
 		return nil, err

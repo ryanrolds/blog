@@ -23,13 +23,15 @@ type PostManager struct {
 	templates   *template.Template
 	cache       *Cache
 	orderedList []*Post
+	site        *Site
 }
 
-func NewPostManager(dir string, templates *template.Template) *PostManager {
+func NewPostManager(site *Site, dir string, templates *template.Template) *PostManager {
 	return &PostManager{
 		dir:       dir,
 		templates: templates,
 		cache:     NewCache(),
+		site:      site,
 	}
 }
 
@@ -85,6 +87,7 @@ type PostTemplate struct {
 	JavaScript string
 	CSS        string
 	Body       string
+	Site       *Site
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
@@ -124,6 +127,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
 		Body:       string(body[:]),
+		Site:       p.site,
 	})
 	if err != nil {
 		return nil, err
