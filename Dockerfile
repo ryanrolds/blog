@@ -4,4 +4,11 @@ COPY . /go/src/github.com/ryanrolds/pedantic_orderliness
 WORKDIR /go/src/github.com/ryanrolds/pedantic_orderliness
 RUN make install
 RUN make build
-CMD ./pedantic_orderliness
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /app/
+COPY --from=0 /go/src/github.com/ryanrolds/pedantic_orderliness/pedantic_orderliness .
+COPY --from=0 /go/src/github.com/ryanrolds/pedantic_orderliness/content content
+
+CMD ["./pedantic_orderliness"]
