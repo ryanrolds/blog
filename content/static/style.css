@@ -145,7 +145,7 @@ p.small {
   .grid {
     grid-template-columns: 1fr 22rem;
     grid-template-rows: 7rem 1fr auto;
-    grid-gap: 3rem;
+    grid-gap: 2rem;
     grid-auto-rows: minmax(100%, auto);
   }
 
