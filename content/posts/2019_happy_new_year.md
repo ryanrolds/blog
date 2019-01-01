@@ -10,7 +10,7 @@ I'm a Lead Software Engineer at a design software company. I mostly work in Go, 
 I spread my professional development time across a few personal projects:
 
   * <a href="https://github.com/ryanrolds/picar">Picar</a> - A cat chasing robot made with a Raspberry Pi, Tensorflow, and small robotic car platform. 
-  * Pedantic Orderliness - This blog. It's made with Go, Markdown, and AWS ECS.
+  * <a href="https://github.com/ryanrolds/pedantic_orderliness">Pedantic Orderliness</a> - This blog. It's made with Go, Markdown, and AWS ECS.
   * <a href="https://github.com/ryanrolds/polyglot_book">Project Polyglot</a> - A set of articles covering concepts critical to working on software, regardless of language and application type.
 
 The remainder of my time goes to my amazing wife, Kali, and two cats, Ockham and Moxi. Kali and I spend our time hiking, backpacking, going to the coast, eating at nice restaurants, and traveling around the Pacific Northwest. I'm also slowly learning to play the saxophone.
