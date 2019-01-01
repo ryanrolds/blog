@@ -6,6 +6,7 @@ Markdown and Go Template driven blog.
 
 ```
 make install
+make build
 ```
 
 ## Running
