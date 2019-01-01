@@ -114,7 +114,7 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "public, must-revalidate")
 	w.Header().Set("Etag", page.Etag)
 	w.WriteHeader(http.StatusOK)
@@ -139,7 +139,7 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "public, must-revalidate")
 	w.Header().Set("Etag", post.Etag)
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(*post.Content)
 }
@@ -205,7 +205,7 @@ func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write(*page.Content)
 }
@@ -220,7 +220,7 @@ func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(*page.Content)
 }

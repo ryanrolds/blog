@@ -63,6 +63,17 @@ p.small {
   grid-area: 2 / 1 / 3 / 2;
   padding: 0 1rem;
 }
+.content img {
+  width: 100%;
+  box-sizing: border-box;
+  border: .25rem solid black;
+}
+.content a {
+  color: black;
+}
+.content #created-at {
+  margin-top: .25rem;
+}
 
 .post-list {
 }
@@ -78,16 +89,22 @@ p.small {
 }
 .post-list-item .read-more {
   font-weight: bold;
-  margin-top: 1rem;
+  margin-top: .5rem;
   float: right;
 }
 .post-list-item .created-at {
   color: #3A4145;
-  margin-top: 1rem;
+  margin-top: .5rem;
   float: left;
 }
 .post-list-item p {
-  margin: 0;
+  margin: .5rem 0 0 0;
+}
+.post-list-item img {
+  float: right;
+}
+.post-list-item img.left {
+  float: left;
 }
 .clear {
   clear: both;
@@ -127,6 +144,9 @@ p.small {
 .recent-reads img {
   width: 100%;
   border: .25rem solid black;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
 }
 
 .footer {

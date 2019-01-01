@@ -6,9 +6,10 @@ import (
 	"text/template"
 	"time"
 
+	"golang.org/x/net/html"
+
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/net/html"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -102,8 +103,6 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		return nil, err
 	}
 
-	log.Debug(markdown)
-
 	// Page does not exist
 	if markdown == nil {
 		return nil, nil
@@ -122,16 +121,17 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	// Process MD
 	body := blackfriday.Run(*markdown)
 
-	log.Infof("%s", body)
-
+	// Parse in to something we can query with xpath
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
 
+	// Get details from parsed html
 	title := getTitle(doc)
 	createdAt := getCreatedAt(doc)
 	intro := getIntro(doc)
+	image := getImage(doc)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
@@ -151,7 +151,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	return &Post{
 		Slug:      key,
 		Title:     title,
-		Image:     "",
+		Image:     image,
 		Intro:     intro,
 		CreatedAt: createdAt,
 		Content:   &content,
@@ -186,19 +186,30 @@ func getTitle(doc *html.Node) string {
 		log.Warn("Title not found for post")
 	}
 
-	return title
+	return html.EscapeString(title)
 }
 
 func getIntro(doc *html.Node) string {
 	intro := "Intro"
 	introElm := htmlquery.FindOne(doc, "//p")
 	if introElm != nil {
+		log.Info(introElm)
 		intro = htmlquery.InnerText(introElm)
 	} else {
 		log.Warn("Intro not found for post")
 	}
 
-	log.Info(intro)
-
 	return intro
+}
+
+func getImage(doc *html.Node) string {
+	image := ""
+	imageElm := htmlquery.FindOne(doc, "//img")
+	if imageElm != nil {
+		image = htmlquery.SelectAttr(imageElm, "src")
+	} else {
+		log.Warn("Image not found for post")
+	}
+
+	return image
 }
