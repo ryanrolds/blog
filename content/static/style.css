@@ -7,11 +7,11 @@ h1, h2, h3, h4 {
   margin: 0;
 }
 h1 {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bolder;
 }
 h2 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 h3 {
@@ -31,16 +31,16 @@ p.small {
 }
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 5rem auto auto auto;
+  grid-template-columns: 100%;
+  grid-template-rows: 3rem auto auto auto;
   grid-gap: 1rem;
   grid-auto-rows: minmax(100%, auto);
 }
 
 .header {
   grid-area: 1 / 1 / 1 / 2;
-  font-size: 2.5rem;
-  line-height: 5rem;
+  font-size: 2rem;
+  line-height: 3rem;
   font-family: 'Roboto', sans-serif;
 
   background-color: black;
@@ -61,7 +61,7 @@ p.small {
 
 .content {
   grid-area: 2 / 1 / 3 / 2;
-  padding: 0 2rem;
+  padding: 0 1rem;
 }
 
 .post-list {
@@ -95,7 +95,7 @@ p.small {
 
 .sidebar {
   grid-area: 3 / 1 / 4 / 2;
-  padding: 0 2rem;
+  padding: 0 1rem;
   text-align: justify; 
 }
 .photo {
@@ -103,7 +103,6 @@ p.small {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   max-width: 100%;
-  min-width: 100%;
   border: .25rem solid black;
 }
 
@@ -144,6 +143,15 @@ p.small {
 }
 
 @media screen and (min-width: 54em) {
+  h1 {
+    font-size: 3rem;
+    font-weight: bolder;
+  }
+  h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
   .grid {
     grid-template-columns: 1fr 18rem;
     grid-template-rows: 5rem 1fr auto;
@@ -158,7 +166,7 @@ p.small {
 
   .sidebar {
     grid-area: 1 / 2 / 3 / 3;
-    padding-right: 30px;
+    padding-right: 2rem;
     padding-top: 30px;
     padding-left: 0;
   }
