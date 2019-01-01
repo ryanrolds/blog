@@ -74,7 +74,7 @@ p.small {
   text-decoration: underline; 
 }
 .post-list-item {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 .post-list-item .read-more {
   font-weight: bold;
@@ -162,6 +162,7 @@ p.small {
   .header {
     grid-area: 1 / 1 / 1 / 3;
     font-size: 3rem;
+    line-height: 5rem;
   }
 
   .sidebar {
@@ -173,7 +174,8 @@ p.small {
 
   .content {
     grid-area: 2 / 1 / 3 / 2;
-    padding-right: 0em;
+    padding-left: 2rem;
+    padding-right: 0;right: 0;
   }
 
   .footer {
