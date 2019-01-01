@@ -1,17 +1,17 @@
 body {
   margin: 0 0 2rem 0;
-  font-family: 'Roboto', sans-serif;
-
+  font-family: 'Open Sans', sans-serif;
 }
-h1, h2, h3 {
+h1, h2, h3, h4 {
+  font-family: 'Roboto', sans-serif;
   margin: 0;
 }
 h1 {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: bolder;
 }
 h2 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
 }
 h3 {
@@ -41,6 +41,7 @@ p.small {
   grid-area: 1 / 1 / 1 / 2;
   font-size: 2.5rem;
   line-height: 5rem;
+  font-family: 'Roboto', sans-serif;
 
   background-color: black;
   height: 100%;
@@ -74,9 +75,6 @@ p.small {
 }
 .post-list-item {
   margin-bottom: 2.5rem;
-}
-.post-list-item h1 {
-  font-size: 3.5rem;
 }
 .post-list-item .read-more {
   font-weight: bold;
