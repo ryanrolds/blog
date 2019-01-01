@@ -5,6 +5,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	//log "github.com/sirupsen/logrus"
 	"gopkg.in/russross/blackfriday.v2"
 )
@@ -56,6 +57,7 @@ func (p *PageManager) Load() error {
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "index.tmpl", &PageTemplate{
+		Title:      "Home",
 		CSS:        "",
 		JavaScript: "",
 		Content:    "",
@@ -87,6 +89,7 @@ func (p *PageManager) Get(key string) *Page {
 }
 
 type PageTemplate struct {
+	Title      string
 	JavaScript string
 	CSS        string
 	Content    string
@@ -118,11 +121,21 @@ func (p *PageManager) buildPage(key string) (*Page, error) {
 
 	// Process MD
 	body := blackfriday.Run(*markdown)
+
+	// Parse in to something we can query with xpath
+	doc, err := htmlquery.Parse(bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+
+	// Get details from parsed html
 	posts := p.posts.GetRecent(numRecent)
+	title := getTitle(doc)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "page.tmpl", &PageTemplate{
+		Title:      title,
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
 		Content:    string(body[:]),
