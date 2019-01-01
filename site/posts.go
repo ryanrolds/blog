@@ -193,7 +193,6 @@ func getIntro(doc *html.Node) string {
 	intro := "Intro"
 	introElm := htmlquery.FindOne(doc, "//p")
 	if introElm != nil {
-		log.Info(introElm)
 		intro = htmlquery.InnerText(introElm)
 	} else {
 		log.Warn("Intro not found for post")

@@ -29,6 +29,10 @@ p {
 p.small {
   font-size: .8rem;
 }
+p.subtext {
+  margin-top: 0.25rem;
+  font-size: .8rem;
+}
 .grid {
   display: grid;
   grid-template-columns: 100%;
