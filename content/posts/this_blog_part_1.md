@@ -60,11 +60,11 @@ github.com/ryanrolds/pedantic_orderliness
 
 ## Content directory
 
-The `content` directory holds templates, some basic pages (Home, 404, 500), the `posts` directory contains the Markdown files that will be made into posts, and finally, the `static` directory contains all CSS, JS, images, the robots.txt files. During service startup, all of these files are read in a Map (associative array, dictionary). Some of the files, template and Markdown, are parsed and rendered. The rendered pages and posts are also stored in a Map.
+The `content` directory holds templates, some basic pages (Home, 404, 500), the `posts` directory contains the Markdown files that will be made into posts, and finally, the `static` directory contains all CSS, JS, images, and the robots.txt files. During service startup, all of these files are read in a Map (associative array, dictionary). Some of the files, template and Markdown, are parsed and rendered. The rendered pages and posts are also stored in a Map.
 
 ## Site directory
 
-The `site` package is the primary package in the project. It initiates the loading of the files in `content` directory in to their maps, sets up the HTTP endpoints and their handlers, and binds the HTTP server to port 8080 (or whatever port is provided by the `PORT` environment variable).
+The `site` package is the primary package in the project. It initiates the loading of the `content` directory's files in to their maps, sets up the HTTP endpoints and their handlers, and binds the HTTP server to port 8080 (or whatever port is provided by the `PORT` environment variable).
 
 In the sample below we create the endpoints that will be responding to HTTP requests. 
 
@@ -162,4 +162,6 @@ I also have a "test" ECS Service setup running on the same EC2 instances. As par
 
 ## Wrap-up
 
-I hope you find this post and the code samples useful. The primary take away is that it's possible to create fast responsive websites from pretty much scratch and host them in a highly available environment for not much time or money. It's my opinion that when it comes to website content, not much beats Markdown. It's concise, flexible, and doesn't have all the cruft that comes with more complicated formats.
+I hope you find this post and the code samples useful. The primary take away is that it's possible to create fast responsive websites from pretty much scratch and host them in a highly available environment for not much time or money. It's my opinion that when it comes to website content, not much beats Markdown. It's concise, flexible, and doesn't have all the cruft that comes with more complicated formats. 
+
+One final point, some of the patterns used in this project are also used in Node.js and Go web applications. The big diferences being the web applications have databases, dynamically render HTML documents, serve HTML that boostrap Single Page Applications, and expose a REST API.
