@@ -56,8 +56,6 @@ blockquote p code {
   background-color: #cccccc;
 }
 
-
-
 .grid {
   display: grid;
   grid-template-columns: 100%;
@@ -198,7 +196,6 @@ blockquote p code {
     font-weight: bolder;
   }
   h2 {
-    font-size: 2.5rem;
     font-weight: bold;
   }
 
