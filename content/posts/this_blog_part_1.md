@@ -48,7 +48,6 @@ github.com/ryanrolds/pedantic_orderliness
 │   ├ page.go
 │   ├ posts.go
 │   ├ site.go
-│   ├ static.go
 │   └ templates.go
 ├ Dockerfile
 ├ Makefile
