@@ -3,7 +3,7 @@
 
 This post goes over the architecture of the code used to serve this blog. The goal is to show just how much can be done with a little Go code, Markdown, and AWS. The post will show a basic HTTP service using Go's [`net/http`](https://golang.org/pkg/net/http/) package. How to use [Mux](https://github.com/gorilla/mux) to create endpoints for serving the home page, posts, and assets. Lastly, we will talk about using [Docker images](https://docs.docker.com/engine/reference/commandline/images/) and [AWS ECS](https://aws.amazon.com/ecs/) to make deployments a breeze.
 
-> You don't need to know [Go](https://golang.org/) to understand this post. However, if you want change that the best place to start is the [Go Tour](https://tour.golang.org). Once you're done with the tour, that look at this project's `main.go` file and follow the code.
+> You don't need to know [Go](https://golang.org/) to understand this post. If you want to learn Go the best place to start is the [Go Tour](https://tour.golang.org). Once you're done with the tour, look at this project's `main.go` file and follow the code.
 
 ## Project structure
 
@@ -62,13 +62,13 @@ github.com/ryanrolds/pedantic_orderliness
 
 ## Content directory
 
-The `content` directory holds templates, some basic pages (Home, 404, 500), the `posts` directory (contains the Markdown files that will be made into posts), and finally, the `static` directory (contains all CSS, JS, images, and the robots.txt files). During service startup, all of these files are read into a Map (associative array, dictionary). Some of the files, templates (`.tmpl`) and Markdown (`.md`), are parsed and rendered. The rendered pages and posts are also stored in their maps/caches..
+The `content` directory holds templates, some basic pages (Home, 404, 500), the `posts` directory (contains the Markdown files that will be made into posts), and finally, the `static` directory (contains all CSS, JS, images, and the robots.txt files). During service startup, all of these files are read into a Map (associative array, dictionary). Some of the files, templates (`.tmpl`) and Markdown (`.md`), are parsed and rendered. The rendered pages and posts are also stored in their maps/caches.
 
 ## Site directory
 
 The `site` package is the primary package in the project. It initiates the loading of the `content` directory's files into their respective maps, sets up the HTTP endpoints and their handlers, and binds the HTTP server to port 8080 (or whatever port is provided by the `PORT` environment variable).
 
-In the sample below the the site logic (`site/site.go`) creates the endpoints that will be responding to HTTP requests. 
+In the example below, the site logic (`site/site.go`) creates the endpoints that will be responding to HTTP requests. 
 
 ``` go
 // Prepare routing
@@ -100,7 +100,7 @@ if err != nil {
 ```
 For example, the path of the page you're reading right now is `/posts/this_blog_part_1`.  Mux takes the path and tries to match against the defined endpoints. In this case it matches `/posts/{key}` with key being `this_blog_part_1` (above, line 3). I chose to use Mux because it has the same middleware and routing paradigm as Express.js.
 
-Now that we know `s.postHandler` will be handling the request, lets look at it next.
+Now that we know `s.postHandler` will be handling the request, let's look at it next.
 
 ``` go
 func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
@@ -132,13 +132,13 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 
 All of the handlers (`postHandler`, `staticHandler`, ...) are pretty much the same. They get the `key` from the URL's path and use the key to look up the page/post/asset in the matching cache/map. The handler compares the looked up item's Etag (MD5 hash + file length) with the value of the `If-None-Match` header in the HTTP request to determine if browser needs to receive an updated version of the content/asset. Next, the handler sets some HTTP caching headers. 
 
-The current version of the site uses the `must-revalidate` cache control directive, which isn't great. Each asset referenced by the HTML document still requires an HTTP request to confirm that a newer version isn't available. In the future I will be switch `must-revalidate` out for `max-age=<seconds in one month>` and adding the MD5 hash to the query string of each asset referenced in the HTML document. This will probably be a future blog post as it's a pretty popular technique. MDN has a great page on [HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching).
+The current version of the site uses the `must-revalidate` cache control directive, which isn't great. Each asset referenced by the HTML document still requires an HTTP request to confirm that a newer version isn't available. In the future, I will be switch `must-revalidate` out for `max-age=<seconds in one month>` and adding the MD5 hash to the query string of each asset referenced in the HTML document. This will probably be a future blog post as it's a pretty popular technique. MDN has a great page on [HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching).
 
 Once the headers have been written out, the actual HTTP body (CSS, images, HTML, ...) is written to the browser and the request is complete. That's pretty much it for the high-level stuff. There is a good chance that as I refine the code I will write additional posts about the internals.
 
 ## Running and Docker
 
-Running the program is pretty straightforward. Checkout the repo with git and place it in your `$GOPATH`. Go to that directory and run `make install && make build && ./pedantic_orderliness` and then visit `http://localhost:8080` in your browser.
+Running the program is pretty straightforward. Check out the repo with Git and place it in your `$GOPATH`. Go to that directory and run `make install && make build && ./pedantic_orderliness` and then visit `http://localhost:8080` in your browser.
 
 A `Dockerfile` and `docker-compose.yaml` files have also been created. If you have Docker installed and setup you can run the blog by simply running `docker-compose up`. The Dockerfile uses a multi-stage build and alpine images to keep the image size small, about 20MB. 
 
@@ -171,4 +171,4 @@ I also have a "test" ECS Service setup running on the same EC2 instances. As par
 
 I hope you find this post and the code samples useful. The primary take away is that it's possible to create fast responsive websites from pretty much scratch and host them in a highly available environment for not much time or money. It's my opinion that when it comes to website content, not much beats Markdown. It's concise, flexible, and doesn't have all the cruft that comes with more complicated formats. 
 
-One final point, some of the patterns used in this project are also used in Node.js and Go web applications. The big diferences being the web applications have databases, dynamically render HTML documents, serve HTML that boostrap Single Page Applications, and expose a REST API.
+One final point, some of the patterns used in this project are also used in Node.js and Go web applications. The big difference being that web applications have database, dynamically render HTML documents, serve HTML that bootstrap Single Page Applications, and expose REST APIs.
