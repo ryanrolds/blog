@@ -45,7 +45,7 @@ code {
 }
 blockquote {
   background-color: #555555;
-  margin: 0;
+  margin: 2rem 0; 
   padding-left: 4rem;
 }
 blockquote p {
