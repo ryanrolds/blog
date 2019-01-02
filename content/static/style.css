@@ -33,6 +33,31 @@ p.subtext {
   margin-top: 0.25rem;
   font-size: .8rem;
 }
+pre.chroma {
+  white-space: pre-wrap;
+  padding: .5rem;
+  overflow-x: scroll;
+  background-color: #dddddd;
+}
+code {
+  padding: .25rem;
+  background-color: #dddddd;
+}
+blockquote {
+  background-color: #555555;
+  margin: 0;
+  padding-left: 4rem;
+}
+blockquote p {
+  background-color: #efefef;
+  padding: 1rem;
+}
+blockquote p code {
+  background-color: #cccccc;
+}
+
+
+
 .grid {
   display: grid;
   grid-template-columns: 100%;
@@ -138,6 +163,7 @@ p.subtext {
   text-decoration: underline;
 }
 .recent-reads h3 {
+  font-size: 1.5rem;
   margin-top: .5rem;
   margin-bottom: .5rem;
 }

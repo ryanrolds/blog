@@ -6,8 +6,11 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/Depado/bfchroma"
+	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/antchfx/htmlquery"
-	"gopkg.in/russross/blackfriday.v2"
+	log "github.com/sirupsen/logrus"
+	bf "gopkg.in/russross/blackfriday.v2"
 )
 
 type Post struct {
@@ -106,20 +109,39 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		return nil, nil
 	}
 
-	css, err := getCSS(key)
-	if err != nil {
-		return nil, err
-	}
+	// Defines the extensions that are used
+	var exts = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
+		bf.Strikethrough | bf.SpaceHeadings | bf.BackslashLineBreak |
+		bf.DefinitionLists | bf.Footnotes
 
-	javaScript, err := getJavaScript(key)
-	if err != nil {
-		return nil, err
+	// Defines the HTML rendering flags that are used
+	var flags = bf.UseXHTML | bf.Smartypants | bf.SmartypantsFractions |
+		bf.SmartypantsDashes | bf.SmartypantsLatexDashes
+
+	// Setting chroma renderer
+	renderer := bfchroma.NewRenderer(
+		bfchroma.Style("emacs"),
+		bfchroma.WithoutAutodetect(),
+		bfchroma.ChromaOptions(
+			html.WithLineNumbers(),
+			html.WithClasses(),
+		),
+		bfchroma.Extend(
+			bf.NewHTMLRenderer(bf.HTMLRendererParameters{
+				Flags: flags,
+			}),
+		),
+	)
+
+	css := new(bytes.Buffer)
+	if err = renderer.Formatter.WriteCSS(css, renderer.Style); err != nil {
+		log.WithError(err).Warning("Couldn't write CSS")
 	}
 
 	// Process MD
-	body := blackfriday.Run(*markdown)
+	body := bf.Run(*markdown, bf.WithRenderer(renderer), bf.WithExtensions(exts))
 
-	// Parse in to something we can query with xpath
+	// Parse into something we can query with xpath
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
 		return nil, err
@@ -135,8 +157,8 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &PostTemplate{
 		Title:      title,
-		CSS:        string((*css)[:]),
-		JavaScript: string((*javaScript)[:]),
+		CSS:        css.String(),
+		JavaScript: "",
 		Content:    string(body[:]),
 		Site:       p.site,
 		Generated:  time.Now(),

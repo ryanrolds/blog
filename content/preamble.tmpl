@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:black" rel="stylesheet">
     <link href="/static/style.css" rel="stylesheet">
-    {{ if ne .Site.Env "production" }}
-    <meta name="robots" content="noindex, nofollow" />
-    {{ else }}
-    <meta name="robots" content="index, follow" />
-    {{ end }}
+    {{ if .CSS }}<style type="text/css">{{.CSS}}</style>{{ end }}
+    <meta name="robots"content="{{ if ne .Site.Env "production" }}noindex, nofollow{{ else }}index, follow{{ end }}" />
     <title>{{ .Title }} :: Pedantic Orderliness</title>
   </head>
   <body>

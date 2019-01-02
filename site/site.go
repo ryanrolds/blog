@@ -125,7 +125,7 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	// Try to get cache page
+	// Try to get cache entry for post
 	post := s.posts.Get(key)
 	if post == nil {
 		s.Handle404(w, r)
@@ -148,7 +148,7 @@ func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	// Try to get cache page
+	// Try to get cached entry for asset
 	asset := s.assets.Get(key)
 	if asset == nil {
 		s.Handle404(w, r)

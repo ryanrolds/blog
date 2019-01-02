@@ -5,6 +5,9 @@ install:
 	go get -u github.com/gorilla/mux
 	go get -u github.com/sirupsen/logrus
 	go get -u github.com/antchfx/htmlquery
+	go get -u github.com/Depado/bfchroma
+	go get -u github.com/alecthomas/chroma
+	go get -u github.com/alecthomas/chroma/formatters/html
 
 build:
 	go build
