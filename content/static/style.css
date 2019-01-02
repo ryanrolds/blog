@@ -55,6 +55,9 @@ blockquote p {
 blockquote p code {
   background-color: #cccccc;
 }
+#disqus_thread {
+  margin-top: 2rem;
+}
 
 .grid {
   display: grid;

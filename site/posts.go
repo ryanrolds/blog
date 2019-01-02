@@ -90,6 +90,7 @@ func (p *PostManager) GetRecent(num int) []*Post {
 }
 
 type PostTemplate struct {
+	Slug       string
 	Title      string
 	JavaScript string
 	CSS        string
@@ -156,6 +157,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &PostTemplate{
+		Slug:       key,
 		Title:      title,
 		CSS:        css.String(),
 		JavaScript: "",
