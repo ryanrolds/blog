@@ -1,4 +1,16 @@
       {{ template "footer.tmpl" . }}
     </div>
+    {{ if eq .Site.Env "production" }}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-22720506-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-22720506-2');
+    </script>
+    {{ else }}
+    <!-- GA would go here, but this is not production -->
+    {{ end }}
   </body>
 </html>
