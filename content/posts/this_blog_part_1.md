@@ -118,7 +118,7 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  # Set http headers
+  // Set http headers
   w.Header().Set("Cache-Control", "public, must-revalidate")
   w.Header().Set("Etag", post.Etag)
   w.Header().Set("Content-Type", "text/html; charset=utf-8")
