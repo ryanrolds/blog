@@ -45,7 +45,7 @@ Why am I writing about this? It's to point out the Request and Response Headers.
 
 The request headers include `Cache-Control: max-age=0` and `Pragma: no-cache` (legacy). The directive  `max-age=0` tells the server (and any intermediate caches, like a CND or CloudFlare) to not use a cached copy and to check the origin (the blog server). `Pragma` is a legacy HTTP/1.0 header and is replaced by HTTP/1.1's `Cache-Control`, it's still useful to set as not everyone keeps their services up-to-date (but seriously we've had HTTP/1.1 for nearly two decades, WTF?).
 
-The response headers contain `Cache-Control: public, must-revalidate`, `Date: Thu, 03 Jan 2019 18:05:13 GMT`, and `ETag: e66d665cd7a6d67ca6112b21c6351c1c`. These headers give the browser (and intermediate caches) the rules around caching this URI. An HTTP response's `Cache-Control` header has a few directives. The most common are `public` (should cache), `private` (should not cache), `max-age=<seconds>`, and `must-revalidate`. There are quite a view other directives, check out MDN's [documentation for `Cache-Control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control). 
+The response headers contain `Cache-Control: public, must-revalidate`, `Date: Thu, 03 Jan 2019 18:05:13 GMT`, and `ETag: e66d665cd7a6d67ca6112b21c6351c1c`. These headers give the browser (and intermediate caches) the rules around caching this URI. An HTTP response's `Cache-Control` header has a few directives. The most common are `public` (should cache), `private` (should not cache), `max-age=<seconds>`, and `must-revalidate`. There are quite a view other directives, check out MDN's [documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) for Cache-Control`. 
 
 Keep in mind that `max-age=<seconds>` can have a different meaning depending on the context. If it's in the Request Headers it limits how old of a cache entry intermediate caches are allowed respond with. If the intermediate cache's entry is recent enough then the request never makes it to the origin server. If it's too old then the intermediate cache checks with the origin, possibly pulling a fresher response. If the directive in the Response Headers, it defines a period in which the asset an can simply be served from the browser's cache, no request needed. Once this period passes then it must be refreshed/revalidated.
 
@@ -90,8 +90,8 @@ No point in littering the code with calls to Go's `md5.Sum(...)`, so lets put a 
 ``` go
 import "crypto/md5"
 func getEtag(buffer *[]byte) string {
-	hash := md5.Sum(*buffer)
-	return fmt.Sprintf("%x", hash)
+  hash := md5.Sum(*buffer)
+  return fmt.Sprintf("%x", hash)
 }
 ```
 
@@ -99,17 +99,17 @@ Every time we read a file and add it the page/post/asset cache, we will call the
 
 ``` go
 func (p *AssetManager) buildAsset(filename string) (*Asset, error) {
-    // Get byte array and mime type (text/css, image/png, etc...)
-	buffer, mime, err := getAsset(filename)
-	if err != nil {
-		return nil, err
-	}
+  // Get byte array and mime type (text/css, image/png, etc...)
+  buffer, mime, err := getAsset(filename)
+  if err != nil {
+    return nil, err
+  }
 
-	return &Asset{
-		Mime:    mime,
-		Content: buffer,
-		Etag:    getEtag(buffer),
-	}, nil
+  return &Asset{
+    Mime:    mime,
+    Content: buffer,
+    Etag:    getEtag(buffer),
+  }, nil
 }
 ```
 
@@ -118,15 +118,15 @@ Now that every post, page, and asset have an MD5 sum in it's struct, we need to 
 ``` go
 type Hashes map[string]string
 func (p *AssetManager) GetHashes() *Hashes {
-	hashes := Hashes{}
+  hashes := Hashes{}
 
-	keys := p.cache.GetKeys()
-	for _, key := range keys {
-		value := p.cache.Get(key)
-		hashes[key] = value.(Asset).Etag
-	}
+  keys := p.cache.GetKeys()
+  for _, key := range keys {
+    value := p.cache.Get(key)
+    hashes[key] = value.(Asset).Etag
+  }
 
-	return &hashes
+  return &hashes
 }
 ```
 
@@ -134,9 +134,9 @@ It would be annoying to have to add `?m={{.Site.Hashes[assetKey]}}` all over the
 
 ``` go
 tmpl := template.New("").Funcs(template.FuncMap{
-    "GetAssetURL": func(key string, hashes *Hashes) string {
-        return fmt.Sprintf("/static/%s?m=%s", key, (*hashes)[key])
-    },
+  "GetAssetURL": func(key string, hashes *Hashes) string {
+    return fmt.Sprintf("/static/%s?m=%s", key, (*hashes)[key])
+  },
 })
 
 // Template example
@@ -147,8 +147,8 @@ We will still need the MD5 sum for posts and pages so that we can handle the `If
 
 ``` go
 if r.Header.Get("If-None-Match") == post.Etag {
-    w.WriteHeader(http.StatusNotModified)
-    return
+  w.WriteHeader(http.StatusNotModified)
+  return
 }
 
 w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -160,4 +160,4 @@ w.Write(*post.Content)
 
 ## Wrap-up
 
-That's it, Efficient HTTP caching. My approach isn't the only approach. Different situations are going to require different approaches to caching. One final very important point. No matter how you implement caching, not just HTTP caching, know how you will evict/bust your cache. You do not want to be in a place where you need to bust the cache and cant. This is important, never implementing a cache without also implementing a way to bust it.
+That's it, Efficient HTTP caching. My approach isn't the only approach. Different situations are going to require different approaches. One final very important point. No matter how you implement caching, not just HTTP caching, know how you will evict/bust your cache. You do not want to be in a situation where you need to bust the cache and can't. This is important, never implementing a cache without also implementing a way to bust it.
