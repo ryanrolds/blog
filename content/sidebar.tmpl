@@ -1,16 +1,16 @@
 <div class="sidebar">
-  <img class="photo" src="/static/ryanolds.jpg"/>
+  <img class="photo" src="{{ GetAssetURL "ryanolds.jpg" .Site.Hashes }}"/>
   <p>I'm Ryan Olds, a Lead Software Engineer telecommuting from Eugene, OR. I spend most of my time working on highly available software applications, gaming (board & video), learning saxophone, hiking &amp; backpacking, and living life with my awesome wife &amp; cats.</p>
   <p>As this blog grows it will become an assortment of posts about personal projects, things I've found noteworthy, reviews of games, and random musings.</p>
   <div class="recent-reads">
     <h3>Recent Reads</h3>
     <a href="https://www.amazon.com/gp/product/1727125452">
       <h4>A Programmer's Introduction to Mathmatics</h4>
-      <img src="/static/prog_intro_to_math.jpg"/>
+      <img src="{{ GetAssetURL "prog_intro_to_math.jpg" .Site.Hashes }}"/>
     </a>
     <a href="https://www.amazon.com/Thinking-Fast-Slow-Daniel-Kahneman/dp/0374533555">
       <h4>Thinking, Fast and Slow</h4>
-      <img src="/static/thinking_fast_slow.jpg"/> 
+      <img src="{{ GetAssetURL "thinking_fast_slow.jpg" .Site.Hashes }}"/> 
     </a>
   </div>
 </div>
