@@ -90,9 +90,7 @@ func getMarkdown(key string) (*[]byte, error) {
 
 func getEtag(buffer *[]byte) string {
 	hash := md5.Sum(*buffer)
-	size := len(*buffer)
-
-	return fmt.Sprintf("%x_%d", hash, size)
+	return fmt.Sprintf("%x", hash)
 }
 
 func getCreatedAt(doc *html.Node) time.Time {

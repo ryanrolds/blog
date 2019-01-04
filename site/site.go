@@ -19,9 +19,12 @@ const (
 	AssetsDir   = ContentDir + "static/"
 )
 
+type Hashes map[string]string
+
 type Site struct {
-	port string
-	Env  string
+	port   string
+	Env    string
+	Hashes *Hashes
 
 	router *mux.Router
 
@@ -41,6 +44,13 @@ func NewSite(port string, env string) *Site {
 func (s *Site) Run() error {
 	var err error
 
+	s.assets = NewAssetManager(AssetsDir)
+	if err := s.assets.Load(); err != nil {
+		return err
+	}
+
+	s.Hashes = s.assets.GetHashes()
+
 	// Load templates that we will use to render pages and posts
 	s.templates, err = LoadTemplates(ContentDir)
 	if err != nil {
@@ -55,11 +65,6 @@ func (s *Site) Run() error {
 	// Create caches for our various content types
 	s.pages = NewPageManager(s, PagesDir, s.templates, s.posts)
 	if err := s.pages.Load(); err != nil {
-		return err
-	}
-
-	s.assets = NewAssetManager(AssetsDir)
-	if err := s.assets.Load(); err != nil {
 		return err
 	}
 
@@ -137,9 +142,9 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "public, must-revalidate")
 	w.Header().Set("Etag", post.Etag)
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(*post.Content)
 }
@@ -160,9 +165,9 @@ func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Cache-Control", "public, must-revalidate")
-	w.Header().Set("Etag", asset.Etag)
 	w.Header().Set("Content-Type", asset.Mime)
+	w.Header().Set("Cache-Control", "public, max-age=2419200")
+	w.Header().Set("Etag", asset.Etag)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*asset.Content)
 }
@@ -174,9 +179,9 @@ func (s *Site) faviconHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Cache-Control", "public, must-revalidate")
-	w.Header().Set("Etag", asset.Etag)
 	w.Header().Set("Content-Type", asset.Mime)
+	w.Header().Set("Cache-Control", "public, max-age=604800")
+	w.Header().Set("Etag", asset.Etag)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*asset.Content)
 }

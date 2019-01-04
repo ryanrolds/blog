@@ -4,12 +4,12 @@
     <meta name="theme-color" content="#000000"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:black" rel="stylesheet">
-    <link href="/static/style.css" rel="stylesheet">
+    <link href="{{ GetAssetURL "style.css" .Site.Hashes }}" rel="stylesheet">
     {{ if .CSS }}<style type="text/css">{{.CSS}}</style>{{ end }}
     <meta name="robots"content="{{ if ne .Site.Env "production" }}noindex, nofollow{{ else }}index, follow{{ end }}" />
     <title>{{ .Title }} :: Pedantic Orderliness</title>
   </head>
   <body>
     <div class="grid">
-      {{ template "header.tmpl" }}
-      {{ template "sidebar.tmpl" }}
+      {{ template "header.tmpl" . }}
+      {{ template "sidebar.tmpl" . }}

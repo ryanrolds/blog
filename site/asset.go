@@ -1,8 +1,6 @@
 package site
 
-import (
 //log "github.com/sirupsen/logrus"
-)
 
 type Asset struct {
 	Mime    string
@@ -60,4 +58,16 @@ func (p *AssetManager) buildAsset(filename string) (*Asset, error) {
 		Content: buffer,
 		Etag:    getEtag(buffer),
 	}, nil
+}
+
+func (p *AssetManager) GetHashes() *Hashes {
+	hashes := Hashes{}
+
+	keys := p.cache.GetKeys()
+	for _, key := range keys {
+		value := p.cache.Get(key)
+		hashes[key] = value.(*Asset).Etag
+	}
+
+	return &hashes
 }
