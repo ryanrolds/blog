@@ -15,21 +15,20 @@ const indexKey = "index"
 const rssLimit = 20
 const rssKey = "rss.xml"
 
-func LoadPages(site *Site, dir string, templates *template.Template, posts *PostList,
-	cache *Cache) error {
-	err := buildMarkdownFiles(site, dir, templates, posts, cache)
+func LoadPages(site *Site) error {
+	err := buildMarkdownFiles(site, site.rootDir, site.templates, site.posts, site.cache)
 	if err != nil {
 		return err
 	}
 
 	// Build index/home
-	err = buildIndex(site, templates, posts, cache)
+	err = buildIndex(site, site.templates, site.posts, site.cache)
 	if err != nil {
 		return err
 	}
 
 	// Build RSS
-	err = buildRss(site, templates, posts, cache)
+	err = buildRss(site, site.templates, site.posts, site.cache)
 	if err != nil {
 		return err
 	}
@@ -86,7 +85,13 @@ func buildPage(site *Site, key string, templates *template.Template, posts *Post
 	}
 
 	// Get details from parsed html
-	recent := (*posts)[:numRecent]
+	recent := (*posts)[:]
+	if len(*posts) < numRecent {
+		recent = recent[:len(recent)]
+	} else {
+		recent = recent[:numRecent]
+	}
+
 	title := getTitle(doc)
 
 	// Run markdown through page template
@@ -118,7 +123,12 @@ func buildPage(site *Site, key string, templates *template.Template, posts *Post
 
 func buildIndex(site *Site, templates *template.Template, posts *PostList, cache *Cache) error {
 	// Build index/home
-	recent := (*posts)[:numRecent]
+	recent := (*posts)[:]
+	if len(*posts) < numRecent {
+		recent = recent[:len(recent)]
+	} else {
+		recent = recent[:numRecent]
+	}
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
@@ -149,7 +159,12 @@ func buildIndex(site *Site, templates *template.Template, posts *PostList, cache
 
 func buildRss(site *Site, templates *template.Template, posts *PostList, cache *Cache) error {
 	// Build index/home
-	recent := (*posts)[:rssLimit]
+	recent := (*posts)[:]
+	if len(*posts) < numRecent {
+		recent = recent[:len(recent)]
+	} else {
+		recent = recent[:rssLimit]
+	}
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}

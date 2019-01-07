@@ -29,8 +29,8 @@ type Post struct {
 
 type PostList []*Post
 
-func LoadPosts(site *Site, dir string, templates *template.Template, cache *Cache) (*PostList, error) {
-	keys, err := getKeys(dir, ".md")
+func LoadPosts(site *Site, dir string) (*PostList, error) {
+	keys, err := getKeys(site.rootDir+dir, ".md")
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func LoadPosts(site *Site, dir string, templates *template.Template, cache *Cach
 	posts := PostList{}
 
 	for _, key := range keys {
-		post, err := buildPost(site, key, templates, cache)
+		post, err := buildPost(site, key, site.templates, site.cache)
 		if err != nil {
 			if err == ErrNotPublished {
 				continue
@@ -58,14 +58,14 @@ func LoadPosts(site *Site, dir string, templates *template.Template, cache *Cach
 }
 
 func buildPost(site *Site, key string, templates *template.Template, cache *Cache) (*Post, error) {
-	markdown, err := getMarkdown(key)
+	markdown, err := getMarkdown(site.rootDir + postsDir + key)
 	if err != nil {
 		return nil, err
 	}
 
 	// Page does not exist
 	if markdown == nil {
-		return nil, nil
+		return nil, errors.New("Missing Markdown file")
 	}
 
 	// Defines the extensions that are used
@@ -136,7 +136,7 @@ func buildPost(site *Site, key string, templates *template.Template, cache *Cach
 
 	content := buf.Bytes()
 
-	cache.Set(key, &Content{
+	cache.Set("/posts/"+key, &Content{
 		Content:      &content,
 		Etag:         getEtag(&content),
 		Mime:         "text/html; charset=utf-8",
@@ -154,5 +154,5 @@ func buildPost(site *Site, key string, templates *template.Template, cache *Cach
 }
 
 func getPostUrl(site *Site, key string) string {
-	return fmt.Sprintf("https://%s/%s", getHost(site.env), key)
+	return fmt.Sprintf("https://%s/%s", getHost(site.Env), key)
 }

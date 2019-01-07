@@ -23,7 +23,7 @@ type TemplateData struct {
 	Posts *PostList
 }
 
-func LoadTemplates(templateDir string) (*template.Template, error) {
+func LoadTemplates(site *Site) (*template.Template, error) {
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func LoadTemplates(templateDir string) (*template.Template, error) {
 		},
 	})
 
-	tmpl, err = tmpl.ParseGlob(templateDir + "*.tmpl")
+	tmpl, err = tmpl.ParseGlob(site.rootDir + "*.tmpl")
 	if err != nil {
 		return nil, err
 	}

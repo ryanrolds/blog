@@ -3,10 +3,10 @@
   <head>
     <meta name="theme-color" content="#000000"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-    {{ if .Social.Title }}<meta property="og:title" content="{{ .Social.Title }}">{{ end }}
-    {{ if .Social.Description }}<meta property="og:description" content="{{ .Social.Description }}">{{ end }}
-    {{ if .Social.ImageUrl }}<meta property="og:image" content="{{.Social.ImageUrl }}">{{ end }}
-    {{ if .Social.Url }}<meta property="og:url" content="{{ .Social.Url }}">{{ end }}
+    {{ if .Title }}<meta property="og:title" content="{{ .Title }}">{{ end }}
+    {{ if .Description }}<meta property="og:description" content="{{ .Description }}">{{ end }}
+    {{ if .ImageUrl }}<meta property="og:image" content="{{.ImageUrl }}">{{ end }}
+    {{ if .Url }}<meta property="og:url" content="{{ .Url }}">{{ end }}
     <meta name="twitter:card" content="summary_large_image">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:black" rel="stylesheet">
     <link href="{{ GetAssetURL "style.css" .Site.Hashes }}" rel="stylesheet">

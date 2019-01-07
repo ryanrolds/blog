@@ -20,20 +20,20 @@ type Hashes map[string]string
 
 type Site struct {
 	port    string
-	env     string
+	Env     string
 	rootDir string
 
 	router    *mux.Router
 	cache     *Cache
 	templates *template.Template
 	posts     *PostList
-	hashes    *Hashes
+	Hashes    *Hashes
 }
 
 func NewSite(port, env, contentDir string) *Site {
 	return &Site{
 		port:    port,
-		env:     env,
+		Env:     env,
 		rootDir: contentDir,
 	}
 }
@@ -41,36 +41,36 @@ func NewSite(port, env, contentDir string) *Site {
 func (s *Site) Run() error {
 	s.cache = NewCache()
 
-	err := LoadAssets(s.rootDir+assetsDir, s.cache)
-
-	s.templates, err = LoadTemplates(s.rootDir)
+	err := LoadAssets(s, assetsDir)
 	if err != nil {
 		return err
 	}
 
-	s.posts, err = LoadPosts(s, s.rootDir+postsDir, s.templates, s.cache)
+	s.Hashes = s.cache.GetHashes()
+
+	log.Info(s.Hashes)
+
+	s.templates, err = LoadTemplates(s)
 	if err != nil {
 		return err
 	}
 
-	err = LoadPages(s, s.rootDir, s.templates, s.posts, s.cache)
+	s.posts, err = LoadPosts(s, postsDir)
 	if err != nil {
 		return err
 	}
 
-	s.hashes = s.cache.GetHashes()
+	err = LoadPages(s)
+	if err != nil {
+		return err
+	}
 
-	// Prepare routing
-	router := mux.NewRouter()
-	router.HandleFunc("/{key}", s.contentHandler).Methods("GET")
-	router.HandleFunc("/", s.contentHandler).Methods("GET")
-	router.HandleFunc("", s.contentHandler).Methods("GET")
-	s.router = router
+	log.Info(s.cache.GetKeys())
 
 	// Prepare server
 	server := http.Server{
 		Addr:         fmt.Sprintf(":%s", s.port),
-		Handler:      s.router,
+		Handler:      s,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
@@ -86,17 +86,30 @@ func (s *Site) Run() error {
 	return nil
 }
 
-func (s *Site) contentHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["key"]
+func (s *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
 
 	// The root page uses the "index" key
-	if key == "" {
-		key = "index"
+	if path == "" || path == "/" {
+		path = "index"
 	}
 
+	if path == "/favicon.ico" {
+		path = "/static/favicon.ico"
+	}
+
+	if path == "/robots.txt" {
+		if s.Env == "production" {
+			path = "/static/allow.txt"
+		} else {
+			path = "/static/disallow.txt"
+		}
+	}
+
+	log.Infof("Key: %s", path)
+
 	// Try to get cached content
-	item := s.cache.Get(key)
+	item := s.cache.Get(path)
 	if item == nil {
 		s.Handle404(w, r)
 		return

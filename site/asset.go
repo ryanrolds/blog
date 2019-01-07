@@ -1,5 +1,7 @@
 package site
 
+import log "github.com/sirupsen/logrus"
+
 //log "github.com/sirupsen/logrus"
 
 type Asset struct {
@@ -8,31 +10,26 @@ type Asset struct {
 	Etag    string
 }
 
-func LoadAssets(dir string, cache *Cache) error {
-	keys, err := getKeys(dir, "")
+func LoadAssets(site *Site, assetsDir string) error {
+	keys, err := getKeys(site.rootDir+assetsDir, "")
 	if err != nil {
 		return err
 	}
 
 	for _, key := range keys {
-		asset, err := buildAsset(key)
+		asset, err := buildAsset(site.rootDir + assetsDir + key)
 		if err != nil {
 			return err
 		}
 
-		cache.Set("/static/"+key, asset)
+		site.cache.Set("/static/"+key, asset)
 	}
-
-	// TODO robots.txt
-	//robotsFile := "allow.txt"
-	//if s.Env != "production" {
-	//	robotsFile = "disallow.txt"
-	//}
 
 	return nil
 }
 
 func buildAsset(filename string) (*Content, error) {
+	log.Info(filename)
 	buffer, mime, err := getAsset(filename)
 	if err != nil {
 		return nil, err
