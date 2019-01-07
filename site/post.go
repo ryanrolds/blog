@@ -3,9 +3,7 @@ package site
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"sort"
-	"text/template"
 	"time"
 
 	"github.com/Depado/bfchroma"
@@ -29,24 +27,7 @@ type Post struct {
 	Url         string
 }
 
-type PostManager struct {
-	dir         string
-	templates   *template.Template
-	cache       *Cache
-	orderedList []*Post
-	site        *Site
-}
-
-func NewPostManager(site *Site, dir string, templates *template.Template) *PostManager {
-	return &PostManager{
-		dir:       dir,
-		templates: templates,
-		cache:     NewCache(),
-		site:      site,
-	}
-}
-
-func (p *PostManager) Load() error {
+func LoadPost() error {
 	keys, err := getKeys(p.dir, ".md")
 	if err != nil {
 		return err
@@ -81,24 +62,7 @@ func (p *PostManager) Load() error {
 	return nil
 }
 
-func (p *PostManager) Get(key string) *Post {
-	item := p.cache.Get(key)
-	if item == nil {
-		return nil
-	}
-
-	return item.(*Post)
-}
-
-func (p *PostManager) GetRecent(num int) []*Post {
-	if num > len(p.orderedList) {
-		num = len(p.orderedList)
-	}
-
-	return p.orderedList[:num]
-}
-
-func (p *PostManager) buildPost(key string) (*Post, error) {
+func buildPost(key string) (*Post, error) {
 	markdown, err := getMarkdown(p.dir + key)
 	if err != nil {
 		return nil, err
@@ -194,15 +158,4 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		Etag:        getEtag(&content),
 		Url:         url,
 	}, nil
-}
-
-func getPostUrl(env string, key string) string {
-	domain := "test.pedanticorderliness.com"
-	if env == "production" {
-		domain = "www.pedanticorderliness.com"
-	} else if env == "test" {
-		domain = "test.pedanticorderliness.com"
-	}
-
-	return fmt.Sprintf("https://%s/posts/%s", domain, key)
 }

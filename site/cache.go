@@ -4,38 +4,39 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type ContentCache map[string]interface{}
-
-type Cache struct {
-	cache ContentCache
+type Content struct {
+	Content      *[]byte
+	Etag         string
+	Mime         string
+	CacheControl string
 }
 
-func NewCache() *Cache {
-	return &Cache{
-		cache: ContentCache{},
-	}
+type ContentCache map[string]Content
+
+func NewContentCache() *ContentCache {
+	return &ContentCache{}
 }
 
-func (c *Cache) GetKeys() []string {
+func (c *ContentCache) GetKeys() []string {
 	var keys []string
-	for key := range c.cache {
+	for key := range c {
 		keys = append(keys, key)
 	}
 
 	return keys
 }
 
-func (c *Cache) GetValues() []interface{} {
+func (c *ContentCache) GetValues() []Content {
 	var values []interface{}
-	for _, value := range c.cache {
+	for _, value := range c {
 		values = append(values, value)
 	}
 
 	return values
 }
 
-func (c *Cache) Get(key string) interface{} {
-	item, exists := c.cache[key]
+func (c *ContentCache) Get(key string) Content {
+	item, exists := c[key]
 	if exists { // Found an item in the cache
 		log.Debug("cache hit")
 		return item
@@ -46,6 +47,18 @@ func (c *Cache) Get(key string) interface{} {
 	return item
 }
 
-func (c *Cache) Set(key string, item interface{}) {
-	c.cache[key] = item
+func (c *ContentCache) Set(key string, item Content) {
+	c[key] = item
+}
+
+func (c *ContentCache) GetHashes() *Hashes {
+	hashes := Hashes{}
+
+	keys := c.GetKeys()
+	for _, key := range keys {
+		value := c.Get(key)
+		hashes[key] = value.(*Asset).Etag
+	}
+
+	return &hashes
 }

@@ -15,45 +15,20 @@ const indexKey = "index"
 const rssLimit = 20
 const rssKey = "rss.xml"
 
-type Page struct {
-	Content      *[]byte
-	Mime         string
-	Etag         string
-	CacheControl string
-}
-
-type PageManager struct {
-	dir       string
-	templates *template.Template
-	cache     *Cache
-	posts     *PostManager
-	site      *Site
-}
-
-func NewPageManager(site *Site, dir string, templates *template.Template, posts *PostManager) *PageManager {
-	return &PageManager{
-		dir:       dir,
-		templates: templates,
-		cache:     NewCache(),
-		posts:     posts,
-		site:      site,
-	}
-}
-
-func (p *PageManager) Load() error {
-	err := p.buildMarkdownFiles()
+func LoadPages(dir string, templates *template.Template, cache *ContentCache) error {
+	err := buildMarkdownFiles(dir, templates, cache)
 	if err != nil {
 		return err
 	}
 
 	// Build index/home
-	err = p.buildIndex()
+	err = buildIndex(templates, cache)
 	if err != nil {
 		return err
 	}
 
 	// Build RSS
-	err = p.buildRss()
+	err = buildRss(templates, cache)
 	if err != nil {
 		return err
 	}
@@ -61,50 +36,43 @@ func (p *PageManager) Load() error {
 	return nil
 }
 
-func (p *PageManager) Get(key string) *Page {
-	item := p.cache.Get(key)
-	if item == nil {
-		return nil
-	}
-
-	return item.(*Page)
-}
-
-func (p *PageManager) buildMarkdownFiles() error {
-	keys, err := getKeys(p.dir, ".md")
+func buildMarkdownFiles(dir string, templates *template.Template, cache *ContentCache) error {
+	keys, err := getKeys(dir, ".md")
 	if err != nil {
 		return err
 	}
 
 	for _, key := range keys {
-		err := p.buildPage(p.dir + key)
+		page, err := buildPage(dir+key, templates)
 		if err != nil {
 			return err
 		}
+
+		cache.Set(dir+key, content)
 	}
 
 	return nil
 }
 
-func (p *PageManager) buildPage(key string) error {
+func buildPage(key string, templates *template.Template) (*Content, error) {
 	markdown, err := getMarkdown(key)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Page does not exist
 	if markdown == nil {
-		return nil
+		return nil, nil
 	}
 
 	css, err := getCSS(key)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	javaScript, err := getJavaScript(key)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Process MD
@@ -113,7 +81,7 @@ func (p *PageManager) buildPage(key string) error {
 	// Parse in to something we can query with xpath
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Get details from parsed html
@@ -133,7 +101,7 @@ func (p *PageManager) buildPage(key string) error {
 		Generated:  time.Now(),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	content := buf.Bytes()
@@ -145,10 +113,10 @@ func (p *PageManager) buildPage(key string) error {
 		Etag:         getEtag(&content),
 	})
 
-	return nil
+	return nil, nil
 }
 
-func (p *PageManager) buildIndex() error {
+func buildIndex(templates *template.Template) error {
 	// Build index/home
 	posts := p.posts.GetRecent(numRecent)
 
@@ -180,7 +148,7 @@ func (p *PageManager) buildIndex() error {
 	return nil
 }
 
-func (p *PageManager) buildRss() error {
+func buildRss(templates *template.Template) error {
 	// Build index/home
 	posts := p.posts.GetRecent(rssLimit)
 

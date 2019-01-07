@@ -26,11 +26,8 @@ type Site struct {
 	Env    string
 	Hashes *Hashes
 
-	router *mux.Router
-
-	pages     *PageManager
-	posts     *PostManager
-	assets    *AssetManager
+	router    *mux.Router
+	cache     *ContentCache
 	templates *template.Template
 }
 
@@ -42,31 +39,26 @@ func NewSite(port string, env string) *Site {
 }
 
 func (s *Site) Run() error {
-	var err error
+	cache := NewContentCache()
 
-	s.assets = NewAssetManager(AssetsDir)
-	if err := s.assets.Load(); err != nil {
-		return err
-	}
+	err := loadAssets(AssetsDir, cache)
 
-	s.Hashes = s.assets.GetHashes()
-
-	// Load templates that we will use to render pages and posts
-	s.templates, err = LoadTemplates(ContentDir)
+	template, err := loadTemplates(ContentDir)
 	if err != nil {
 		return err
 	}
 
-	s.posts = NewPostManager(s, PostsDir, s.templates)
-	if err := s.posts.Load(); err != nil {
+	posts, err = loadPosts(PostsDir)
+	if err != nil {
 		return err
 	}
 
-	// Create caches for our various content types
-	s.pages = NewPageManager(s, PagesDir, s.templates, s.posts)
-	if err := s.pages.Load(); err != nil {
+	err = loadPages(PagesDir, templates, posts)
+	if err != nil {
 		return err
 	}
+
+	s.Hashes = s.assets.GetHashes()
 
 	// Prepare routing
 	router := mux.NewRouter()
@@ -98,7 +90,7 @@ func (s *Site) Run() error {
 	return nil
 }
 
-func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Site) contentHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
@@ -107,100 +99,26 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 		key = "index"
 	}
 
-	// Try to get cache page
-	page := s.pages.Get(key)
-	if page == nil {
+	// Try to get cached content
+	item := s.cache.Get(key)
+	if content == nil {
 		s.Handle404(w, r)
 		return
 	}
 
-	if r.Header.Get("If-None-Match") == page.Etag {
+	if r.Header.Get("If-None-Match") == item.Etag {
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
 
-	w.Header().Set("Content-Type", page.Mime)
-	w.Header().Set("Cache-Control", "public, must-revalidate")
-	w.Header().Set("Etag", page.Etag)
+	w.Header().Set("Content-Type", item.Mime)
+	w.Header().Set("Cache-Control", item.CacheControl)
+	//w.Header().Set("Cache-Control", "public, must-revalidate")
+	//w.Header().Set("Cache-Control", "public, max-age=2419200")
+	//w.Header().Set("Cache-Control", "public, max-age=604800")
+	w.Header().Set("Etag", item.Etag)
 	w.WriteHeader(http.StatusOK)
-	w.Write(*page.Content)
-}
-
-func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["key"]
-
-	// Try to get cache entry for post
-	post := s.posts.Get(key)
-	if post == nil {
-		s.Handle404(w, r)
-		return
-	}
-
-	if r.Header.Get("If-None-Match") == post.Etag {
-		w.WriteHeader(http.StatusNotModified)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Cache-Control", "public, must-revalidate")
-	w.Header().Set("Etag", post.Etag)
-	w.WriteHeader(http.StatusOK)
-	w.Write(*post.Content)
-}
-
-func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["key"]
-
-	// Try to get cached entry for asset
-	asset := s.assets.Get(key)
-	if asset == nil {
-		s.Handle404(w, r)
-		return
-	}
-
-	if r.Header.Get("If-None-Match") == asset.Etag {
-		w.WriteHeader(http.StatusNotModified)
-		return
-	}
-
-	w.Header().Set("Content-Type", asset.Mime)
-	w.Header().Set("Cache-Control", "public, max-age=2419200")
-	w.Header().Set("Etag", asset.Etag)
-	w.WriteHeader(http.StatusOK)
-	w.Write(*asset.Content)
-}
-
-func (s *Site) faviconHandler(w http.ResponseWriter, r *http.Request) {
-	asset := s.assets.Get("favicon.ico")
-	if asset == nil {
-		s.Handle404(w, r)
-		return
-	}
-
-	w.Header().Set("Content-Type", asset.Mime)
-	w.Header().Set("Cache-Control", "public, max-age=604800")
-	w.Header().Set("Etag", asset.Etag)
-	w.WriteHeader(http.StatusOK)
-	w.Write(*asset.Content)
-}
-
-func (s *Site) robotsHandler(w http.ResponseWriter, r *http.Request) {
-	robotsFile := "allow.txt"
-	if s.Env != "production" {
-		robotsFile = "disallow.txt"
-	}
-
-	asset := s.assets.Get(robotsFile)
-	if asset == nil {
-		s.Handle404(w, r)
-		return
-	}
-
-	w.Header().Set("Content-Type", asset.Mime)
-	w.WriteHeader(http.StatusOK)
-	w.Write(*asset.Content)
+	w.Write(*item.Content)
 }
 
 func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
@@ -228,4 +146,15 @@ func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(*page.Content)
+}
+
+func getPostUrl(env string) string {
+	domain := "localhost:8080"
+	if env == "production" {
+		domain = "www.pedanticorderliness.com"
+	} else if env == "test" {
+		domain = "test.pedanticorderliness.com"
+	}
+
+	return domain
 }
