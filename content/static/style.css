@@ -101,7 +101,7 @@ blockquote p code {
 .content a {
   color: black;
 }
-.content #created-at {
+.content #published-at {
   margin-top: .25rem;
 }
 
@@ -122,7 +122,7 @@ blockquote p code {
   margin-top: .5rem;
   float: right;
 }
-.post-list-item .created-at {
+.post-list-item .published-at {
   color: #3A4145;
   margin-top: .5rem;
   float: left;

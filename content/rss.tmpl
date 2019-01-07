@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Pedantic Orderliness</title>
+    <description>An assortment of technical posts, projects, game reviews, and random musings by Ryan Olds.</description>
+    <link>https://www.pedanticorderliness.com/</link>
+    <lastBuildDate>{{ .Generated}}</lastBuildDate>
+    <ttl>1440</ttl>
+    {{ range .Posts}}
+    <item>
+        <title>{{ .Title }}</title>
+        <description>{{ .Intro }}.</description>
+        <link>{{ .Url }}</link>
+        <pubDate>{{ .PublishedAt }}</pubDate>
+    </item>
+    {{ end }}
+</channel>
+</rss>

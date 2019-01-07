@@ -7,6 +7,25 @@ import (
 	"text/template"
 )
 
+type TemplateData struct {
+	Key        string
+	Title      string
+	JavaScript string
+	CSS        string
+	Content    string
+	Site       *Site
+	Posts      *[]*Post
+	Generated  time.Time
+	Social     *Social
+}
+
+type Social struct {
+	Title       string
+	Description string
+	ImageUrl    string
+	Url         string
+}
+
 func LoadTemplates(templateDir string) (*template.Template, error) {
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {

@@ -2,6 +2,8 @@ package site
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"sort"
 	"text/template"
 	"time"
@@ -13,15 +15,18 @@ import (
 	bf "gopkg.in/russross/blackfriday.v2"
 )
 
+var ErrNotPublished = errors.New("Not published")
+
 type Post struct {
-	Slug      string
-	Title     string
-	Intro     string
-	Image     string
-	Content   *[]byte
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Etag      string
+	Slug        string
+	Title       string
+	Intro       string
+	Image       string
+	Content     *[]byte
+	PublishedAt time.Time
+	UpdatedAt   time.Time
+	Etag        string
+	Url         string
 }
 
 type PostManager struct {
@@ -50,6 +55,10 @@ func (p *PostManager) Load() error {
 	for _, key := range keys {
 		post, err := p.buildPost(key)
 		if err != nil {
+			if err == ErrNotPublished {
+				continue
+			}
+
 			return err
 		}
 
@@ -64,7 +73,7 @@ func (p *PostManager) Load() error {
 	}
 
 	sort.Slice(posts, func(i, j int) bool {
-		return posts[i].CreatedAt.After(posts[j].CreatedAt)
+		return posts[i].PublishedAt.After(posts[j].PublishedAt)
 	})
 
 	p.orderedList = posts
@@ -87,16 +96,6 @@ func (p *PostManager) GetRecent(num int) []*Post {
 	}
 
 	return p.orderedList[:num]
-}
-
-type PostTemplate struct {
-	Slug       string
-	Title      string
-	JavaScript string
-	CSS        string
-	Content    string
-	Site       *Site
-	Generated  time.Time
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
@@ -148,22 +147,36 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		return nil, err
 	}
 
+	// If no published date, skip
+	if isPublished(doc) == false {
+		log.Infof("Skipping %s, not published", key)
+		return nil, ErrNotPublished
+	}
+
 	// Get details from parsed html
 	title := getTitle(doc)
-	createdAt := getCreatedAt(doc)
+	publishedAt := getPublishedAt(doc)
 	intro := getIntro(doc)
 	image := getImage(doc)
+	url := getPostUrl(p.site.Env, key)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
-	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &PostTemplate{
-		Slug:       key,
+	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &TemplateData{
+		Key:        key,
 		Title:      title,
 		CSS:        css.String(),
 		JavaScript: "",
 		Content:    string(body[:]),
 		Site:       p.site,
 		Generated:  time.Now(),
+
+		Social: &Social{
+			Title:       title,
+			Description: intro,
+			ImageUrl:    image,
+			Url:         url,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -172,12 +185,24 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	content := buf.Bytes()
 
 	return &Post{
-		Slug:      key,
-		Title:     title,
-		Image:     image,
-		Intro:     intro,
-		CreatedAt: createdAt,
-		Content:   &content,
-		Etag:      getEtag(&content),
+		Slug:        key,
+		Title:       title,
+		Image:       image,
+		Intro:       intro,
+		PublishedAt: publishedAt,
+		Content:     &content,
+		Etag:        getEtag(&content),
+		Url:         url,
 	}, nil
+}
+
+func getPostUrl(env string, key string) string {
+	domain := "test.pedanticorderliness.com"
+	if env == "production" {
+		domain = "www.pedanticorderliness.com"
+	} else if env == "test" {
+		domain = "test.pedanticorderliness.com"
+	}
+
+	return fmt.Sprintf("https://%s/posts/%s", domain, key)
 }

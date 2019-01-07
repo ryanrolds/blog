@@ -93,22 +93,31 @@ func getEtag(buffer *[]byte) string {
 	return fmt.Sprintf("%x", hash)
 }
 
-func getCreatedAt(doc *html.Node) time.Time {
-	createdAt := time.Now()
-	createdAtElm := htmlquery.FindOne(doc, "//div[@id='created-at']")
-	if createdAtElm != nil {
-		createdAtValue := htmlquery.InnerText(createdAtElm)
-		createdAtParsed, err := time.Parse(time.RFC3339, createdAtValue)
+func isPublished(doc *html.Node) bool {
+	publishedAtElm := htmlquery.FindOne(doc, "//div[@id='published-at']")
+	if publishedAtElm != nil {
+		return true
+	}
+
+	return false
+}
+
+func getPublishedAt(doc *html.Node) time.Time {
+	publishedAt := time.Now()
+	publishedAtElm := htmlquery.FindOne(doc, "//div[@id='published-at']")
+	if publishedAtElm != nil {
+		publishedAtValue := htmlquery.InnerText(publishedAtElm)
+		publishedAtParsed, err := time.Parse(time.RFC3339, publishedAtValue)
 		if err != nil {
 			log.Error(err)
 		} else {
-			createdAt = createdAtParsed
+			publishedAt = publishedAtParsed
 		}
 	} else {
-		log.Warnf("Created At not found for post")
+		log.Warnf("Published At not found for post")
 	}
 
-	return createdAt
+	return publishedAt
 }
 
 func getTitle(doc *html.Node) string {

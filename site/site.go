@@ -119,7 +119,7 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Type", page.Mime)
 	w.Header().Set("Cache-Control", "public, must-revalidate")
 	w.Header().Set("Etag", page.Etag)
 	w.WriteHeader(http.StatusOK)

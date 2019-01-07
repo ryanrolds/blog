@@ -1,5 +1,5 @@
 # Blogging with Go, Markdown, and AWS 
-<div id="created-at">2019-01-02T01:42:42Z</div>
+<div id="published-at">2019-01-02T01:42:42Z</div>
 
 This post goes over the architecture of the code used to serve this blog. The goal is to show just how much can be done with a little Go code, Markdown, and AWS. The post will show a basic HTTP service using Go's [`net/http`](https://golang.org/pkg/net/http/) package. How to use [Mux](https://github.com/gorilla/mux) to create endpoints for serving the home page, posts, and assets. Lastly, we will talk about using [Docker images](https://docs.docker.com/engine/reference/commandline/images/) and [AWS ECS](https://aws.amazon.com/ecs/) to make deployments a breeze.
 

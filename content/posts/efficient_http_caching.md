@@ -1,5 +1,5 @@
 # Efficient HTTP caching
-<div id="created-at">2019-01-04T01:27:25Z</div>
+<div id="published-at">2019-01-04T01:27:25Z</div>
 
 In this post, we will be talking about HTTP caching headers and strategies for maximizing browser-level caching while ensuring freshness. First, we will dive into HTTP and it's caching headers. Then we will cover a few common strategies. And finally, we will review this blog's implementation.
 
