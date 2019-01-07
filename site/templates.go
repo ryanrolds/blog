@@ -34,7 +34,7 @@ func LoadTemplates(site *Site) (*template.Template, error) {
 			return date.In(utc).Format(time.RFC3339)
 		},
 		"GetAssetURL": func(key string, hashes Hashes) string {
-			return fmt.Sprintf("/static/%s?m=%s", key, hashes["/static/"+key])
+			return fmt.Sprintf("/static/%s?m=%s", key, hashes["static/"+key])
 		},
 	})
 

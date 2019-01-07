@@ -20,7 +20,7 @@ func LoadAssets(site *Site, assetsDir string) error {
 			return err
 		}
 
-		site.cache.Set("/static/"+key, asset)
+		site.cache.Set(assetsDir+key, asset)
 	}
 
 	return nil

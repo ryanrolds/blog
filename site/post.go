@@ -136,7 +136,7 @@ func buildPost(site *Site, key string, templates *template.Template, cache *Cach
 
 	content := buf.Bytes()
 
-	cache.Set("/posts/"+key, &Content{
+	cache.Set(postsDir+key, &Content{
 		Content:      &content,
 		Etag:         getEtag(&content),
 		Mime:         "text/html; charset=utf-8",
