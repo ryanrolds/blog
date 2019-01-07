@@ -34,7 +34,7 @@ func getKeys(dir string, suffix string) ([]string, error) {
 
 func getAsset(filename string) (*[]byte, string, error) {
 	// Get file contents
-	contents, err := ioutil.ReadFile(AssetsDir + filename)
+	contents, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, "", err
 	}

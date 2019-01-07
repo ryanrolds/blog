@@ -3,7 +3,9 @@ package site
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"sort"
+	"text/template"
 	"time"
 
 	"github.com/Depado/bfchroma"
@@ -16,54 +18,47 @@ import (
 var ErrNotPublished = errors.New("Not published")
 
 type Post struct {
-	Slug        string
+	Key         string
 	Title       string
 	Intro       string
 	Image       string
-	Content     *[]byte
+	Url         string
 	PublishedAt time.Time
 	UpdatedAt   time.Time
-	Etag        string
-	Url         string
 }
 
-func LoadPost() error {
-	keys, err := getKeys(p.dir, ".md")
+type PostList []*Post
+
+func LoadPosts(site *Site, dir string, templates *template.Template, cache *Cache) (*PostList, error) {
+	keys, err := getKeys(dir, ".md")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	posts := PostList{}
+
 	for _, key := range keys {
-		post, err := p.buildPost(key)
+		post, err := buildPost(site, key, templates, cache)
 		if err != nil {
 			if err == ErrNotPublished {
 				continue
 			}
 
-			return err
+			return nil, err
 		}
 
-		p.cache.Set(key, post)
-	}
-
-	values := p.cache.GetValues()
-
-	posts := []*Post{}
-	for _, post := range values {
-		posts = append(posts, post.(*Post))
+		posts = append(posts, post)
 	}
 
 	sort.Slice(posts, func(i, j int) bool {
 		return posts[i].PublishedAt.After(posts[j].PublishedAt)
 	})
 
-	p.orderedList = posts
-
-	return nil
+	return &posts, nil
 }
 
-func buildPost(key string) (*Post, error) {
-	markdown, err := getMarkdown(p.dir + key)
+func buildPost(site *Site, key string, templates *template.Template, cache *Cache) (*Post, error) {
+	markdown, err := getMarkdown(key)
 	if err != nil {
 		return nil, err
 	}
@@ -122,25 +117,18 @@ func buildPost(key string) (*Post, error) {
 	publishedAt := getPublishedAt(doc)
 	intro := getIntro(doc)
 	image := getImage(doc)
-	url := getPostUrl(p.site.Env, key)
+	url := getPostUrl(site, key)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
-	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &TemplateData{
+	err = templates.ExecuteTemplate(buf, "post.tmpl", &TemplateData{
 		Key:        key,
 		Title:      title,
 		CSS:        css.String(),
 		JavaScript: "",
 		Content:    string(body[:]),
-		Site:       p.site,
+		Site:       site,
 		Generated:  time.Now(),
-
-		Social: &Social{
-			Title:       title,
-			Description: intro,
-			ImageUrl:    image,
-			Url:         url,
-		},
 	})
 	if err != nil {
 		return nil, err
@@ -148,14 +136,23 @@ func buildPost(key string) (*Post, error) {
 
 	content := buf.Bytes()
 
+	cache.Set(key, &Content{
+		Content:      &content,
+		Etag:         getEtag(&content),
+		Mime:         "text/html; charset=utf-8",
+		CacheControl: "public, must-revalidate",
+	})
+
 	return &Post{
-		Slug:        key,
+		Key:         key,
 		Title:       title,
 		Image:       image,
 		Intro:       intro,
 		PublishedAt: publishedAt,
-		Content:     &content,
-		Etag:        getEtag(&content),
 		Url:         url,
 	}, nil
+}
+
+func getPostUrl(site *Site, key string) string {
+	return fmt.Sprintf("https://%s/%s", getHost(site.env), key)
 }

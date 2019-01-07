@@ -15,20 +15,21 @@ const indexKey = "index"
 const rssLimit = 20
 const rssKey = "rss.xml"
 
-func LoadPages(dir string, templates *template.Template, cache *ContentCache) error {
-	err := buildMarkdownFiles(dir, templates, cache)
+func LoadPages(site *Site, dir string, templates *template.Template, posts *PostList,
+	cache *Cache) error {
+	err := buildMarkdownFiles(site, dir, templates, posts, cache)
 	if err != nil {
 		return err
 	}
 
 	// Build index/home
-	err = buildIndex(templates, cache)
+	err = buildIndex(site, templates, posts, cache)
 	if err != nil {
 		return err
 	}
 
 	// Build RSS
-	err = buildRss(templates, cache)
+	err = buildRss(site, templates, posts, cache)
 	if err != nil {
 		return err
 	}
@@ -36,43 +37,43 @@ func LoadPages(dir string, templates *template.Template, cache *ContentCache) er
 	return nil
 }
 
-func buildMarkdownFiles(dir string, templates *template.Template, cache *ContentCache) error {
+func buildMarkdownFiles(site *Site, dir string, templates *template.Template,
+	posts *PostList, cache *Cache) error {
 	keys, err := getKeys(dir, ".md")
 	if err != nil {
 		return err
 	}
 
 	for _, key := range keys {
-		page, err := buildPage(dir+key, templates)
+		err := buildPage(site, key, templates, posts, cache)
 		if err != nil {
 			return err
 		}
-
-		cache.Set(dir+key, content)
 	}
 
 	return nil
 }
 
-func buildPage(key string, templates *template.Template) (*Content, error) {
+func buildPage(site *Site, key string, templates *template.Template, posts *PostList,
+	cache *Cache) error {
 	markdown, err := getMarkdown(key)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Page does not exist
 	if markdown == nil {
-		return nil, nil
+		return nil
 	}
 
 	css, err := getCSS(key)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	javaScript, err := getJavaScript(key)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Process MD
@@ -81,55 +82,53 @@ func buildPage(key string, templates *template.Template) (*Content, error) {
 	// Parse in to something we can query with xpath
 	doc, err := htmlquery.Parse(bytes.NewReader(body))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Get details from parsed html
-	posts := p.posts.GetRecent(numRecent)
+	recent := (*posts)[:numRecent]
 	title := getTitle(doc)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
-	err = p.templates.ExecuteTemplate(buf, "page.tmpl", &TemplateData{
+	err = templates.ExecuteTemplate(buf, "page.tmpl", &TemplateData{
 		Title:      title,
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
 		Content:    string(body[:]),
-		Posts:      &posts,
-		Site:       p.site,
-		Social:     &Social{},
+		Posts:      &recent,
+		Site:       site,
 		Generated:  time.Now(),
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	content := buf.Bytes()
 
-	p.cache.Set(key, &Page{
+	cache.Set(key, &Content{
 		Content:      &content,
 		Mime:         "text/html; charset=utf-8",
 		CacheControl: "public, must-revalidate",
 		Etag:         getEtag(&content),
 	})
 
-	return nil, nil
+	return nil
 }
 
-func buildIndex(templates *template.Template) error {
+func buildIndex(site *Site, templates *template.Template, posts *PostList, cache *Cache) error {
 	// Build index/home
-	posts := p.posts.GetRecent(numRecent)
+	recent := (*posts)[:numRecent]
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
-	err := p.templates.ExecuteTemplate(buf, "index.tmpl", &TemplateData{
+	err := templates.ExecuteTemplate(buf, "index.tmpl", &TemplateData{
 		Title:      "Home",
 		CSS:        "",
 		JavaScript: "",
 		Content:    "",
-		Posts:      &posts,
-		Social:     &Social{},
-		Site:       p.site,
+		Posts:      &recent,
+		Site:       site,
 		Generated:  time.Now(),
 	})
 	if err != nil {
@@ -138,7 +137,7 @@ func buildIndex(templates *template.Template) error {
 
 	body := buf.Bytes()
 
-	p.cache.Set(indexKey, &Page{
+	cache.Set(indexKey, &Content{
 		Content:      &body,
 		Etag:         getEtag(&body),
 		Mime:         "text/html; charset=utf-8",
@@ -148,20 +147,19 @@ func buildIndex(templates *template.Template) error {
 	return nil
 }
 
-func buildRss(templates *template.Template) error {
+func buildRss(site *Site, templates *template.Template, posts *PostList, cache *Cache) error {
 	// Build index/home
-	posts := p.posts.GetRecent(rssLimit)
+	recent := (*posts)[:rssLimit]
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
-	err := p.templates.ExecuteTemplate(buf, "rss.tmpl", &TemplateData{
+	err := templates.ExecuteTemplate(buf, "rss.tmpl", &TemplateData{
 		Title:      "",
 		CSS:        "",
 		JavaScript: "",
 		Content:    "",
-		Posts:      &posts,
-		Social:     &Social{},
-		Site:       p.site,
+		Posts:      &recent,
+		Site:       site,
 		Generated:  time.Now(),
 	})
 	if err != nil {
@@ -170,7 +168,7 @@ func buildRss(templates *template.Template) error {
 
 	body := buf.Bytes()
 
-	p.cache.Set(rssKey, &Page{
+	cache.Set(rssKey, &Content{
 		Content:      &body,
 		Etag:         getEtag(&body),
 		Mime:         "application/rss+xml; charset=utf-8",

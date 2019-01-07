@@ -8,7 +8,7 @@ type Asset struct {
 	Etag    string
 }
 
-func LoadAssets(dir string, cache *ContentCache) error {
+func LoadAssets(dir string, cache *Cache) error {
 	keys, err := getKeys(dir, "")
 	if err != nil {
 		return err
@@ -32,15 +32,16 @@ func LoadAssets(dir string, cache *ContentCache) error {
 	return nil
 }
 
-func buildAsset(filename string) (*Asset, error) {
+func buildAsset(filename string) (*Content, error) {
 	buffer, mime, err := getAsset(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Asset{
-		Mime:    mime,
-		Content: buffer,
-		Etag:    getEtag(buffer),
+	return &Content{
+		Mime:         mime,
+		Content:      buffer,
+		Etag:         getEtag(buffer),
+		CacheControl: "public, max-age=2419200",
 	}, nil
 }

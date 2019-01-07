@@ -2,28 +2,25 @@ package site
 
 import (
 	"fmt"
-	"time"
-
 	"text/template"
+	"time"
 )
 
 type TemplateData struct {
-	Key        string
-	Title      string
-	JavaScript string
-	CSS        string
-	Content    string
-	Site       *Site
-	Posts      *[]*Post
-	Generated  time.Time
-	Social     *Social
-}
+	Key string
 
-type Social struct {
 	Title       string
 	Description string
 	ImageUrl    string
 	Url         string
+
+	JavaScript string
+	CSS        string
+	Content    string
+	Generated  time.Time
+
+	Site  *Site
+	Posts *PostList
 }
 
 func LoadTemplates(templateDir string) (*template.Template, error) {

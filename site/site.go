@@ -12,63 +12,59 @@ import (
 )
 
 const (
-	ContentDir  = "./content/"
-	TemplateDir = ContentDir
-	PagesDir    = ContentDir
-	PostsDir    = ContentDir + "posts/"
-	AssetsDir   = ContentDir + "static/"
+	postsDir  = "posts/"
+	assetsDir = "static/"
 )
 
 type Hashes map[string]string
 
 type Site struct {
-	port   string
-	Env    string
-	Hashes *Hashes
+	port    string
+	env     string
+	rootDir string
 
 	router    *mux.Router
-	cache     *ContentCache
+	cache     *Cache
 	templates *template.Template
+	posts     *PostList
+	hashes    *Hashes
 }
 
-func NewSite(port string, env string) *Site {
+func NewSite(port, env, contentDir string) *Site {
 	return &Site{
-		port: port,
-		Env:  env,
+		port:    port,
+		env:     env,
+		rootDir: contentDir,
 	}
 }
 
 func (s *Site) Run() error {
-	cache := NewContentCache()
+	s.cache = NewCache()
 
-	err := loadAssets(AssetsDir, cache)
+	err := LoadAssets(s.rootDir+assetsDir, s.cache)
 
-	template, err := loadTemplates(ContentDir)
+	s.templates, err = LoadTemplates(s.rootDir)
 	if err != nil {
 		return err
 	}
 
-	posts, err = loadPosts(PostsDir)
+	s.posts, err = LoadPosts(s, s.rootDir+postsDir, s.templates, s.cache)
 	if err != nil {
 		return err
 	}
 
-	err = loadPages(PagesDir, templates, posts)
+	err = LoadPages(s, s.rootDir, s.templates, s.posts, s.cache)
 	if err != nil {
 		return err
 	}
 
-	s.Hashes = s.assets.GetHashes()
+	s.hashes = s.cache.GetHashes()
 
 	// Prepare routing
 	router := mux.NewRouter()
-	router.HandleFunc("/posts/{key}", s.postHandler).Methods("GET")
-	router.HandleFunc("/static/{key}", s.staticHandler).Methods("GET")
-	router.HandleFunc("/favicon.ico", s.faviconHandler).Methods("GET")
-	router.HandleFunc("/robots.txt", s.robotsHandler).Methods("GET")
-	router.HandleFunc("/{key}", s.pageHandler).Methods("GET")
-	router.HandleFunc("/", s.pageHandler).Methods("GET")
-	router.HandleFunc("", s.pageHandler).Methods("GET")
+	router.HandleFunc("/{key}", s.contentHandler).Methods("GET")
+	router.HandleFunc("/", s.contentHandler).Methods("GET")
+	router.HandleFunc("", s.contentHandler).Methods("GET")
 	s.router = router
 
 	// Prepare server
@@ -101,7 +97,7 @@ func (s *Site) contentHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Try to get cached content
 	item := s.cache.Get(key)
-	if content == nil {
+	if item == nil {
 		s.Handle404(w, r)
 		return
 	}
@@ -122,33 +118,35 @@ func (s *Site) contentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
-	page := s.pages.Get("404")
-	if page == nil {
+	item := s.cache.Get("404")
+	if item == nil {
 		s.Handle500(w, r)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-cache")
 	w.WriteHeader(http.StatusNotFound)
-	w.Write(*page.Content)
+	w.Write(*item.Content)
 }
 
 func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 
-	page := s.pages.Get("500")
-	if page == nil {
+	item := s.cache.Get("500")
+	if item == nil {
 		log.Warn("Unable to get 500 page")
 		w.Write([]byte("Internal Server Error"))
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-cache")
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write(*page.Content)
+	w.Write(*item.Content)
 }
 
-func getPostUrl(env string) string {
+func getHost(env string) string {
 	domain := "localhost:8080"
 	if env == "production" {
 		domain = "www.pedanticorderliness.com"

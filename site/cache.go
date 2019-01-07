@@ -11,32 +11,38 @@ type Content struct {
 	CacheControl string
 }
 
-type ContentCache map[string]Content
+type ContentCache map[string]*Content
 
-func NewContentCache() *ContentCache {
-	return &ContentCache{}
+type Cache struct {
+	cache *ContentCache
 }
 
-func (c *ContentCache) GetKeys() []string {
+func NewCache() *Cache {
+	return &Cache{
+		cache: &ContentCache{},
+	}
+}
+
+func (c *Cache) GetKeys() []string {
 	var keys []string
-	for key := range c {
+	for key := range *c.cache {
 		keys = append(keys, key)
 	}
 
 	return keys
 }
 
-func (c *ContentCache) GetValues() []Content {
-	var values []interface{}
-	for _, value := range c {
+func (c *Cache) GetValues() []*Content {
+	var values []*Content
+	for _, value := range *c.cache {
 		values = append(values, value)
 	}
 
 	return values
 }
 
-func (c *ContentCache) Get(key string) Content {
-	item, exists := c[key]
+func (c *Cache) Get(key string) *Content {
+	item, exists := (*c.cache)[key]
 	if exists { // Found an item in the cache
 		log.Debug("cache hit")
 		return item
@@ -47,17 +53,17 @@ func (c *ContentCache) Get(key string) Content {
 	return item
 }
 
-func (c *ContentCache) Set(key string, item Content) {
-	c[key] = item
+func (c *Cache) Set(key string, item *Content) {
+	(*c.cache)[key] = item
 }
 
-func (c *ContentCache) GetHashes() *Hashes {
+func (c *Cache) GetHashes() *Hashes {
 	hashes := Hashes{}
 
 	keys := c.GetKeys()
 	for _, key := range keys {
 		value := c.Get(key)
-		hashes[key] = value.(*Asset).Etag
+		hashes[key] = value.Etag
 	}
 
 	return &hashes

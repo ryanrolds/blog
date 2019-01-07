@@ -7,6 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var contentDir = "./content/"
+
 func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 
@@ -20,7 +22,7 @@ func main() {
 		env = "test"
 	}
 
-	site := site.NewSite(port, env)
+	site := site.NewSite(port, env, contentDir)
 	err := site.Run()
 	if err != nil {
 		log.Fatal(err)
