@@ -2,6 +2,7 @@ package site
 
 import (
 	"bytes"
+	"errors"
 	"text/template"
 	"time"
 
@@ -11,9 +12,9 @@ import (
 )
 
 const numRecent = 6
-const indexKey = "index"
+const indexKey = "/index"
 const rssLimit = 20
-const rssKey = "rss.xml"
+const rssKey = "/rss.xml"
 
 func LoadPages(site *Site) error {
 	err := buildMarkdownFiles(site, site.rootDir, site.templates, site.posts, site.cache)
@@ -55,14 +56,14 @@ func buildMarkdownFiles(site *Site, dir string, templates *template.Template,
 
 func buildPage(site *Site, key string, templates *template.Template, posts *PostList,
 	cache *Cache) error {
-	markdown, err := getMarkdown(key)
+	markdown, err := getMarkdown(site.rootDir + key)
 	if err != nil {
 		return err
 	}
 
 	// Page does not exist
 	if markdown == nil {
-		return nil
+		return errors.New("Missing Markdown file")
 	}
 
 	css, err := getCSS(key)
@@ -111,7 +112,7 @@ func buildPage(site *Site, key string, templates *template.Template, posts *Post
 
 	content := buf.Bytes()
 
-	cache.Set(key, &Content{
+	cache.Set("/"+key, &Content{
 		Content:      &content,
 		Mime:         "text/html; charset=utf-8",
 		CacheControl: "public, must-revalidate",

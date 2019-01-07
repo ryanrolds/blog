@@ -1,7 +1,5 @@
 package site
 
-import log "github.com/sirupsen/logrus"
-
 //log "github.com/sirupsen/logrus"
 
 type Asset struct {
@@ -29,7 +27,6 @@ func LoadAssets(site *Site, assetsDir string) error {
 }
 
 func buildAsset(filename string) (*Content, error) {
-	log.Info(filename)
 	buffer, mime, err := getAsset(filename)
 	if err != nil {
 		return nil, err

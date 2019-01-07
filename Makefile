@@ -2,7 +2,6 @@
 
 install:
 	go get -u gopkg.in/russross/blackfriday.v2
-	go get -u github.com/gorilla/mux
 	go get -u github.com/sirupsen/logrus
 	go get -u github.com/antchfx/htmlquery
 	go get -u github.com/Depado/bfchroma

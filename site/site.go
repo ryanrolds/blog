@@ -7,7 +7,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,7 +22,6 @@ type Site struct {
 	Env     string
 	rootDir string
 
-	router    *mux.Router
 	cache     *Cache
 	templates *template.Template
 	posts     *PostList
@@ -48,8 +46,6 @@ func (s *Site) Run() error {
 
 	s.Hashes = s.cache.GetHashes()
 
-	log.Info(s.Hashes)
-
 	s.templates, err = LoadTemplates(s)
 	if err != nil {
 		return err
@@ -64,8 +60,6 @@ func (s *Site) Run() error {
 	if err != nil {
 		return err
 	}
-
-	log.Info(s.cache.GetKeys())
 
 	// Prepare server
 	server := http.Server{
@@ -91,13 +85,15 @@ func (s *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// The root page uses the "index" key
 	if path == "" || path == "/" {
-		path = "index"
+		path = "/index"
 	}
 
+	// Favicon
 	if path == "/favicon.ico" {
 		path = "/static/favicon.ico"
 	}
 
+	// Robots.txt
 	if path == "/robots.txt" {
 		if s.Env == "production" {
 			path = "/static/allow.txt"
@@ -105,8 +101,6 @@ func (s *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			path = "/static/disallow.txt"
 		}
 	}
-
-	log.Infof("Key: %s", path)
 
 	// Try to get cached content
 	item := s.cache.Get(path)
@@ -131,7 +125,7 @@ func (s *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
-	item := s.cache.Get("404")
+	item := s.cache.Get("/404")
 	if item == nil {
 		s.Handle500(w, r)
 		return
@@ -146,7 +140,7 @@ func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
 func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 
-	item := s.cache.Get("500")
+	item := s.cache.Get("/500")
 	if item == nil {
 		log.Warn("Unable to get 500 page")
 		w.Write([]byte("Internal Server Error"))
