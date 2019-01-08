@@ -8,7 +8,7 @@ type Asset struct {
 	Etag    string
 }
 
-func LoadAssets(site *Site, assetsDir string) error {
+func loadAssets(site *Site, assetsDir string) error {
 	keys, err := getKeys(site.rootDir+assetsDir, "")
 	if err != nil {
 		return err

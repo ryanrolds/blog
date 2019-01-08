@@ -1,11 +1,9 @@
 package site
 
 import (
-	"fmt"
 	"net/http"
 	//"strings"
 	"text/template"
-	"time"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -37,62 +35,47 @@ func NewSite(port, env, contentDir string) *Site {
 	}
 }
 
-func (s *Site) Run() error {
-	err := s.LoadContent()
+func (s *Site) GetHandler() (*mux.Router, error) {
+	err := s.loadContent()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/static/{key}", s.AssetHandler)
-	r.HandleFunc("/posts/{key}", s.PostHandler)
-	r.HandleFunc("/robots.txt", s.RobotsTxtHandler)
-	r.HandleFunc("/rss.xml", s.RssHandler)
-	r.HandleFunc("/favicon.ico", s.RssHandler)
-	r.HandleFunc("/{key}", s.PageHandler)
-	r.HandleFunc("/", s.IndexHandler)
-	r.HandleFunc("", s.IndexHandler)
+	r.HandleFunc("/static/{key}", s.assetHandler)
+	r.HandleFunc("/posts/{key}", s.postHandler)
+	r.HandleFunc("/robots.txt", s.robotsTxtHandler)
+	r.HandleFunc("/rss.xml", s.rssHandler)
+	r.HandleFunc("/favicon.ico", s.faviconHandler)
+	r.HandleFunc("/{key}", s.pageHandler)
+	r.HandleFunc("/", s.indexHandler)
+	r.HandleFunc("", s.indexHandler)
+	r.NotFoundHandler = http.HandlerFunc(s.handle404)
 
-	// Prepare server
-	server := http.Server{
-		Addr:         fmt.Sprintf(":%s", s.port),
-		Handler:      r,
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-
-	log.Info("Starting server")
-
-	// Run server and block
-	err = server.ListenAndServe()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r, nil
 }
 
-func (s *Site) LoadContent() error {
+func (s *Site) loadContent() error {
 	s.cache = NewCache()
 
-	err := LoadAssets(s, assetsDir)
+	err := loadAssets(s, assetsDir)
 	if err != nil {
 		return err
 	}
 
 	s.Hashes = s.cache.GetHashes()
 
-	s.templates, err = LoadTemplates(s)
+	s.templates, err = loadTemplates(s)
 	if err != nil {
 		return err
 	}
 
-	s.posts, err = LoadPosts(s, postsDir)
+	s.posts, err = loadPosts(s, postsDir)
 	if err != nil {
 		return err
 	}
 
-	err = LoadPages(s)
+	err = loadPages(s)
 	if err != nil {
 		return err
 	}
@@ -100,48 +83,48 @@ func (s *Site) LoadContent() error {
 	return nil
 }
 
-func (s *Site) AssetHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Site) assetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	s.CacheHandler(w, r, assetsDir+key)
+	s.cacheHandler(w, r, assetsDir+key)
 }
 
-func (s *Site) PostHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	s.CacheHandler(w, r, postsDir+key)
+	s.cacheHandler(w, r, postsDir+key)
 }
 
-func (s *Site) PageHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	s.CacheHandler(w, r, postsDir+key)
+	s.cacheHandler(w, r, postsDir+key)
 }
 
-func (s *Site) IndexHandler(w http.ResponseWriter, r *http.Request) {
-	s.CacheHandler(w, r, "index")
+func (s *Site) indexHandler(w http.ResponseWriter, r *http.Request) {
+	s.cacheHandler(w, r, "index")
 }
 
-func (s *Site) RssHandler(w http.ResponseWriter, r *http.Request) {
-	s.CacheHandler(w, r, "rss.xml")
+func (s *Site) rssHandler(w http.ResponseWriter, r *http.Request) {
+	s.cacheHandler(w, r, "rss.xml")
 }
 
-func (s *Site) FaviconHandler(w http.ResponseWriter, r *http.Request) {
-	s.CacheHandler(w, r, "favicon.ico")
+func (s *Site) robotsTxtHandler(w http.ResponseWriter, r *http.Request) {
+	s.cacheHandler(w, r, "robots.txt")
 }
 
-func (s *Site) RobotsTxtHandler(w http.ResponseWriter, r *http.Request) {
-	s.CacheHandler(w, r, "robots.txt")
+func (s *Site) faviconHandler(w http.ResponseWriter, r *http.Request) {
+	s.cacheHandler(w, r, "static/favicon.ico")
 }
 
-func (s *Site) CacheHandler(w http.ResponseWriter, r *http.Request, key string) {
+func (s *Site) cacheHandler(w http.ResponseWriter, r *http.Request, key string) {
 	// Try to get cached content
 	item := s.cache.Get(key)
 	if item == nil {
-		s.Handle404(w, r)
+		s.handle404(w, r)
 		return
 	}
 
@@ -152,18 +135,15 @@ func (s *Site) CacheHandler(w http.ResponseWriter, r *http.Request, key string) 
 
 	w.Header().Set("Content-Type", item.Mime)
 	w.Header().Set("Cache-Control", item.CacheControl)
-	//w.Header().Set("Cache-Control", "public, must-revalidate")
-	//w.Header().Set("Cache-Control", "public, max-age=2419200")
-	//w.Header().Set("Cache-Control", "public, max-age=604800")
 	w.Header().Set("Etag", item.Etag)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*item.Content)
 }
 
-func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
-	item := s.cache.Get("/404")
+func (s *Site) handle404(w http.ResponseWriter, r *http.Request) {
+	item := s.cache.Get("404")
 	if item == nil {
-		s.Handle500(w, r)
+		s.handle500(w, r)
 		return
 	}
 
@@ -173,10 +153,10 @@ func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
 	w.Write(*item.Content)
 }
 
-func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
+func (s *Site) handle500(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 
-	item := s.cache.Get("/500")
+	item := s.cache.Get("500")
 	if item == nil {
 		log.Warn("Unable to get 500 page")
 		w.Write([]byte("Internal Server Error"))

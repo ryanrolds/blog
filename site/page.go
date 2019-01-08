@@ -16,7 +16,7 @@ const indexKey = "index"
 const rssLimit = 20
 const rssKey = "rss.xml"
 
-func LoadPages(site *Site) error {
+func loadPages(site *Site) error {
 	err := buildMarkdownFiles(site, site.rootDir, site.templates, site.posts, site.cache)
 	if err != nil {
 		return err

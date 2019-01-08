@@ -23,7 +23,7 @@ type TemplateData struct {
 	Posts *PostList
 }
 
-func LoadTemplates(site *Site) (*template.Template, error) {
+func loadTemplates(site *Site) (*template.Template, error) {
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {
 		return nil, err

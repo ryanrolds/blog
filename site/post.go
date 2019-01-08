@@ -29,7 +29,7 @@ type Post struct {
 
 type PostList []*Post
 
-func LoadPosts(site *Site, dir string) (*PostList, error) {
+func loadPosts(site *Site, dir string) (*PostList, error) {
 	keys, err := getKeys(site.rootDir+dir, ".md")
 	if err != nil {
 		return nil, err
