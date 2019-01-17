@@ -109,46 +109,19 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		return nil, nil
 	}
 
-	// Defines the extensions that are used
-	var exts = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
-		bf.Strikethrough | bf.SpaceHeadings | bf.BackslashLineBreak |
-		bf.DefinitionLists | bf.Footnotes
-
-	// Defines the HTML rendering flags that are used
-	var flags = bf.UseXHTML | bf.Smartypants | bf.SmartypantsFractions |
-		bf.SmartypantsDashes | bf.SmartypantsLatexDashes
-
-	// Setting chroma renderer
-	renderer := bfchroma.NewRenderer(
-		bfchroma.Style("emacs"),
-		bfchroma.WithoutAutodetect(),
-		bfchroma.ChromaOptions(
-			html.WithLineNumbers(),
-			html.WithClasses(),
-		),
-		bfchroma.Extend(
-			bf.NewHTMLRenderer(bf.HTMLRendererParameters{
-				Flags: flags,
-			}),
-		),
-	)
-
-	css := new(bytes.Buffer)
-	if err = renderer.Formatter.WriteCSS(css, renderer.Style); err != nil {
-		log.WithError(err).Warning("Couldn't write CSS")
+	body, css, err := renderMarkdown(markdown)
+	if err != nil {
+		return nil, err
 	}
 
-	// Process MD
-	body := bf.Run(*markdown, bf.WithRenderer(renderer), bf.WithExtensions(exts))
-
 	// Parse into something we can query with xpath
-	doc, err := htmlquery.Parse(bytes.NewReader(body))
+	doc, err := htmlquery.Parse(bytes.NewReader(*body))
 	if err != nil {
 		return nil, err
 	}
 
 	// If no published date, skip
-	if isPublished(doc) == false {
+	if isPublished(doc) == false && p.site.Env == "production" {
 		log.Infof("Skipping %s, not published", key)
 		return nil, ErrNotPublished
 	}
@@ -167,7 +140,7 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		Title:      title,
 		CSS:        css.String(),
 		JavaScript: "",
-		Content:    string(body[:]),
+		Content:    string((*body)[:]),
 		Site:       p.site,
 		Generated:  time.Now(),
 
@@ -194,6 +167,43 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		Etag:        getEtag(&content),
 		Url:         url,
 	}, nil
+}
+
+func renderMarkdown(markdown *[]byte) (*[]byte, *bytes.Buffer, error) {
+	// Defines the extensions that are used
+	var exts = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
+		bf.Strikethrough | bf.SpaceHeadings | bf.BackslashLineBreak |
+		bf.DefinitionLists | bf.Footnotes
+
+	// Defines the HTML rendering flags that are used
+	var flags = bf.UseXHTML | bf.Smartypants | bf.SmartypantsFractions |
+		bf.SmartypantsDashes | bf.SmartypantsLatexDashes
+
+	// Setting chroma renderer
+	renderer := bfchroma.NewRenderer(
+		bfchroma.Style("emacs"),
+		bfchroma.WithoutAutodetect(),
+		bfchroma.ChromaOptions(
+			html.WithLineNumbers(),
+			html.WithClasses(),
+		),
+		bfchroma.Extend(
+			bf.NewHTMLRenderer(bf.HTMLRendererParameters{
+				Flags: flags,
+			}),
+		),
+	)
+
+	css := bytes.Buffer{}
+	if err := renderer.Formatter.WriteCSS(&css, renderer.Style); err != nil {
+		log.WithError(err).Warning("Couldn't write CSS")
+		return nil, nil, err
+	}
+
+	// Process MD
+	body := bf.Run(*markdown, bf.WithRenderer(renderer), bf.WithExtensions(exts))
+
+	return &body, &css, nil
 }
 
 func getPostUrl(env string, key string) string {
