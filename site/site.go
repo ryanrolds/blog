@@ -7,8 +7,9 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -24,6 +25,7 @@ type Hashes map[string]string
 type Site struct {
 	port   string
 	Env    string
+	Log    *logrus.Entry
 	Hashes *Hashes
 
 	router *mux.Router
@@ -34,10 +36,11 @@ type Site struct {
 	templates *template.Template
 }
 
-func NewSite(port string, env string) *Site {
+func NewSite(port string, env string, log *logrus.Entry) *Site {
 	return &Site{
 		port: port,
 		Env:  env,
+		Log:  log,
 	}
 }
 
@@ -79,15 +82,17 @@ func (s *Site) Run() error {
 	router.HandleFunc("", s.pageHandler).Methods("GET")
 	s.router = router
 
+	loggingHandler := handlers.LoggingHandler(s.Log.Writer(), router)
+
 	// Prepare server
 	server := http.Server{
 		Addr:         fmt.Sprintf(":%s", s.port),
-		Handler:      s.router,
+		Handler:      loggingHandler,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Info("Starting server")
+	s.Log.Info("Starting server")
 
 	// Run server and block
 	err = server.ListenAndServe()
@@ -220,7 +225,7 @@ func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
 
 	page := s.pages.Get("500")
 	if page == nil {
-		log.Warn("Unable to get 500 page")
+		s.Log.Warn("Unable to get 500 page")
 		w.Write([]byte("Internal Server Error"))
 		return
 	}

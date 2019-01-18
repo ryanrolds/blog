@@ -8,6 +8,7 @@ install:
 	go get -u github.com/Depado/bfchroma
 	go get -u github.com/alecthomas/chroma
 	go get -u github.com/alecthomas/chroma/formatters/html
+	go get -u github.com/gorilla/handlers
 
 build:
 	go build

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-	//log "github.com/sirupsen/logrus"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -87,7 +86,7 @@ func (p *PageManager) buildMarkdownFiles() error {
 }
 
 func (p *PageManager) buildPage(key string) error {
-	markdown, err := getMarkdown(key)
+	markdown, err := getMarkdown(key, p.site.Log)
 	if err != nil {
 		return err
 	}
@@ -118,7 +117,7 @@ func (p *PageManager) buildPage(key string) error {
 
 	// Get details from parsed html
 	posts := p.posts.GetRecent(numRecent)
-	title := getTitle(doc)
+	title := getTitle(doc, p.site.Log)
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}

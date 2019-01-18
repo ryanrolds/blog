@@ -99,7 +99,7 @@ func (p *PostManager) GetRecent(num int) []*Post {
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
-	markdown, err := getMarkdown(p.dir + key)
+	markdown, err := getMarkdown(p.dir+key, p.site.Log)
 	if err != nil {
 		return nil, err
 	}
@@ -127,10 +127,10 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	}
 
 	// Get details from parsed html
-	title := getTitle(doc)
-	publishedAt := getPublishedAt(doc)
-	intro := getIntro(doc)
-	image := getImage(doc)
+	title := getTitle(doc, p.site.Log)
+	publishedAt := getPublishedAt(doc, p.site.Log)
+	intro := getIntro(doc, p.site.Log)
+	image := getImage(doc, p.site.Log)
 	url := getPostUrl(p.site.Env, key)
 
 	// Run markdown through page template

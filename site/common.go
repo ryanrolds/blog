@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 )
 
@@ -73,7 +73,7 @@ func getJavaScript(key string) (*[]byte, error) {
 	return &javaScript, nil
 }
 
-func getMarkdown(key string) (*[]byte, error) {
+func getMarkdown(key string, log *logrus.Entry) (*[]byte, error) {
 	// Get file contents
 	log.Info("Loading file ", key+".md")
 	content, err := ioutil.ReadFile(key + ".md")
@@ -102,7 +102,7 @@ func isPublished(doc *html.Node) bool {
 	return false
 }
 
-func getPublishedAt(doc *html.Node) time.Time {
+func getPublishedAt(doc *html.Node, log *logrus.Entry) time.Time {
 	publishedAt := time.Now()
 	publishedAtElm := htmlquery.FindOne(doc, "//div[@id='published-at']")
 	if publishedAtElm != nil {
@@ -120,7 +120,7 @@ func getPublishedAt(doc *html.Node) time.Time {
 	return publishedAt
 }
 
-func getTitle(doc *html.Node) string {
+func getTitle(doc *html.Node, log *logrus.Entry) string {
 	title := "Title"
 	titleElm := htmlquery.FindOne(doc, "//h1")
 	if titleElm != nil {
@@ -132,7 +132,7 @@ func getTitle(doc *html.Node) string {
 	return html.EscapeString(title)
 }
 
-func getIntro(doc *html.Node) string {
+func getIntro(doc *html.Node, log *logrus.Entry) string {
 	intro := "Intro"
 	introElm := htmlquery.FindOne(doc, "//p")
 	if introElm != nil {
@@ -144,7 +144,7 @@ func getIntro(doc *html.Node) string {
 	return intro
 }
 
-func getImage(doc *html.Node) string {
+func getImage(doc *html.Node, log *logrus.Entry) string {
 	image := ""
 	imageElm := htmlquery.FindOne(doc, "//img")
 	if imageElm != nil {
