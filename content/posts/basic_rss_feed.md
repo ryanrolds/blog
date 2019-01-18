@@ -1,4 +1,4 @@
-# Basic RSS Feed
+# RSS Feeds with Go's text/template
 
 
 
