@@ -15,7 +15,7 @@ h2 {
   font-weight: bold;
 }
 h3 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: normal;
 }
 h4 {
@@ -24,6 +24,7 @@ h4 {
 }
 p {
   font-size: 1rem;
+  text-align: justify;
   color: #3A4145;
 }
 p.small {

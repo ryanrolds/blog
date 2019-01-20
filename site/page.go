@@ -180,10 +180,9 @@ func (p *PageManager) buildIndex() error {
 }
 
 func (p *PageManager) buildRss() error {
-	// Build index/home
+	// Get a list of most recent posts
 	posts := p.posts.GetRecent(rssLimit)
 
-	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err := p.templates.ExecuteTemplate(buf, "rss.tmpl", &TemplateData{
 		Title:      "",

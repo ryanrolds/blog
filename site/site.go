@@ -125,7 +125,7 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", page.Mime)
-	w.Header().Set("Cache-Control", "public, must-revalidate")
+	w.Header().Set("Cache-Control", page.CacheControl)
 	w.Header().Set("Etag", page.Etag)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*page.Content)
