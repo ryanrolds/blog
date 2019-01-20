@@ -37,7 +37,7 @@ p.subtext {
 pre.chroma {
   white-space: pre-wrap;
   padding: .5rem;
-  overflow-x: scroll;
+  overflow-x: auto;
   background-color: #dddddd;
 }
 code {

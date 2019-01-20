@@ -187,7 +187,7 @@ func (s *Site) Run() error {
 }
 ```
 
-We are using Go's [net/http package]() and [Gorilla Mux]() for routing. In an [earlier post]() we covered the http server and router. And now the blog has an [RSS Feed](/rss.xml).
+We are using Go's [net/http package](https://golang.org/pkg/net/http/) and [Gorilla Mux](https://github.com/gorilla/mux) for routing. In an [earlier post](/posts/this_blog_part_1) we covered the http server and router. And now the blog has an [RSS Feed](/rss.xml).
 
 ## Wrap-up
 
