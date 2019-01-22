@@ -13,7 +13,7 @@ A couple week ago, I added Facebook's Open Graph meta tags and Twitter's `card` 
 
 ``` html
 <meta property="og:title" content="RSS Feeds with Go’s text/template">
-<meta property="og:description" content="In this post we will be covering RSS 2.0 feeds and a little bit of Go’s text/template package. We will look at RSS’s format and it’s relationship to XML. Implement a template that produces and XML document conforming to the RSS 2.0 specification. Finally, we will implement an HTTP route handler that will response with the blogs rendered RSS XML document..">
+<meta property="og:description" content="The blog is functional, but it’s missing features that improve reach and reader retention. Currently, readers must remember to visit the blog. That’s a tall order; We have to compete for their time and reading blogs is a low priority. Being able to display nudges where people spend their time is critical to winning some of their attention. Social media, newsletters, and RSS feeds are ways that we can fight for their attention.">
 <meta property="og:url" content="https://test.pedanticorderliness.com/posts/basic_rss_feed">
 <meta name="twitter:card" content="summary_large_image">
 ```
