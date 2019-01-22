@@ -18,7 +18,7 @@ A couple weeks ago, I added Facebook's Open Graph meta tags and Twitter's `card`
 <meta name="twitter:card" content="summary_large_image">
 ```
 
-The above is rendered into this HTML document's `head` element using Go's `text/template` package. More on the Go's templating packages later. Rather than letting the social media providers guess at the key details of the post, we clearly define the values with meta tags. Now, when posting to Twitter, Facebook, or LinkedIn, the post will automatically contain the correct title, description, images (coming soon), and URI.
+The above is rendered into this HTML document's `head` element using Go's `text/template` package. More on the Go's templating packages later. Rather than letting the social media providers guess at the key details of the post, we clearly define the values with meta tags. Now, when posting to Twitter, Facebook, or LinkedIn, the post will automatically contain the correct title, description, images (coming soon), and URI in the preview.
 
 ## Newsletters
 
