@@ -1,102 +1,134 @@
 # RSS Feeds with Go's text/template
+<div id="published-at">2019-01-22T00:16:19Z</div>
 
-In this post we will be covering RSS 2.0 Feeds and a little bit of Go's [`text/template`](https://golang.org/pkg/text/template/) package. We will look at RSS's format and it's relationship to XML. Implement a template that produces and XML document conforming to the RSS 2.0 specification. Finally, we will implement an HTTP route handler that will response with the blogs rendered RSS XML document..
+The blog is functional, but it’s missing features that improve reach and reader retention. Currently, readers must remember to visit the blog. That’s a tall order; We have to compete for their time and reading blogs is a low priority. Being able to display nudges where people spend their time is critical to winning some of their attention. Social media, newsletters, and RSS feeds are ways that we can fight for their attention.
 
-### Why?
+In this post, we will look at a few different broadcasting techniques and implement an RSS feed. First, we will cover social media, newsletters, and RSS feeds. After narrowing in on RSS feeds, we will analyze an RSS feed's XML document. Using Go's `text/template` package we will create a template that renders an RSS feed for this blog. Lastly, we will look at the HTTP route handler that serves the document from `GET /rss.xml`.
 
-An RSS Feed is an important blog feature, it provides a way to broadcast new posts to your readers/users. Without RSS Feeds, and other methods of broadcasting, your readers would have to remember to visit your site to discovery new content. Broadcasting new posts to your users will drive views and improve reader retention. 
+## Social Media
 
-A newsletter is another broacast option, newsletters are much more effective then an RSS Feed, but it's also much more work. A newletter sign-up form isn't the most difficult part of newsletters. Free and paid services exists that will take most of the sign-up processes technical burden off your hands. The bulk of the work is actually sending the newsletter, fighting with email templates, and debugging email client rendering issues. The template section of this article should help demystify templates, which may be helpful when implementing email, and other, templates. 
+Social media has become critical in reaching many demographics/markets. I've been posting to Facebook, Twitter, and LinkedIn, with decent success. Most of the blog's traffic comes from Twitter and Facebook, not direct links or search engines. With more posts and a little SEO work, hopefully, more traffic will be driven to the blog by Google, DuckDuckGo, Bing, and other search engines. In the short term, streamlining social media posts was the most impactful thing I could do.
 
-## Format
+A couple week ago, I added Facebook's Open Graph meta tags and Twitter's `card` meta tag:
 
-RSS 2.0 Feeds are XML Documents that contain a `channel` and a list of posts, called `items`. An RSS Feed contains enough details about a blog and it's posts that an RSS Reader can aggregate and display the feeds/posts in a UI. Here is an example of an RSS feed with a single post:
-
-``` xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel>
-    <title>Pedantic Orderliness</title>
-    <description>An assortment of technical posts, projects, game reviews, and
-        random musings by Ryan Olds.</description>
-    <link>https://www.pedanticorderliness.com/</link>
-    <image>
-        <url>https://www.pedanticorderliness.com/static/logo.png</url>
-        <title>Pedantic Orderliness</title>
-        <link>https://www.pedanticorderliness.com/</link>
-    </image>
-    <pubDate>Sat, 19 Jan 2019 00:21:57 +0000</pubDate>
-    <ttl>1440</ttl>
-    <atom:link href="https://www.pedanticorderliness.com/rss.xml"
-        rel="self" type="application/rss+xml" />
-    
-    <item>
-        <title>Efficient HTTP caching</title>
-        <description>In this post, we will be talking about HTTP caching headers
-            and strategies for maximizing browser-level caching while ensuring
-            freshness. First, we will dive into HTTP and it’s caching headers.
-            Then we will cover a few common strategies. And finally, we will review
-            this blog’s implementation..</description>
-        <link>https://www.pedanticorderliness.com/posts/efficient_http_caching</link>
-        <guid>https://www.pedanticorderliness.com/posts/efficient_http_caching</guid>
-        <pubDate>Fri, 04 Jan 2019 01:27:25 +0000</pubDate>
-    </item>
-    
-</channel>
-</rss>
+``` html
+<meta property="og:title" content="RSS Feeds with Go’s text/template">
+<meta property="og:description" content="In this post we will be covering RSS 2.0 feeds and a little bit of Go’s text/template package. We will look at RSS’s format and it’s relationship to XML. Implement a template that produces and XML document conforming to the RSS 2.0 specification. Finally, we will implement an HTTP route handler that will response with the blogs rendered RSS XML document..">
+<meta property="og:url" content="https://test.pedanticorderliness.com/posts/basic_rss_feed">
+<meta name="twitter:card" content="summary_large_image">
 ```
-> Quick note on reading XML and it's subset HTML. XML documents are nodes/elements (`<rss>`, `<channel>`, `<item>`, etc...) in a tree structure. Nodes can have attributes (`version`, `encoding`, `href`, etc...), which in turn have values. [Attribute-value pairs](https://en.wikipedia.org/wiki/Attribute%E2%80%93value_pair), also called a key-value pairs, are a _very_ common pattern in software. You will see the pattern used in JSON, YAML, CSS. Think of key-value pairs as a dictionary/map containing details of the node. XML parsing libraries provide easy access to nodes and their key-value pairs. As this is a tree, nodes can contain other nodes, and/or a leaf/text.
 
-Going through the above example line by line we see the XML deleration, `<?xml ...>`, and the root element/node, `<rss ...>`. The former is how the RSS Reader (client) knows this is an XML document. The root element is the top most node in the document's tree. After the client downloads the XML document it parses it with a library, like [XPath](https://en.wikipedia.org/wiki/XPath). The library will provide easy to use functions to traverse and/or query the document tree. 
+The above is rendered into this HTML document's `head` element using Go's `text/template` package. More on the Go's templating packages later. Rather than letting the social media providers guess at the key details of the post, we clearly define the values with meta tags. Now, when posting to Twitter, Facebook, or LinkedIn, the post will automatically contain the correct title, description, images (coming soon), and URI.
 
-The client retieves the channel and it's list of items/posts. The channel's `ttl` and `pubDate` are used to determine how often to redownload and process the feed/document. A channel image is also defined, clients will often display the channel image in their UI. The purpose title, description, link should be obvious.  
+## Newsletters
 
-RSS Readers will consume the channel's items/posts and display them in a list among posts from other feeds. Normally the lists are sorted by the post's `pubDate`. The list item will display the post's title, description, pubDate, and image (if provided). There are many other nodes that can be defined in an RSS XML document. See the [RSS 2.0 Specification](http://www.rssboard.org/rss-specification) and please don't expect specification pages to be pretty.
+Newsletters are another great broadcast option, but take much more time to implement and maintain. There are a few major pieces - the sign-up form, CAN-SPAM compliance, writing the newsletter, and debugging templates. The sign-up form and CAN-SPAM compliance are not the most difficult part of sending newsletters. Free and paid services exist that will take most work implementing the sign-up processes and CAN-SPAN's technical requirements off your hands. The bulk of the work is sending the newsletter, fighting with email templates, and debugging email client rendering issues. The template section of this article should help demystify templates a bit, which should be helpful when implementing email and other templates.
 
-> The RSS format is flexible, it doesn't just have to be used for blog posts. I've seen it used to pass basic events between programs. Another way to think about it, RSS feeds allow an RSS Reader (client) to consume posts (events) from a blog (service).
+## RSS Feeds
 
-## Template
+RSS feeds broadcast content changes in a completely automated manner once a reader adds the feed to their RSS reader (native/mobile/web app or browser plugin). You don't have to manually post things to social media or write and send a newsletter. This technique has been around for a while, most of the RSS specifications are from the early 2000s. Despite RSS feed usage declining, it is still useful in reaching some demographics (IT workers and developers). If this blog were about something less technical, I would be more inclined to forgo RSS feeds.
 
-Armed with a decent idea about the structure of the XML document that we must create we have a couple of options:
+Implementing an RSS feed requires serving an RSS compliant XML document containing details about the blog and its post's. In the next few sections will cover the format, template, and HTTP route handler required to serve that XML document.
 
-* Progromatically create the tree and define each nodes attributes, then generate the XML document from the tree
-* Define a template that renders a valid RSS XML document
+### RSS Format
 
-This article is going to go with the 2nd option. The 1st option is perfectly valid and is prefered when the data the document is generated from is more complex. Go does have an XML package that will get the job done, but it's a much more complex solution then we need. Also, we are already able to easily load and render Go templates in this project. 
+An RSS feed contains enough details for an RSS reader display aggregated feeds/posts in a UI. An RSS compliant XML document includes a `channel` and a list of posts, called `items`. 
 
-It's worth restating our purpose at this point, we are creating an RSS Feed for our site. The feed will contain some basic information about the blog and a list of recent posts. The template will be off a basic RSS feed with placeholders for the blog's details, we also need to iterate of a list of posts and render a channel item for each post.  template has been created at ./content/rss.tmpl:
+Here is an example of an RSS feed with a single post:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
+
     <title>Pedantic Orderliness</title>
     <description>An assortment of technical posts, projects, game reviews, and random musings by Ryan Olds.</description>
     <link>https://www.pedanticorderliness.com/</link>
+    <atom:link href="https://www.pedanticorderliness.com/rss.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Tue, 22 Jan 2019 01:10:35 +0000</pubDate>
+    <ttl>1440</ttl>
+
     <image>
         <url>https://www.pedanticorderliness.com/static/logo.png</url>
         <title>Pedantic Orderliness</title>
         <link>https://www.pedanticorderliness.com/</link>
     </image>
+    
+    <item>
+        <title>RSS Feeds with Go’s text/template</title>
+        <description>The blog is functional, but it’s missing features that improve reach and reader retention. Currently, readers must remember to visit the blog. That’s a tall order; We have to compete for their time and reading blogs is a low priority. Being able to display nudges where people spend their time is critical to winning some of their attention. Social media, newsletters, and RSS feeds are ways that we can fight for their attention.</description>
+        <link>https://test.pedanticorderliness.com/posts/basic_rss_feed</link>
+        <guid>https://test.pedanticorderliness.com/posts/basic_rss_feed</guid>
+        <pubDate>Tue, 22 Jan 2019 00:16:19 +0000</pubDate>
+    </item>
+    
+    <item>
+        <title>Efficient HTTP caching</title>
+        <description>In this post, we will be talking about HTTP caching headers and strategies for maximizing browser-level caching while ensuring freshness. First, we will dive into HTTP and it’s caching headers. Then we will cover a few common strategies. And finally, we will review this blog’s implementation.</description>
+        <link>https://test.pedanticorderliness.com/posts/efficient_http_caching</link>
+        <guid>https://test.pedanticorderliness.com/posts/efficient_http_caching</guid>
+        <pubDate>Fri, 04 Jan 2019 01:27:25 +0000</pubDate>
+    </item>
+    
+    ...
+
+</channel>
+</rss>
+```
+> A quick note on reading XML and it's subset HTML. XML documents are nodes/elements (`<rss>`, `<channel>`, `<item>`, etc...) in a tree structure. Nodes can have attributes (`version`, `encoding`, `href`, etc...), which in turn have values. [Attribute-value pairs](https://en.wikipedia.org/wiki/Attribute%E2%80%93value_pair), also called key-value pairs, are used often by software developers. You will see the pattern used in JSON, YAML, CSS. Sets of key-value pairs, like attributes on node/element, are a dictionary/map. Modern languages have parsing libraries that provide easy access to the document nodes/elements and their key-value pairs. As this is a tree, nodes can contain other nodes and a leaf/text.
+
+Going through the above example line by line we see the XML declaration, `<?xml ...>`, and the root element/node, `<rss ...>`. The former is how the RSS reader (client) knows this is an XML document. After downloading and parsing the XML document, the client will query the tree for the root node. Then the client checks the root node for a `channel` node. With the `channel` node, the client retrieves the channel details and the list of items/posts. The channel's `ttl` and `pubDate` are used to determine how often to redownload and process the feed/document. A channel `image` is also defined, clients will usually display the image in their UI.
+
+RSS readers will consume the channel's items/posts and display them in a list among posts from other feeds. The list item will show the post's `title`, `description`, `pubDate`, and `image` (if provided). See the [RSS 2.0 Specification](http://www.rssboard.org/rss-specification) for additional nodes/attributes that you can use in an RSS feed.
+
+> The RSS format is flexible; You can use it for more than blog posts. I've seen it used to pass events between programs. Another way to think about it, RSS feeds allow an RSS reader (client) to consume posts (events) from a blog (service).
+
+### Template
+
+Armed with a decent idea about the structure of the XML document, we have a couple of options:
+
+* Programmatically create the tree and the attributes of each node, then generate the XML document from the tree
+* Define a template that renders a valid RSS XML document
+
+This article is going to go with the 2nd option. The 1st option is perfectly valid and is preferred when the data is more complicated. Go does have an XML package that will get the job done, but it's more complicated than we need. Also, we can already easily load and render [Go templates](https://golang.org/pkg/text/template/) in this project. 
+
+The template inserts the generation date (now) into the channel's `pubDate` and creates a channel `item` for each provided post:
+
+``` xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+
+    <title>Pedantic Orderliness</title>
+    <description>An assortment of technical posts, projects, game reviews, and random musings by Ryan Olds.</description>
+    <link>https://www.pedanticorderliness.com/</link>
+    <atom:link href="https://www.pedanticorderliness.com/rss.xml" rel="self" type="application/rss+xml" />
     <pubDate>{{ FormatRssDate .Generated}}</pubDate>
     <ttl>1440</ttl>
-    <atom:link href="https://www.pedanticorderliness.com/rss.xml" rel="self" type="application/rss+xml" />
+
+    <image>
+        <url>https://www.pedanticorderliness.com/static/logo.png</url>
+        <title>Pedantic Orderliness</title>
+        <link>https://www.pedanticorderliness.com/</link>
+    </image>
+
     {{ range .Posts}}
     <item>
         <title>{{ .Title }}</title>
-        <description>{{ .Intro }}.</description>
+        <description>{{ .Intro }}</description>
         <link>{{ .Url }}</link>
         <guid>{{ .Url }}</guid>
         <pubDate>{{ FormatRssDate .PublishedAt }}</pubDate>
     </item>
     {{ end }}
+
 </channel>
 </rss>
 ```
 
-The template looks a lot like the XML document in the previous section. The major differences are the channel's pubDate element; The element's contents is a tempalte directive that prints the document's generation date & time in a format required by the RSS specification. The next major different is the `{{ range .Posts }}...{{ end }}` directive. When the tmeplate is rendered it's provided a list of posts, the `range` directive iterates through the list and any template directives before the `end` directive are scoped to an post in the provided list. The title, intro, link, guid (we use the post's url), and published date are for each post is rendered into a channel item.
+The template looks a lot like the XML document in the previous section. The major differences are the channel's `pubDate` element; The element contains a template directive that prints the document's generation date & time in a format required by the RSS specification. The next major difference is the `{{ range .Posts }}...{{ end }}` directive. The `range` directive iterates through the list and renders it's body (lines between `range` and `end` directives) once for each item in the list. Directives in the body are scoped to the list item. The body adds item elements for the `title`, `intro`, `link`, `guid` (we use the post's URI), and `pubDate`.
 
-Now we can look at the code that renders the document using the "rss.tmpl" template file and a list of posts:
+The code below renders the document using the "rss.tmpl" template file, generated at data+time, and a list of posts:
 
 ``` go
 const rssLimit = 20
@@ -132,13 +164,13 @@ func (p *PageManager) buildRss() error {
 }
 ```
 
-The `PageManager` struct has a method called `buildRss`. That method gets up to 20 posts from the `Postmanager` provided to the `PageManager`. It then creates a buffer that will hold the rendered XML document. The template is then rendered using the list of recent posts, the Site struct, and current date & time. Then the method adds the rendered document to the page cache under the key `rss.xml` (it's key+value store). With the page in the cache we can now create an HTTP router handler that will respond with cached document.
+The `PageManager` struct has a method called `buildRss`. That method gets up to 20 posts from the `Postmanager` provided to the `PageManager`. It then creates a buffer that will hold the rendered XML document. The template is then rendered using the list of recent posts, the Site struct, and current date & time. Then the method adds the rendered document to the page cache under the key `rss.xml` (it's key+value store). With the page in the cache, we can now create an HTTP route handler that will respond with the cached document.
 
-> When implementing the template it's helpful to setup the HTTP route handler, run the server, and access the document with your browser. Copy the document text and run it through the [RSS Feed Validator](https://validator.w3.org/feed/#validate_by_input). 
+> When implementing the template, it's helpful to set up the HTTP route handler, run the server, and access the document with your browser. Copy the document text and run it through the [RSS Feed Validator](https://validator.w3.org/feed/#validate_by_input). 
 
-## Route Handler
+### Route Handler
 
-Lets get right to the handler code:
+Let's get right to the handler code:
 
 ``` go
 func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
@@ -170,10 +202,10 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-We've looked at similar code in a [pevious post](/posts/this_blog_part_1). The handler determines the key to use when looking up a page in the cache. If it can't find a page it returns a 404. Otherwise, it looks at an HTTP cacheing related header to determine if the client's copy if fresh (more on HTTP caching in a [previous post](/posts/efficient_http_caching). If the browser doesn't have a cached copy or the copy is old, write out the headers, 200 status code, and RSS document. 
+We've looked at similar code in a [previous post](/posts/this_blog_part_1). The handler determines the key to use when looking up a page in the cache. If it can't find a page, it returns a 404. Otherwise, it looks at an HTTP caching related header to determine if the client's copy is fresh (more on HTTP caching in a [previous post](/posts/efficient_http_caching). If the browser doesn't have a cached copy or the copy is old, write out the headers, 200 status code, and RSS document. 
 
 
-Finally we need to instruct the HTTP server to call this handler for specific HTTP paths:
+Finally, we need to instruct the HTTP server to call this handler for specific HTTP paths:
 
 ``` go
 func (s *Site) Run() error {
@@ -187,8 +219,8 @@ func (s *Site) Run() error {
 }
 ```
 
-We are using Go's [net/http package](https://golang.org/pkg/net/http/) and [Gorilla Mux](https://github.com/gorilla/mux) for routing. In an [earlier post](/posts/this_blog_part_1) we covered the http server and router. And now the blog has an [RSS Feed](/rss.xml).
+We are using Go's [net/http package](https://golang.org/pkg/net/http/) and [Gorilla Mux](https://github.com/gorilla/mux) for routing. In an [earlier post](/posts/this_blog_part_1), we covered the HTTP server and router.
 
 ## Wrap-up
 
-That about does it for RSS feeds. With a little background on the RSS document structure, a template made with Go's `text/template` package, and Mux route handler it's not a lot of code to add an RSS feed. In the next post we will go over logging to CloudWatch and some refactoring.
+With a little background on the RSS document structure, a template made with Go's `text/template` package, and a Mux route handler it's not a lot of code to add a [blog feed](/rss.xml). In the next post, we will go over logging to CloudWatch and some refactoring.

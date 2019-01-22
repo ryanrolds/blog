@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
+
     <title>Pedantic Orderliness</title>
     <description>An assortment of technical posts, projects, game reviews, and random musings by Ryan Olds.</description>
     <link>https://www.pedanticorderliness.com/</link>
+    <atom:link href="https://www.pedanticorderliness.com/rss.xml" rel="self" type="application/rss+xml" />
+    <pubDate>{{ FormatRssDate .Generated}}</pubDate>
+    <ttl>1440</ttl>
+
     <image>
         <url>https://www.pedanticorderliness.com/static/logo.png</url>
         <title>Pedantic Orderliness</title>
         <link>https://www.pedanticorderliness.com/</link>
     </image>
-    <pubDate>{{ FormatRssDate .Generated}}</pubDate>
-    <ttl>1440</ttl>
-    <atom:link href="https://www.pedanticorderliness.com/rss.xml" rel="self" type="application/rss+xml" />
+
     {{ range .Posts}}
     <item>
         <title>{{ .Title }}</title>
-        <description>{{ .Intro }}.</description>
+        <description>{{ .Intro }}</description>
         <link>{{ .Url }}</link>
         <guid>{{ .Url }}</guid>
         <pubDate>{{ FormatRssDate .PublishedAt }}</pubDate>
     </item>
     {{ end }}
+
 </channel>
 </rss>
