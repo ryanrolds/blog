@@ -160,7 +160,7 @@ CMD ["./pedantic_orderliness"]
 
 ## Hosting
 
-I opted to use Amazon Web Services Elastic Container Service to host the site. I created an ECS Service that spreads 4 "tasks" (running instances of the blog) over 4 t3.nano EC2 instances (~$3.75/month each). The ECS Service creates a Target Group for the running instances. An Application Load Balancer can be pointed to that Target Group and configured to redirect HTTP to HTTPS (only shitty sites and neversll.com don't force HTTPS) and non-www to the www domain. 
+I opted to use Amazon Web Services Elastic Container Service to host the site. I created an ECS Service that spreads 4 "tasks" (running instances of the blog) over 4 t3.nano EC2 instances (~$3.75/month each). The ECS Service creates a Target Group for the running instances. An Application Load Balancer can be pointed to that Target Group and configured to redirect HTTP to HTTPS (only shitty sites and neverssl.com don't force HTTPS) and non-www to the www domain. 
 
 The biggest value of this approach is that the site is highly available and deployments are a single line. Deploying a new version is as easy as running `make push_prod`. A series of commands are then run. First, a new Docker image is created and uploaded to AWS. Then the ECS Service is told creates 4 tasks/instances with the new image. When the new tasks are healthy (responding to health check requests) the older 4 tasks are drained, stopped, and destroyed. If new tasks fail, the old ones are left in place. Zero downtime. 
 
