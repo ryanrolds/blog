@@ -9,7 +9,7 @@ In this post, we will look at a few different broadcasting techniques and implem
 
 Social media has become critical in reaching many demographics/markets. I've been posting to Facebook, Twitter, and LinkedIn, with decent success. Most of the blog's traffic comes from Twitter and Facebook, not direct links or search engines. With more posts and a little SEO work, hopefully, more traffic will be driven to the blog by Google, DuckDuckGo, Bing, and other search engines. In the short term, streamlining social media posts was the most impactful thing I could do.
 
-A couple week ago, I added Facebook's Open Graph meta tags and Twitter's `card` meta tag:
+A couple weeks ago, I added Facebook's Open Graph meta tags and Twitter's `card` meta tag:
 
 ``` html
 <meta property="og:title" content="RSS Feeds with Go’s text/template">
@@ -22,11 +22,11 @@ The above is rendered into this HTML document's `head` element using Go's `text/
 
 ## Newsletters
 
-Newsletters are another great broadcast option, but take much more time to implement and maintain. There are a few major pieces - the sign-up form, CAN-SPAM compliance, writing the newsletter, and debugging templates. The sign-up form and CAN-SPAM compliance are not the most difficult part of sending newsletters. Free and paid services exist that will take most work implementing the sign-up processes and CAN-SPAN's technical requirements off your hands. The bulk of the work is sending the newsletter, fighting with email templates, and debugging email client rendering issues. The template section of this article should help demystify templates a bit, which should be helpful when implementing email and other templates.
+Newsletters are another great broadcast option, but take much more time to implement and maintain. There are a few major pieces - the sign-up form, CAN-SPAM compliance, writing the newsletter, and debugging templates. The sign-up form and CAN-SPAM compliance are not the most difficult part of sending newsletters. Free and paid services exist that will take most work implementing the sign-up processes and CAN-SPAN's technical requirements off your hands. The bulk of the work is writting the newsletter, fighting with email templates, and debugging email client rendering issues. The template section of this article should help demystify templates a bit, which should be helpful when implementing email and other templates.
 
 ## RSS Feeds
 
-RSS feeds broadcast content changes in a completely automated manner once a reader adds the feed to their RSS reader (native/mobile/web app or browser plugin). You don't have to manually post things to social media or write and send a newsletter. This technique has been around for a while, most of the RSS specifications are from the early 2000s. Despite RSS feed usage declining, it is still useful in reaching some demographics (IT workers and developers). If this blog were about something less technical, I would be more inclined to forgo RSS feeds.
+After a reader adds the feed to their RSS reader (native/mobile/web app or browser plugin), new posts will automatically showup in their RSS reader. You don't have to do any additional work, like social media and newsletters. This technique has been around for a while, most of the RSS specifications are from the early 2000s. Despite RSS feed usage declining, it is still useful in reaching some demographics (IT workers and developers). If this blog were about something less technical, I would be more inclined to forgo RSS feeds.
 
 Implementing an RSS feed requires serving an RSS compliant XML document containing details about the blog and its post's. In the next few sections will cover the format, template, and HTTP route handler required to serve that XML document.
 
@@ -75,7 +75,7 @@ Here is an example of an RSS feed with a single post:
 </channel>
 </rss>
 ```
-> A quick note on reading XML and it's subset HTML. XML documents are nodes/elements (`<rss>`, `<channel>`, `<item>`, etc...) in a tree structure. Nodes can have attributes (`version`, `encoding`, `href`, etc...), which in turn have values. [Attribute-value pairs](https://en.wikipedia.org/wiki/Attribute%E2%80%93value_pair), also called key-value pairs, are used often by software developers. You will see the pattern used in JSON, YAML, CSS. Sets of key-value pairs, like attributes on node/element, are a dictionary/map. Modern languages have parsing libraries that provide easy access to the document nodes/elements and their key-value pairs. As this is a tree, nodes can contain other nodes and a leaf/text.
+> A quick note on reading XML and it's subset HTML. XML documents are nodes/elements (`<rss>`, `<channel>`, `<item>`, etc...) in a tree structure. Nodes can have attributes (`version`, `encoding`, `href`, etc...), which in turn have values. [Attribute-value pairs](https://en.wikipedia.org/wiki/Attribute%E2%80%93value_pair), also called key-value pairs, are used often by software developers. You will see the pattern used in JSON, YAML, CSS. Sets of key-value pairs, like attributes on nodes/elements, are a dictionary/map. Modern languages have parsing libraries that provide easy access to the document nodes/elements and their key-value pairs. As this is a tree, nodes can contain other nodes and a leaf/value.
 
 Going through the above example line by line we see the XML declaration, `<?xml ...>`, and the root element/node, `<rss ...>`. The former is how the RSS reader (client) knows this is an XML document. After downloading and parsing the XML document, the client will query the tree for the root node. Then the client checks the root node for a `channel` node. With the `channel` node, the client retrieves the channel details and the list of items/posts. The channel's `ttl` and `pubDate` are used to determine how often to redownload and process the feed/document. A channel `image` is also defined, clients will usually display the image in their UI.
 
@@ -223,4 +223,4 @@ We are using Go's [net/http package](https://golang.org/pkg/net/http/) and [Gori
 
 ## Wrap-up
 
-With a little background on the RSS document structure, a template made with Go's `text/template` package, and a Mux route handler it's not a lot of code to add a [blog feed](/rss.xml). In the next post, we will go over logging to CloudWatch and some refactoring.
+With a little background on the RSS document structure, a template made with Go's `text/template` package, and a Mux route handler, it's not a lot of code to add a [blog feed](/rss.xml). In the next post, we will go over logging to CloudWatch and some refactoring.
