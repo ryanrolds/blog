@@ -104,6 +104,7 @@ blockquote p code {
 }
 .content #published-at {
   margin-top: .25rem;
+  font-weight: bold;
 }
 
 .post-list {
@@ -124,9 +125,9 @@ blockquote p code {
   float: right;
 }
 .post-list-item .published-at {
-  color: #3A4145;
   margin-top: .5rem;
   float: left;
+  font-weight: bold;
 }
 .post-list-item p {
   margin: .5rem 0 0 0;
