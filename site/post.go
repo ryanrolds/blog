@@ -18,11 +18,12 @@ import (
 var ErrNotPublished = errors.New("Not published")
 
 type Post struct {
-	Slug        string
+	Key         string
 	Title       string
-	Intro       string
+	Description string
 	Image       string
 	Content     *[]byte
+	Amp         *[]byte
 	PublishedAt time.Time
 	UpdatedAt   time.Time
 	Etag        string
@@ -129,41 +130,53 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	// Get details from parsed html
 	title := getTitle(doc, p.site.Log)
 	publishedAt := getPublishedAt(doc, p.site.Log)
-	intro := getIntro(doc, p.site.Log)
+	description := getDescription(doc, p.site.Log)
 	image := getImage(doc, p.site.Log)
 	url := getPostUrl(p.site.Env, key)
 
-	// Run markdown through page template
-	buf := &bytes.Buffer{}
-	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &TemplateData{
-		Key:        key,
-		Title:      title,
-		CSS:        css.String(),
-		JavaScript: "",
-		Content:    string((*body)[:]),
-		Site:       p.site,
-		Generated:  time.Now(),
-
+	tmplData := &TemplateData{
+		Key:         key,
+		Title:       title,
+		CSS:         css.String(),
+		JavaScript:  "",
+		Content:     string((*body)[:]),
+		Site:        p.site,
+		Generated:   time.Now(),
+		PublishedAt: publishedAt,
 		Social: &Social{
 			Title:       title,
-			Description: intro,
+			Description: description,
 			ImageUrl:    image,
 			Url:         url,
 		},
-	})
+	}
+
+	// Run markdown through page template
+	buf := &bytes.Buffer{}
+	err = p.templates.ExecuteTemplate(buf, "post.tmpl", tmplData)
 	if err != nil {
 		return nil, err
 	}
 
 	content := buf.Bytes()
 
+	// Run markdown through amp template
+	ampBuf := &bytes.Buffer{}
+	err = p.templates.ExecuteTemplate(ampBuf, "amp.tmpl", tmplData)
+	if err != nil {
+		return nil, err
+	}
+
+	amp := ampBuf.Bytes()
+
 	return &Post{
-		Slug:        key,
+		Key:         key,
 		Title:       title,
 		Image:       image,
-		Intro:       intro,
+		Description: description,
 		PublishedAt: publishedAt,
 		Content:     &content,
+		Amp:         &amp,
 		Etag:        getEtag(&content),
 		Url:         url,
 	}, nil

@@ -132,7 +132,7 @@ func getTitle(doc *html.Node, log *logrus.Entry) string {
 	return html.EscapeString(title)
 }
 
-func getIntro(doc *html.Node, log *logrus.Entry) string {
+func getDescription(doc *html.Node, log *logrus.Entry) string {
 	intro := "Intro"
 	introElm := htmlquery.FindOne(doc, "//p")
 	if introElm != nil {

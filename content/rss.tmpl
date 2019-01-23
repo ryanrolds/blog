@@ -18,7 +18,7 @@
     {{ range .Posts}}
     <item>
         <title>{{ .Title }}</title>
-        <description>{{ .Intro }}</description>
+        <description>{{ .Description }}</description>
         <link>{{ .Url }}</link>
         <guid>{{ .Url }}</guid>
         <pubDate>{{ FormatRssDate .PublishedAt }}</pubDate>

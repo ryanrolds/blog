@@ -16,6 +16,7 @@ const rssKey = "rss.xml"
 
 type Page struct {
 	Content      *[]byte
+	AMP          *[]byte
 	Mime         string
 	Etag         string
 	CacheControl string
@@ -119,9 +120,8 @@ func (p *PageManager) buildPage(key string) error {
 	posts := p.posts.GetRecent(numRecent)
 	title := getTitle(doc, p.site.Log)
 
-	// Run markdown through page template
-	buf := &bytes.Buffer{}
-	err = p.templates.ExecuteTemplate(buf, "page.tmpl", &TemplateData{
+	tmplData := &TemplateData{
+		Key:        key,
 		Title:      title,
 		CSS:        string((*css)[:]),
 		JavaScript: string((*javaScript)[:]),
@@ -130,15 +130,29 @@ func (p *PageManager) buildPage(key string) error {
 		Site:       p.site,
 		Social:     &Social{},
 		Generated:  time.Now(),
-	})
+	}
+
+	// Run markdown through page template
+	buf := &bytes.Buffer{}
+	err = p.templates.ExecuteTemplate(buf, "page.tmpl", tmplData)
 	if err != nil {
 		return err
 	}
 
 	content := buf.Bytes()
 
+	// Run markdown through amp template
+	ampBuf := &bytes.Buffer{}
+	err = p.templates.ExecuteTemplate(ampBuf, "amp.tmpl", tmplData)
+	if err != nil {
+		return err
+	}
+
+	amp := ampBuf.Bytes()
+
 	p.cache.Set(key, &Page{
 		Content:      &content,
+		AMP:          &amp,
 		Mime:         "text/html; charset=utf-8",
 		CacheControl: "public, must-revalidate",
 		Etag:         getEtag(&content),

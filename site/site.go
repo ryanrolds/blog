@@ -74,6 +74,7 @@ func (s *Site) Run() error {
 	// Prepare routing
 	router := mux.NewRouter()
 	router.HandleFunc("/posts/{key}", s.postHandler).Methods("GET")
+	router.HandleFunc("/amp/{key}", s.ampHandler).Methods("GET")
 	router.HandleFunc("/static/{key}", s.staticHandler).Methods("GET")
 	router.HandleFunc("/favicon.ico", s.faviconHandler).Methods("GET")
 	router.HandleFunc("/robots.txt", s.robotsHandler).Methods("GET")
@@ -152,6 +153,29 @@ func (s *Site) postHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Etag", post.Etag)
 	w.WriteHeader(http.StatusOK)
 	w.Write(*post.Content)
+}
+
+func (s *Site) ampHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["key"]
+
+	// Try to get cache entry for post
+	post := s.posts.Get(key)
+	if post == nil {
+		s.Handle404(w, r)
+		return
+	}
+
+	if r.Header.Get("If-None-Match") == post.Etag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, must-revalidate")
+	w.Header().Set("Etag", post.Etag)
+	w.WriteHeader(http.StatusOK)
+	w.Write(*post.Amp)
 }
 
 func (s *Site) staticHandler(w http.ResponseWriter, r *http.Request) {

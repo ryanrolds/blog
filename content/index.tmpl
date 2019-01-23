@@ -1,10 +1,10 @@
 {{ template "preamble.tmpl" . }}      
 <div class="content post-list">
   {{ range .Posts}}
-    <a href="/posts/{{ .Slug }}">
+    <a href="/posts/{{ .Key }}">
       <div class="post-list-item">
         <h1>{{ .Title }}</h1>
-        <p>{{ .Intro }}</p>
+        <p>{{ .Description }}</p>
         <span class="read-more">Read More</span>
         <span class="published-at">{{ FormatDate .PublishedAt }}</span>
         <div class="clear"></div>
