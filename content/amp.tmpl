@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8">
     <script async src="https://cdn.ampproject.org/v0.js"></script>
-    <title>Hello, AMPs</title>
+    <title>{{ .Title }}</title>
     <link rel="canonical" href="https://www.pedanticorderliness.com/posts/{{ .Key }}">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
     <script type="application/ld+json">
       {
         "@context": "http://schema.org",
-        "@type": "NewsArticle",
+        "@type": "BlogPosting",
         "headline": "{{ .Title }}",
         "datePublished": "{{ FormatDate .PublishedAt }}",
 	"description": "{{ .Description }}",
