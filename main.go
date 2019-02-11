@@ -28,7 +28,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8081"
 	}
 
 	site := site.NewSite(port, env, log)

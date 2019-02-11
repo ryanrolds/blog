@@ -92,7 +92,7 @@ func (s *Site) Run() error {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	s.Log.Info("Starting server")
+	s.Log.Infof("Starting server on port %s", s.port)
 
 	// Run server and block
 	err = server.ListenAndServe()
