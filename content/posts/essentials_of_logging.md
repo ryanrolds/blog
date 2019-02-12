@@ -1,21 +1,21 @@
-# Logging, it's mission critical
-<div id="published-at">2019-02-11T00:32:42Z</div>
+# Visibility is Mission Critical 
+<div id="published-at">2019-02-12T00:26:27Z</div>
 
-When building services, one of the earliest developer ergonomics improvement is logging. The value of well-structured logs cannot be understated. Quality logs make issue investigation, exploration, and iterative system improvements much easier. Without logs, it's pretty much impossible to reason about what your service is doing or has done.
+When building services, one of the best developer ergonomics improvements is logging. The value of well-structured logs cannot be understated. Quality logs make issue investigation, exploration, and iterative system improvements much easier. Without logs, it's pretty much impossible to reason about what your service is doing or has done.
 
 ## Essentials
 
-Logs are journals that services keep about what it's doing. On the first cut, a developer usually writes unstructured text to [STDOUT & STDERR](https://en.wikipedia.org/wiki/Standard_streams). After a while, a logging library is introduced to the project and slowly the writes to STDOUT/STDERR are replaced with calls to the logging library. Save yourself the time and use a logging library from the start. 
+Logs are journals that services keep about what it's doing. On the first cut, a developer usually writes unstructured text to [stdout & stderr](https://en.wikipedia.org/wiki/Standard_streams) or a file. After a while, a logging library is introduced to the project and slowly the writes to stdout/stderr are replaced with calls to the logging library. Save yourself the time and use a logging library from the start. 
 
-The contents of the log vary depending on the purpose of the log. It's not uncommon for services to keep multiple logs, writing them out to different files or a centralized logging system. Start-up details (listening on a port, DB connection status, values of crucial environment variables), errors, stack traces, scheduled tasks, etc... go in the service log. Requests can go in the service log, but most services write them to a separate file. Writing slow performance information (slow operations, queries, requests) is also common. 
+The contents of the log vary depending on the purpose of the log. It's not uncommon for services to keep multiple logs, writing them out to different files or a centralized logging system. Start-up details (ports, DB connection status, values of crucial environment variables), errors, stack traces, scheduled tasks, etc... go in the service log. Requests can go in the service log, but most services write them to a separate file. Writing slow performance information (slow operations, queries, requests) is also common. 
 
 What entries are written into the log is often configurable. The configuration varies depending on the environment (dev, testing, staging, production, etc...). A person working in their development environment wants to see detailed information relevant to their current task. However, someone investigating a problem in production is looking mostly for errors. To support the various use cases logging libraries provide a way of specifying a severity level. A minimum severity level can be set, and only entrie of that level or higher are written to the logs. 
 
 Another key feature of logging libraries is tagging additional context information to the log entry. It's common to include time, hostname, PID (process id), environment, and more. Different kinds of logs will include different contextual details. Fi
 
-Logging libraries also support writing entries in one or more formats. When writing to STDOUT, the format should be human-readable (possibly with color). However, when writing to a central logging system the format should be structured for indexing of key details/tags. 
+Logging libraries also support writing entries in one or more formats. When writing to stdout, the format should be human-readable (possibly with color). However, when writing to a central logging system the format should be structured for indexing of key details/tags. 
 
-Below are logs from a project written in Go using Logrus. Note the level, time, message, and tag (port). These logs are written to STDOUT and are intended to be human-readable.
+Below are logs from a project written in Go using [Logrus](https://github.com/sirupsen/logrus). Note the level, seconds from start, message, and tag (port). These logs are written to stdout and are intended to be human-readable.
 
 ```
 INFO[0000] Starting...
@@ -24,9 +24,9 @@ INFO[0000] Listening... port=8080
 INFO[0001] Metric request
 ```
 
-Below are logs from this blog. It's the same library as above (Logrus), but it's been configured to write structured logs in JSON with more details. Some of the logs entries are from requests and contain an Apache formatted HTTP log message.
+Below are logs from this blog. It's the same library as above (Logrus), but it's been configured to write structured logs in JSON with more details. Some of the logs entries are from requests and contain an Apache formatted HTTP request log entry.
 
-```
+``` json
 {"env":"local","host":"desktop-gkdctup","level":"info","msg":"starting server","time":"2019-02-05t20:03:29-08:00"}
 {"env":"local","host":"desktop-gkdctup","level":"info","msg":"::1 - - [05/feb/2019:20:03:32 -0800] \"get / http/1.1\" 200 5682","time":"2019-02-05t20:03:32-08:00"}
 {"env":"local","host":"desktop-gkdctup","level":"info","msg":"::1 - - [05/feb/2019:20:03:32 -0800] \"get /static/style.css?m=c9c82ed84e35f71f9533b81494a6f2a6 http/1.1\" 200 3931","time":"2019-02-05t20:03:32-08:00"}
@@ -36,7 +36,7 @@ Below are logs from this blog. It's the same library as above (Logrus), but it's
 
 ## Implementations
 
-Let's look over logging implementations for Go, Node.js, and Python. Each example will write the message, environment, hostname, and time to STDOUT. They all look pretty similar, get the logger, set the logging level, set a new formatter that outputs JSON, add some metadata (hostname and environment name), and then write an `info` level log.
+Let's look over logging implementations for Go ([Logrus](https://github.com/sirupsen/logrus)), Node.js ([Winston](https://github.com/winstonjs/winston)), and Python ([Logmatic](https://github.com/logmatic/logmatic-python)). Each example will write the message, environment, hostname, and time to stdout. They all look pretty similar, get the logger, set the logging level, set a new formatter that outputs JSON, add some metadata (hostname and environment name), and then write an `info` level log.
 
 ### Go w/ Logrus
 
@@ -140,5 +140,5 @@ log.info("Starting...", extra={"foo": "bar"})
 
 ## Wrap-up
 
-The quality of the data in the logs has a direct impact on issue investigation and development speed. Putting a little thought into how you're logging, the metadata you're including, and where they are stored will payoff manyfold. As we saw in the last section, they are not difficult to set up or use. When combined with centralized logging your team will be able to identify, debug, and explore behavior across your entire system from a single place; Reducing downtime, keeps customers happier, and improving developers/operations quality of life.
+The quality of the data in the logs has a direct impact on issue investigation and development speed. Putting a little thought into how you're logging, the metadata you're including, and where they are stored will payoff manyfold. As we saw in the last section, they are not difficult to set up or use. When combined with centralized logging your team will be able to monitor, debug, and explore behavior across your entire system from a single place; Reducing downtime, making customers happier, and improving developers/operations quality of life.
 

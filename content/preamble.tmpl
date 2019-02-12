@@ -3,17 +3,30 @@
   <head>
     <meta name="theme-color" content="#000000"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-    {{ if .Social.Title }}<meta property="og:title" content="{{ .Social.Title }}">{{ end }}
-    {{ if .Social.Description }}<meta property="og:description" content="{{ .Social.Description }}">{{ end }}
-    {{ if .Social.ImageUrl }}<meta property="og:image" content="{{.Social.ImageUrl }}">{{ end }}
-    {{ if .Social.Url }}<meta property="og:url" content="{{ .Social.Url }}">{{ end }}
-    <meta name="twitter:card" content="summary_large_image">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:black" rel="stylesheet">
-    <link href="{{ GetAssetURL "style.css" .Site.Hashes }}" rel="stylesheet">
+    {{ if .Social.Title }}
+    <meta property="og:title" content="{{ .Social.Title }}"/>
+    <meta name="twitter:title" content="{{ .Social.Title }}">
+    <title>{{ .Social.Title }} :: Pedantic Orderliness</title>
+    {{ else }}
+    <title>{{ .Title }} :: Pedantic Orderliness</title>
+    {{ end }}
+    {{ if .Social.Description }}
+    <meta property="og:description" content="{{ .Social.Description }}"/>
+    <meta name="twitter:description" content="{{ .Social.Description }}"/>
+    <meta name="description" content="{{ .Social.Description }}" />
+    {{ else }}
+    <meta name="description" content="Technical blog of random musing from Ryan Olds." />
+    {{ end }}
+    {{ if .Social.ImageUrl }}<meta property="og:image" content="{{.Social.ImageUrl }}"/>{{ end }}
+    {{ if .Social.Url }}<meta property="og:url" content="{{ .Social.Url }}"/>{{ end }}
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:creator" content="@ryanrolds"/>
+    <meta name="twitter:image" content="https://www.pedanticorderliness.com/static/logo.png">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:black" rel="stylesheet"/>
+    <link href="{{ GetAssetURL "style.css" .Site.Hashes }}" rel="stylesheet"/>
     <link rel="alternate" type="application/rss+xml" href="https://www.pedanticorderliness.com/rss.xml" />
     {{ if .CSS }}<style type="text/css">{{.CSS}}</style>{{ end }}
     <meta name="robots"content="{{ if ne .Site.Env "production" }}noindex, nofollow{{ else }}index, follow{{ end }}" />
-    <title>{{ .Title }} :: Pedantic Orderliness</title>
   </head>
   <body>
     <div class="grid">
