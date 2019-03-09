@@ -1,10 +1,25 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: pednatic-orderliness-service
+  name: po-prod-service
 spec:
   selector:
-    app: pedantic-orderliness
+    app: po
+    env: prod
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: po-test-service
+spec:
+  selector:
+    app: po
+    env: test
   type: LoadBalancer
   ports:
   - protocol: TCP

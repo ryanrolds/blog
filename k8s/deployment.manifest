@@ -4,17 +4,17 @@ metadata:
   name: po-${ENV}
   labels:
     app: po
-    env: ${ENV}
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: po 
+      app: po
       env: ${ENV}
   template:
     metadata:
       labels:
         app: po 
+        env: ${ENV}
     spec:
       containers:
       - name: po 
