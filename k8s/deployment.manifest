@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: po-${ENV}
+  labels:
+    app: po
+    env: ${ENV}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: po 
+      env: ${ENV}
+  template:
+    metadata:
+      labels:
+        app: po 
+    spec:
+      containers:
+      - name: po 
+        image: docker.io/ryanrolds/pedantic_orderliness:${TAG_NAME}
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ENV
+          value: ${ENV}  
+      imagePullSecrets:
+        - name: regcred
