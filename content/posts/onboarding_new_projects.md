@@ -1,19 +1,19 @@
 # Onboarding developers quickly
-<div id="published-at">2019-03-05:19:09:00Z</div>
+<div id="published-at">2019-03-06T19:09:00Z</div>
 
-Onboarding developers can require a significant amount of time, but it doesn't have to. This article goes over a minimal set of tools that provide a uniform developer enviornment and workflow for all major operating systems. We will go over each tool and why it's important, how we use the tools to increase velocity, and a short outline on how to deploy to AWS.
+Onboarding developers can require a significant amount of time, but it doesn't have to. This article goes over a minimal set of tools that provide a uniform developer enviornment and workflow for all major operating systems. We will go over why each tool is important, how we use the tools to increase velocity, and a short outline on how to deploy to AWS.
 
 ### README.md
 
-Always create a `README.md` in the root of your project. It should include a short description of your project and the setup instructions. It's also useful to list key maintainers/contributors and the project's license. If you don't do anything else in this document please document your setup instruction in `README.md`. Nothing kills a project faster then not having easy to find setup instructions.
+Always create a `README.md` in the root of your project. It should include a short description of the project and its setup instructions. It's also useful to list key maintainers/contributors and the project's license. If you only do one thing from this article, please document your setup instruction in the project's `README.md`. Nothing kills a project faster then not having easy to find setup instructions.
 
 ### Git & GitHub
 
-Git and the repository hosting service GitHub, and similar tools, are universally required at organization with a team of developers. Open Source projects are no expection. All of the software that we use everyday is tracked and organized with Version Control software, like Git. 
+Git and the repository hosting service GitHub, and similar Version Control tools, are universally required at organizations with teams of developers. Open Source projects are no expection. All of the software that we use everyday is tracked and organized with Version Control software, like Git. 
 
-Without VC software teams are not able to easily comapare previous versions of the codebase and they can't resliably resolve file conflicts. If two developers edit the same file the last developer to upload their changes to the server wins and the other's changes are lost. This problem is solved by Versoin Control; When the two developers commit and push their changes to the repository the last developer to push must pull the other developers changes and resolve any merge conflict. Resolving merges can be easy or hard depending on the conflit, but regarless of the complexity the alternative - losing another developer's work - isn't acceptable.
+Without VC software teams are not able to easily comapare previous versions of the codebase and they can't reliably resolve file conflicts. When two developers edit the same file, the last developer to upload wins and the other's changes are lost. This problem is solved by Versoin Control; When the two developers commit and push their changes to the repository the last developer to push must pull the other developer's changes and resolve any merge conflict. Resolving merges can be easy or hard depending on the situation, but regarless of the complexity the alternative - losing another developer's work - is unacceptable.
 
-The learning curve of Git and GitHub is initially a little steep, doubly so for people that already can do basic scripting and due to not having a growth mindset have never working on teams. When starting a project, ensure that everyone is willing to learn and use these tools. People not familure with the tools can read [GitHub's guide](https://guides.github.com/introduction/git-handbook/) and should receive help from the team when they get stuck. I strongly recommend not working with deveopers that refused to use Version Control software, they will cause more problems than they solve and the velocity of the team will suffer. 
+The learning curve of Git and GitHub is initially a little steep. It's not uncommon to encouter people that know a little scripting but have never worked on a team. It's also not uncommon for lone wolf developers to be resistent to adopting new tools. When starting a project, ensure that everyone is willing to learn and use these tools. Developers not familure with Git or Github can read [GitHub's guide](https://guides.github.com/introduction/git-handbook/) and should receive help from the team when they get stuck. I strongly recommend not working with deveopers that refused to use Version Control software, they will cause more problems than they solve and the velocity of the team will suffer. 
 
 ### Docker & Docker Compose
 
@@ -40,11 +40,11 @@ EXPOSE 3000
 CMD ["rails", "server", "-b", "0.0.0.0"]
 ```
 
-The SpeedUpYourCity project uses Ruby v2.3.1, requires a handful of OS packages, and is stored in the containers `/sucy` directory. After copying the contents of the repo into `/suyc`, `bundle install` and `rake assets:precompile` are run to install platform libraries and build up-to-date copies of assets (not required for all projects). This app contains an HTTP server listening on port 3000 and is started by running `rails server -b 0.0.0.0`. That's it. This file will vary greatly from project to project. Some projects will use an OS image (`ubuntu`) or another language platform, have different build steps.
+The SpeedUpYourCity project uses Ruby v2.3.1, requires a handful of OS packages, and is stored in the containers `/suyc` directory. After copying the contents of the repo into `/suyc`, `bundle install` and `rake assets:precompile` are run to install platform libraries and build up-to-date copies of assets (not required for all projects). This app contains an HTTP server listening on port 3000 and is started by running `rails server -b 0.0.0.0`. That's it. This file will vary greatly from project to project. Some projects will use an OS image (`ubuntu`) or another language platform, have different build steps.
 
 Once the `Dockerfile` is complete, it's possible to build a Docker image for your application and run a container, but with a little bit more work we can make the whole process much simplier. Docker provides a tool called Docker Compose that allows developerers to concretely define the environment and dependencies (MySQL, PostgreSQL, MongoDB, etc...). 
 
-SpeedUpYourCity uses MySQL to store speed test submissions. We must have the database running for the application to start. We can define an control our entire stack with a `docker-compose.yaml` file:
+SpeedUpYourCity uses MySQL to store speed test submissions. We must have the database running for the application to start. We can define and control our entire stack with a `docker-compose.yaml` file:
 
 ```
 version: '3.2'
@@ -72,7 +72,7 @@ services:
       - .:/suyc
 ```
 
-Ignore the version, the key bits are the services (mysql and frontend). From the Docker Hub page for the `mysql:5.7` image we know that the image allows us to define a few enviornment variables. When the database service is start it will be provided those variables to create a user and database. We can then pass the same values to the frontend servics. The hostname for the DB is the same as it's service name (`mysql`). Docker Compose also allows us to bind our repo files to a directory in the started container. The defined volume does just that. Now the local repo files and the files in the container's `/suyc` directory are the same files, allowing much faster iterations as the container doesn't need to be rebuilt to see chagnes. 
+Ignore the version, the key bits are the services (mysql and frontend). From the Docker Hub page for the `mysql:5.7` image we know that the image allows us to define a few enviornment variables. When the database service is started it will be use the environment variables to create a user and database. We can then pass the same values to the frontend service. The hostname for the DB is the same as it's service name (`mysql`). Docker Compose also allows us to bind our repo's files to a directory in the started container. The defined volume does just that. Now the local repo files and the files in the container's `/suyc` directory are the same files, allowing much faster iterations as the container doesn't need to be rebuilt to test chagnes. 
 
 With both of these files we can now start and stop the entire stack with `docker-compose up` and `docker-compose down`. We can also run the containers in the background by adding `-d` to the up command.
 
@@ -106,11 +106,11 @@ Once the PR is approved it's merged into `master`. The updated application can t
 
 Deploying the Docker image to AWS requires some setup:
 
-  * Create a AWS Container Repository and get credentials required to push application images
+  * Create a AWS Container Repository and get credentials needed to push application images
   * Push images built from master to the container image repository
   * Create database instances needed using RDS
 
-Once you're database is ready, create a new service in Elastic Beanstalk, ECS, EKS, or whatever service/platform that supports running Docker images. The setup of the container service will require knowing the ID of the published container image and the details of your RDS instance. Once the service is running, the load balancer may require additional configuration (redirecting HTTP->HTTPS, pointing a domain name to the LB, and ensuring it has SSL/TLS certificates for that domain). Deploying to the cloud requires some system administration knowledge, setting up deployments to the cloud should be done by a senior developer.
+Once you're database is ready, create a new service in Elastic Beanstalk, ECS, EKS, or whatever service/platform that supports running Docker containers. The setup of the container service will require knowing the ID of the published image and the details of your RDS instance. Once the service is running, the load balancer may require additional configuration (redirecting HTTP->HTTPS, pointing a domain name to the LB, and ensuring it has SSL/TLS certificates for that domain). Deploying to the cloud requires some system administration knowledge, setting up deployments to the cloud should be done by a senior developer.
 
 ## Wrap-up
 
