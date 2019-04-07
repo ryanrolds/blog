@@ -12,27 +12,25 @@ install:
 	go get -u github.com/alecthomas/chroma/formatters/html
 	go get -u github.com/gorilla/handlers
 
-docker_build: build
-	docker build -t pedantic:test .
-
-tag: docker_build
-	docker tag pedantic:latest ryanrolds/pedantic_orderliness:$(TAG_NAME)
-	docker push ryanrolds/pedantic_orderliness:$(TAG_NAME)
-
 build:
 	go build
 
-push_prod:
+docker_build: build
+
+push_docker_hub: docker_build
+	docker build -t pedantic:test .
+	docker tag pedantic:test ryanrolds/pedantic_orderliness:$(TAG_NAME)
+	docker push ryanrolds/pedantic_orderliness:$(TAG_NAME)
+
+push_aws: docker_build
+	docker build -t pedantic:latest .
 	docker tag pedantic:latest 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:latest
 	docker push 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:latest
+
+deploy_prod:
 	aws ecs update-service --cluster pedantic --service pedantic-prod --force-new-deployment
 
-push_test:
-	docker tag pedantic:test 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:test
-	docker push 756280430156.dkr.ecr.us-west-2.amazonaws.com/pedantic:test
-	aws ecs update-service --cluster pedantic --service pedantic-test --force-new-deployment
-
-push_k8s:
+deploy_k8s:
 	TAG_NAME=$(TAG_NAME) ENV=production envsubst < k8s/deployment.manifest | kubectl replace -f -
 	TAG_NAME=$(TAG_NAME) ENV=test envsubst < k8s/deployment.manifest | kubectl replace -f -
 
