@@ -5,15 +5,15 @@ Onboarding developers can require a significant amount of time, but it doesn't h
 
 ### README.md
 
-Always create a `README.md` in the root of your project. It should include a short description of the project and its setup instructions. It's also useful to list key maintainers/contributors and the project's license. If you only do one thing from this article, please document your setup instruction in the project's `README.md`. Nothing kills a project faster than not having easy to find setup instructions.
+Always create a `README.md` in the root of your project. It should include a short description of the project and its setup instructions. It's also useful to list key maintainers/contributors and the project's license. If you only do one thing from this article, please document your setup instruction in the project's `README.md`. Nothing kills a project faster than not having easy to find setup instructions. It's also a good practice to document important environment variables.
 
 ### Git & GitHub
 
-Git and the repository hosting service GitHub, and similar Version Control tools, are universally required at organizations with teams of developers. Open Source projects are no exception. All of the software that we use every day is tracked and organized with Version Control software, like Git. 
+Git and the repository hosting service GitHub, and similar version control tools, are universally required at organizations with teams of developers. Open Source projects are no exception. All commonly used software is tracked and organized with version control software. 
 
-Without VC software teams are not able to easily compare previous versions of the codebase and they can't reliably resolve file conflicts. When two developers edit the same file, the last developer to upload wins and the other's changes are lost. This problem is solved by Version Control; When the two developers commit and push their changes to the repository the last developer to push must pull the other developer's changes and resolve any merge conflict. Resolving merges can be easy or hard depending on the situation, but regardless of the complexity the alternative - losing another developer's work - is unacceptable.
+Without VC software teams are not able to easily compare previous versions, switch between tickets, or reliably resolve file conflicts. When two developers edit the same file, the last developer to upload wins and the other's changes are lost. This problem is solved by version control; When the two developers commit and push their changes to the repository the last developer to push must pull the other developer's changes and resolve any merge conflict. Resolving merges can be easy or hard depending on the situation, but regardless of the complexity the alternative - losing another developer's work - is unacceptable.
 
-The learning curve of Git and GitHub is initially a little steep. It's not uncommon to encounter people that know a little scripting but have never worked on a team. It's also not unusual for lone wolf developers to be resistant to adopting new tools. When starting a project, ensure that everyone is willing to learn and use these tools. Developers not familiar with Git or Github can read [GitHub's guide](https://guides.github.com/introduction/git-handbook/) and should receive help from the team when they get stuck. I strongly recommend not working with developers that refused to use Version Control software, they will cause more problems than they solve and the velocity of the team will suffer. 
+The learning curve of Git and GitHub is initially a little steep. It's not uncommon to encounter people that know a little scripting but have never worked on a team. It's also not unusual for lone wolf developers to be resistant to using VC. When starting a project, ensure that everyone is willing to learn and use VC. Developers not familiar with Git or Github can read [GitHub's guide](https://guides.github.com/introduction/git-handbook/) and should receive help from the team when they get stuck. I strongly recommend not working with developers that refused to use VC, they will cause more problems than they solve and the velocity of the team will suffer. 
 
 ### Docker & Docker Compose
 
@@ -96,7 +96,7 @@ Next, they look at the project's `README.md` and perform any setup steps. Most p
 
 The container can be exited with `Ctrl-C` or suspended with `Ctrl-Z`. By passing in `-d` (see the line upping postgres), we can run the container in the background. Its output can be accessed with `docker-compose logs frontend`.
 
-Developers will create a new branch and begin iterating on the application. When they complete a chunk of work, they create a Pull Request against the main repo in GitHub. Other developers can check out and test their changes by switching branches in git and rebuilding:
+Developers will create a new branch and begin iterating on the application. When they complete a chunk of work, they create a Pull Request against the main repo in GitHub. Other developers can check out and test the PR's changes by switching branches with Git and rebuilding the container:
 
     $ docker-compose stop frontend && docker-compose up --build frontend
 
@@ -110,7 +110,9 @@ Deploying the Docker image to AWS requires some setup:
   * Push images built from master to the container image repository
   * Create database instances needed using RDS
 
-Once your database is ready, create a new service in Elastic Beanstalk, ECS, EKS, or whatever service/platform that supports running Docker containers. The setup of the container service will require knowing the ID of the published image and the details of your RDS instance. Once the service is running, the load balancer may need additional configuration (redirecting HTTP->HTTPS, pointing a domain name to the LB, and ensuring it has SSL/TLS certificates for that domain). Deploying to the cloud requires some system administration knowledge, setting up deployments to the cloud should be done by a senior developer.
+Once your database is ready, create a new service in Elastic Beanstalk, ECS, EKS, or whatever service/platform that supports running Docker containers. The setup of the container orchestration service will require knowing the ID of the published image and the details of your RDS instance. Once the service is running, a load balancer may need additional configuration (redirecting HTTP->HTTPS, pointing a domain name to the LB, and ensuring it has SSL/TLS certificates for that domain). Deploying to the cloud requires some system administration knowledge, setting up deployments to the cloud should be done by a senior developer.
+
+> Google Cloud and Azure provide managed database services, similar to AWS RDS, and container orchestration services, similar to Beanstalk/ECS/EKS. Their are may cloud providers of various sizes and you can be mostly cloud provider agnostic using Kubernetes. I use AWS because that's what I'm familiar with and the volume of information available on how to setup Continuous Integration and Deployment. The big providers work rougtly the same, but each has their own idiosyncrasies. 
 
 ## Wrap-up
 
