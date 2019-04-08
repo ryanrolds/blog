@@ -17,13 +17,13 @@ The learning curve of Git and GitHub is initially a little steep. It's not uncom
 
 ### Docker & Docker Compose
 
-Ok, everyone can check out the repo. Great! But the project requires some initial setup. Docker and Docker Compose will make it easy for developers to stand up their development environment, including databases and other dependencies. They also allow easy publishing of images to the cloud for deployment. The earlier a team sets up Docker the sooner they will benefit from the improved velocity, standardized developer environments, and retention of maintainers and collaborators. The benefits are cumulative, if you wait until after you burn people out or they struggle to get onboard you've already lost valuable time and energy.   
+Ok, everyone can check out the repo. Great! But the project requires some initial setup. Docker and Docker Compose will make it easy for developers to stand up their development environment, including databases and other dependencies. Docker also allows easy publishing of images to the cloud for deployment. The earlier a team sets up Docker the sooner they will benefit from the improved velocity, standardized developer environments, and retention of maintainers and collaborators. The benefits are cumulative, if you wait until after you burn people out or they struggle to get onboard you've already lost valuable time and energy.   
 
 ## Dockerizing a project
 
-First, if you're using a common platform, like Wordpress, someone else has already created the Docker-related files. You only need to find them, confirm they work, check them into your repo, and update your `README.md`. 
+First, if you're using a common platform, like WordPress, someone else has already created the Docker-related files. You only need to find them, confirm they work, check them into your repo, and update the project's `README.md`. 
 
-From scratch, projects must decide the programming platform they are using (Node.js, Go, PHP, etc...) and go to [Docker Hub](https://hub.docker.com/search?q=&type=image) and find the Docker Image for the platform being used. Create a `Dockerfile` at the root of the repo and fill it out with the setup steps. Here is an example from [Hack4Eugene/SpeedUpYourCity](https://github.com/Hack4Eugene/SpeedUpYourCity):
+From scratch, projects must decide which programming platform they are using (Node.js, Go, PHP, etc...) and find the image name and tag on [Docker Hub](https://hub.docker.com/search?q=&type=image). Create a `Dockerfile` at the root of the repo and fill it out with the setup steps. Here is an example from [Hack4Eugene/SpeedUpYourCity](https://github.com/Hack4Eugene/SpeedUpYourCity):
 
 ``` 
 FROM ruby:2.3.1-alpine
