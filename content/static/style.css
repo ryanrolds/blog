@@ -11,16 +11,27 @@ h1 {
   font-weight: bolder;
 }
 h2 {
+  margin-top: 1.5rem;
   font-size: 2rem;
   font-weight: bold;
 }
 h3 {
+  margin-top: 1.5rem;
   font-size: 1.5rem;
   font-weight: normal;
 }
 h4 {
   font-size: 1.25em;
   font-weight: bold;
+}
+h2 + p {
+  margin-top: 0.5rem;
+}
+h3 + p {
+  margin-top: 0.5rem;
+}
+div#published-at + p {
+  margin-top: 0.5rem;
 }
 p {
   font-size: 1rem;
@@ -117,15 +128,15 @@ blockquote p code {
   text-decoration: underline; 
 }
 .post-list-item {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 .post-list-item .read-more {
   font-weight: bold;
-  margin-top: .5rem;
+  margin-top: 1rem;
   float: right;
 }
 .post-list-item .published-at {
-  margin-top: .5rem;
+  margin-top: 1rem;
   float: left;
   font-weight: bold;
 }
