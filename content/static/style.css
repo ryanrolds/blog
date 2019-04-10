@@ -241,6 +241,9 @@ blockquote p code {
   .footer {
     grid-area: 3 / 1 / 4 / 3;
   }
+
+  .post-list-item {
+    margin-bottom: 2rem;
 }
 
 @media screen and (min-width: 54rem)and (max-width: 68rem) {
