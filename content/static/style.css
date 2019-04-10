@@ -24,10 +24,7 @@ h4 {
   font-size: 1.25em;
   font-weight: bold;
 }
-h2 + p {
-  margin-top: 0.5rem;
-}
-h3 + p {
+h1 + p, h2 + p, h3 + p {
   margin-top: 0.5rem;
 }
 div#published-at + p {
@@ -132,16 +129,16 @@ blockquote p code {
 }
 .post-list-item .read-more {
   font-weight: bold;
-  margin-top: 1rem;
+  margin-top: .5rem;
   float: right;
 }
 .post-list-item .published-at {
-  margin-top: 1rem;
+  margin-top: .5rem;
   float: left;
   font-weight: bold;
 }
 .post-list-item p {
-  margin: .5rem 0 0 0;
+  margin: 0 0 0 0;
 }
 .post-list-item img {
   float: right;
@@ -208,7 +205,7 @@ blockquote p code {
 
 @media screen and (min-width: 54em) {
   h1 {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: bolder;
   }
   h2 {
