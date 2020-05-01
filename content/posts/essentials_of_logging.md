@@ -1,5 +1,8 @@
-# Visibility is Mission Critical 
-<div id="published-at">2019-02-12T00:26:27Z</div>
+---
+title: Visibility is Mission Critical 
+published: 2019-02-12T00:26:27Z
+intro: 
+---
 
 When building services, one of the best developer ergonomics improvements is logging. The value of well-structured logs cannot be understated. Quality logs make issue investigation, exploration, and iterative system improvements much easier. Without logs, it's pretty much impossible to reason about what your service is doing or has done.
 

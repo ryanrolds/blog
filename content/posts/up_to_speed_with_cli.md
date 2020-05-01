@@ -1,5 +1,10 @@
-# Up to speed with the Command Line
+---
+title: Up to speed with the Command Line
+published: 
+intro: 
+---
 
+# 
 
 Ctrl-R
 Up/down arrows

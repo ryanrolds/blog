@@ -73,21 +73,6 @@ func getJavaScript(key string) (*[]byte, error) {
 	return &javaScript, nil
 }
 
-func getMarkdown(key string, log *logrus.Entry) (*[]byte, error) {
-	// Get file contents
-	log.Info("Loading file ", key+".md")
-	content, err := ioutil.ReadFile(key + ".md")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-
-	return &content, nil
-}
-
 func getEtag(buffer *[]byte) string {
 	hash := md5.Sum(*buffer)
 	return fmt.Sprintf("%x", hash)

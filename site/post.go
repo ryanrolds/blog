@@ -13,9 +13,13 @@ import (
 	"github.com/antchfx/htmlquery"
 	log "github.com/sirupsen/logrus"
 	bf "gopkg.in/russross/blackfriday.v2"
+	"github.com/gernest/front"
 )
 
 var ErrNotPublished = errors.New("Not published")
+
+var m := front.NewMatter()
+m.Handle("+++", front.JSONHandler)
 
 type Post struct {
 	Slug        string
@@ -99,16 +103,20 @@ func (p *PostManager) GetRecent(num int) []*Post {
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
-	markdown, err := getMarkdown(p.dir+key, p.site.Log)
+	file, err := ioutil.ReadFile(p.dir + key + ".md")
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
-	// Page does not exist
-	if markdown == nil {
-		return nil, nil
+	details, markdown, err := m.Parse(strings.NewReader(file))
+	if err != nil {
+		return nil, err
 	}
-
+	
 	body, css, err := renderMarkdown(markdown)
 	if err != nil {
 		return nil, err

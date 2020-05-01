@@ -1,5 +1,8 @@
-# Onboarding developers quickly
-<div id="published-at">2019-04-06T19:09:00Z</div>
+---
+title: Onboarding developers quickly
+published: 2019-04-06T19:09:00Z
+intro: 
+---
 
 Onboarding developers can require a significant amount of time, but it doesn't have to. This article goes over a minimal set of tools that provide a uniform developer environment and workflow for all major operating systems. We will go over why each tool is valuable, how we use the tools to increase velocity, and a short outline on how to deploy to AWS.
 

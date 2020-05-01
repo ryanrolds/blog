@@ -1,4 +1,8 @@
-# Bare metal Kubernetes at home
+---
+title: Bare metal Kubernetes at home
+published: 
+intro: 
+---
 
 After a bit deliberating, I decided to setup a small Kubernetes (k8s) cluster at home. There are a few reasons for doing this:
 

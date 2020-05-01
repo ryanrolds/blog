@@ -1,5 +1,8 @@
-# RSS Feeds with Go's text/template
-<div id="published-at">2019-01-22T00:16:19Z</div>
+---
+title: RSS Feeds with Go's text/template
+published: 2019-01-22T00:16:19Z
+intro: 
+---
 
 The blog is functional, but it’s missing features that improve reach and reader retention. Currently, readers must remember to visit the blog. That’s a tall order; We have to compete for their time and reading blogs is a low priority. Being able to display nudges where people spend their time is critical to winning some of their attention. Social media, newsletters, and RSS feeds are ways that we can fight for their attention.
 

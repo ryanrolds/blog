@@ -1,5 +1,8 @@
-# Happy New Year!
-<div id="published-at">2019-01-01T03:23:09Z</div>
+---
+title: Happy New Year!
+published: 2019-01-01T03:23:09Z
+intro: The first post of a new blog. After a few weeks working part-time on Pedantic Orderliness, I'm finally to the point of writing actual content.
+---
 
 The first post of a new blog. After a few weeks working part-time on Pedantic Orderliness, I'm finally to the point of writing actual content.
 

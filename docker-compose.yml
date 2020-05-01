@@ -4,3 +4,6 @@ services:
     build: .
     ports:
       - "8081:8081"
+    volumes:
+      - ".:/pedantic_orderliness"
+  
