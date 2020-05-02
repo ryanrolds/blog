@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-	"gopkg.in/russross/blackfriday.v2"
+	bf "github.com/russross/blackfriday/v2"
 )
 
 const numRecent = 6
@@ -107,7 +107,7 @@ func (p *PageManager) buildPage(key string) error {
 	}
 
 	// Process MD
-	body := blackfriday.Run(*markdown)
+	body := bf.Run(*markdown)
 
 	// Parse in to something we can query with xpath
 	doc, err := htmlquery.Parse(bytes.NewReader(body))

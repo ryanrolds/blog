@@ -13,8 +13,8 @@ import (
 	"github.com/gernest/front"
 
 	"github.com/pkg/errors"
+	bf "github.com/russross/blackfriday/v2"
 	log "github.com/sirupsen/logrus"
-	bf "gopkg.in/russross/blackfriday.v2"
 )
 
 var ErrNotPublished = errors.New("Not published")
@@ -121,6 +121,8 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		return nil, errors.Wrapf(err, "problem parsing file %s", filename)
 	}
 
+	log.Info(front, markdown)
+
 	byteMarkdown := []byte(markdown)
 
 	body, css, err := renderMarkdown(&byteMarkdown)
@@ -161,8 +163,6 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 	if err != nil {
 		log.Warnf("problem getting url from %s", filename)
 	}
-
-	log.Info(string((*body)[:]))
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
@@ -215,8 +215,8 @@ func renderMarkdown(markdown *[]byte) (*[]byte, *bytes.Buffer, error) {
 		bfchroma.Style("emacs"),
 		bfchroma.WithoutAutodetect(),
 		bfchroma.ChromaOptions(
-			html.WithLineNumbers(),
-			html.WithClasses(),
+			html.WithLineNumbers(true),
+			html.WithClasses(true),
 		),
 		bfchroma.Extend(
 			bf.NewHTMLRenderer(bf.HTMLRendererParameters{

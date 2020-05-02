@@ -13,16 +13,16 @@ spec:
   template:
     metadata:
       labels:
-        app: po 
+        app: po
         env: ${ENV}
     spec:
       containers:
-      - name: po 
+      - name: po
         image: docker.io/ryanrolds/pedantic_orderliness:${TAG_NAME}
         ports:
         - containerPort: 8081
         env:
         - name: ENV
-          value: ${ENV}  
+          value: ${ENV}
       imagePullSecrets:
         - name: regcred
