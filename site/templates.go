@@ -8,15 +8,16 @@ import (
 )
 
 type TemplateData struct {
-	Key        string
-	Title      string
-	JavaScript string
-	CSS        string
-	Content    string
-	Site       *Site
-	Posts      *[]*Post
-	Generated  time.Time
-	Social     *Social
+	Key         string
+	Title       string
+	JavaScript  string
+	CSS         string
+	Content     string
+	Site        *Site
+	Posts       *[]*Post
+	Generated   time.Time
+	PublishedAt time.Time
+	Social      *Social
 }
 
 type Social struct {

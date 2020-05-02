@@ -2,24 +2,22 @@ package site
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
+	"os"
 	"sort"
 	"text/template"
 	"time"
 
 	"github.com/Depado/bfchroma"
 	"github.com/alecthomas/chroma/formatters/html"
-	"github.com/antchfx/htmlquery"
+	"github.com/gernest/front"
+
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	bf "gopkg.in/russross/blackfriday.v2"
-	"github.com/gernest/front"
 )
 
 var ErrNotPublished = errors.New("Not published")
-
-var m := front.NewMatter()
-m.Handle("+++", front.JSONHandler)
 
 type Post struct {
 	Slug        string
@@ -39,14 +37,19 @@ type PostManager struct {
 	cache       *Cache
 	orderedList []*Post
 	site        *Site
+	matter      *front.Matter
 }
 
 func NewPostManager(site *Site, dir string, templates *template.Template) *PostManager {
+	m := front.NewMatter()
+	m.Handle("---", front.YAMLHandler)
+
 	return &PostManager{
 		dir:       dir,
 		templates: templates,
 		cache:     NewCache(),
 		site:      site,
+		matter:    m,
 	}
 }
 
@@ -103,55 +106,75 @@ func (p *PostManager) GetRecent(num int) []*Post {
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
-	file, err := ioutil.ReadFile(p.dir + key + ".md")
+	filename := p.dir + key + ".md"
+	file, err := os.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
 
+		return nil, errors.Wrapf(err, "problem reading file %s", filename)
+	}
+
+	front, markdown, err := p.matter.Parse(file)
+	if err != nil {
+		return nil, errors.Wrapf(err, "problem parsing file %s", filename)
+	}
+
+	byteMarkdown := []byte(markdown)
+
+	body, css, err := renderMarkdown(&byteMarkdown)
+	if err != nil {
 		return nil, err
 	}
 
-	details, markdown, err := m.Parse(strings.NewReader(file))
+	publishedAt, err := getDateFromFrontMatter(front, "published")
 	if err != nil {
-		return nil, err
-	}
-	
-	body, css, err := renderMarkdown(markdown)
-	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "problem getting published date from %s", filename)
 	}
 
-	// Parse into something we can query with xpath
-	doc, err := htmlquery.Parse(bytes.NewReader(*body))
-	if err != nil {
-		return nil, err
-	}
+	now := time.Now()
 
 	// If no published date, skip
-	if isPublished(doc) == false && p.site.Env == "production" {
+	if now.Before(publishedAt) && p.site.Env == "production" {
 		log.Infof("Skipping %s, not published", key)
 		return nil, ErrNotPublished
 	}
 
 	// Get details from parsed html
-	title := getTitle(doc, p.site.Log)
-	publishedAt := getPublishedAt(doc, p.site.Log)
-	intro := getIntro(doc, p.site.Log)
-	image := getImage(doc, p.site.Log)
-	url := getPostUrl(p.site.Env, key)
+	title, err := getStringFromFrontMatter(front, "title")
+	if err != nil {
+		return nil, errors.Wrapf(err, "problem getting title from %s", filename)
+	}
+
+	intro, err := getStringFromFrontMatter(front, "intro")
+	if err != nil {
+		return nil, errors.Wrapf(err, "problem getting intro from %s", filename)
+	}
+
+	image, err := getStringFromFrontMatter(front, "image")
+	if err != nil {
+		log.Warnf("problem getting image from %s", filename)
+	}
+
+	url, err := getStringFromFrontMatter(front, "url")
+	if err != nil {
+		log.Warnf("problem getting url from %s", filename)
+	}
+
+	log.Info(string((*body)[:]))
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
 	err = p.templates.ExecuteTemplate(buf, "post.tmpl", &TemplateData{
-		Key:        key,
-		Title:      title,
-		CSS:        css.String(),
-		JavaScript: "",
-		Content:    string((*body)[:]),
-		Site:       p.site,
-		Generated:  time.Now(),
-
+		Key:         key,
+		Title:       title,
+		CSS:         css.String(),
+		JavaScript:  "",
+		Content:     string((*body)[:]),
+		Site:        p.site,
+		Generated:   time.Now(),
+		PublishedAt: publishedAt,
 		Social: &Social{
 			Title:       title,
 			Description: intro,

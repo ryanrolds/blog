@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 )
@@ -71,6 +72,21 @@ func getJavaScript(key string) (*[]byte, error) {
 	}
 
 	return &javaScript, nil
+}
+
+func getMarkdown(key string, log *logrus.Entry) (*[]byte, error) {
+	// Get file contents
+	log.Info("Loading file ", key+".md")
+	content, err := ioutil.ReadFile(key + ".md")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &content, nil
 }
 
 func getEtag(buffer *[]byte) string {
@@ -139,4 +155,37 @@ func getImage(doc *html.Node, log *logrus.Entry) string {
 	}
 
 	return image
+}
+
+func getStringFromFrontMatter(details map[string]interface{}, key string) (string, error) {
+	valueRaw, ok := details[key]
+	if !ok {
+		return "", errors.Errorf("detail %s not found", key)
+	}
+
+	value, ok := valueRaw.(string)
+	if !ok {
+		return "", errors.Errorf("detail %s not a string", key)
+	}
+
+	return value, nil
+}
+
+func getDateFromFrontMatter(details map[string]interface{}, key string) (time.Time, error) {
+	valueRaw, ok := details[key]
+	if !ok {
+		return time.Time{}, errors.Errorf("detail %s not found", key)
+	}
+
+	valueString, ok := valueRaw.(string)
+	if !ok {
+		return time.Time{}, errors.Errorf("details %s is not a date string", key)
+	}
+
+	value, err := time.Parse(time.RFC3339, valueString)
+	if err != nil {
+		return time.Time{}, errors.Wrapf(err, "detail %s has invalid date format", key)
+	}
+
+	return value, nil
 }
