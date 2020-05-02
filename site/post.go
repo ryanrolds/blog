@@ -121,8 +121,6 @@ func (p *PostManager) buildPost(key string) (*Post, error) {
 		return nil, errors.Wrapf(err, "problem parsing file %s", filename)
 	}
 
-	log.Info(front, markdown)
-
 	byteMarkdown := []byte(markdown)
 
 	body, css, err := renderMarkdown(&byteMarkdown)
