@@ -1,6 +1,9 @@
-# Efficient HTTP caching
-<div id="published-at">2019-01-04T01:27:25Z</div>
-
+---
+title: Efficient HTTP caching
+published: 2019-01-04T01:27:25Z
+editied: 2020-05-02T02:32:00Z
+intro: Caching related HTTP headers are critical to high performance websites. Learn about HTTP headers, requests, responses and how to avoid unneccary requests to your site.
+---
 In this post, we will be talking about HTTP caching headers and strategies for maximizing browser-level caching while ensuring freshness. First, we will dive into HTTP and it's caching headers. Then we will cover a few common strategies. And finally, we will review this blog's implementation.
 
 ## HTTP & Caching
@@ -140,7 +143,7 @@ tmpl := template.New("").Funcs(template.FuncMap{
 })
 
 // Template example
-// <img src="{{ GetAssetURL "logo.png" .Site.Hashes }}"/>
+// <img src="{{ GetAssetURL "logo.png" .Site.Hashes }}" alt="Pedantic Orderliness"/>
 ```
 
 We will still need the MD5 sum for posts and pages so that we can handle the `If-None-Match` header.

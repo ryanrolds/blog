@@ -14,3 +14,7 @@ make build
 ```
 ./pedantic_orderliness
 ```
+
+## Notes
+
+* .md files need to be `\n` not `\r\n` otherwise Blackfriday will not render code blocks correctly

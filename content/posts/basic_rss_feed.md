@@ -1,6 +1,8 @@
-# RSS Feeds with Go's text/template
-<div id="published-at">2019-01-22T00:16:19Z</div>
-
+---
+title: RSS Feeds with Go's text/template
+published: 2019-01-22T00:16:19Z
+intro: Discusses implementing OpenGraph and Twitter tags. Detailed overview of implementing an RSS feed using Go's `text/template`.
+---
 The blog is functional, but it’s missing features that improve reach and reader retention. Currently, readers must remember to visit the blog. That’s a tall order; We have to compete for their time and reading blogs is a low priority. Being able to display nudges where people spend their time is critical to winning some of their attention. Social media, newsletters, and RSS feeds are ways that we can fight for their attention.
 
 In this post, we will look at a few different broadcasting techniques and implement an RSS feed. First, we will cover social media, newsletters, and RSS feeds. After narrowing in on RSS feeds, we will analyze an RSS feed's XML document. Using Go's `text/template` package we will create a template that renders an RSS feed for this blog. Lastly, we will look at the HTTP route handler that serves the document from `GET /rss.xml`.

@@ -23,6 +23,6 @@ spec:
         - containerPort: 8081
         env:
         - name: ENV
-          value: ${ENV}  
+          value: ${ENV}
       imagePullSecrets:
         - name: regcred
