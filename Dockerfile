@@ -8,10 +8,10 @@ WORKDIR /pedantic_orderliness
 
 RUN go build
 
-#FROM alpine:latest
-#RUN apk --no-cache add ca-certificates
-#WORKDIR /app/
-#COPY --from=0 /pedantic_orderliness .
-#COPY --from=0 /pedantic_orderliness/content content
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /app/
+COPY --from=0 /pedantic_orderliness/pedantic_orderliness .
+COPY --from=0 /pedantic_orderliness/content content
 
 CMD ["./pedantic_orderliness"]
