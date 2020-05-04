@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: po-${ENV}
+  name: pedantic-orderliness-${ENV}
   labels:
-    app: po
+    app: pedantc-orderliness
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: po
+      app: pedantic_orderliness
       env: ${ENV}
   template:
     metadata:
       labels:
-        app: po
+        app: pedantic_orderliness 
         env: ${ENV}
     spec:
       containers:
-      - name: po
-        image: docker.io/ryanrolds/pedantic_orderliness:${TAG_NAME}
+      - name: pedantic-orderliness 
+        image: docker.pedanticorderliness.com/pedantic:${TAG_NAME}
         ports:
         - containerPort: 8081
         env:
