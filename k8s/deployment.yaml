@@ -8,21 +8,21 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: pedantic_orderliness
+      app: pedantic-orderliness
       env: ${ENV}
   template:
     metadata:
       labels:
-        app: pedantic_orderliness 
+        app: pedantic-orderliness
         env: ${ENV}
     spec:
       containers:
-      - name: pedantic-orderliness 
+      - name: pedantic-orderliness
         image: docker.pedanticorderliness.com/pedantic:${TAG_NAME}
         ports:
         - containerPort: 8081
         env:
         - name: ENV
-          value: ${ENV}
+          value: production
       imagePullSecrets:
         - name: regcred
