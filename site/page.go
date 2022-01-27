@@ -9,7 +9,7 @@ import (
 	bf "github.com/russross/blackfriday/v2"
 )
 
-const numRecent = 6
+const numRecent = 10
 const indexKey = "index"
 const rssLimit = 20
 const rssKey = "rss.xml"
