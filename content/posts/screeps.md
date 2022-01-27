@@ -7,7 +7,7 @@ It's been a crazy couple of years. We bought a house right before the pandemic, 
 
 Screeps asks programmers to create a bot that plays a massive persistent RTS (think StarCraft/Warcraft, but with a grid of maps and over 2000 bots). Players write logic that drives units, builds bases, defends against attacks, and raids NPCs/bots. The major languages (JavaScript, TypeScript, Rust, Kotlin, and Python) have starter kits. Any language that compiles to WASM is technically supported. If you've ever been playing an RTS and wished that you could write a bot that would play the game for you, Screeps is for you.
 
-The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim/tutorial/1), which does not require purchasing the game. It's an onramp to the concepts rather than an example of how to write your bot. As you complete the tutorial, you will frequently be referencing the [game docs](https://docs.screeps.com/index.html) and [API docs](https://docs.screeps.com/api/). The documentation is well done, and there is a [community-managed wiki](https://wiki.screepspl.us/index.php/Getting_Started) with some of the meta.
+The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim/tutorial/1), which does not require purchasing the game. It's an on-ramp to the concepts rather than an example of how to write your bot. As you complete the tutorial, you will frequently be referencing the [game docs](https://docs.screeps.com/index.html) and [API docs](https://docs.screeps.com/api/). The documentation is well done, and there is a [community-managed wiki](https://wiki.screepspl.us/index.php/Getting_Started) with some of the meta.
 
 ## Getting started
 
@@ -17,40 +17,50 @@ The game has 4 shards (grids of rooms connected by portals). The starting bot sh
 
 Rooms not claimed by the bots can have their energy mined and hauled to a nearby claimed room. This process is called "remote mining" and allows collecting more energy, accelerating the growth of RCL & GCL.
 
-The number of rooms a bot can claim is determined by their Global Control Level (GCL); GCL 1 allows 1 room, and GCL 7 allows 7 rooms. The energy put into room controllers also upgrades the GCL. Getting a room to RCL 5 unlocks the Terminal structure, allowing transferring resources between rooms and placing buy and sell. At that point, players start to work on distributing resources between rooms, reacting resources, and dabbling in automated trading.
+The number of rooms a bot can claim is determined by their Global Control Level (GCL); GCL 1 allows 1 room, and GCL 7 allows 7 rooms. The energy put into room controllers also upgrades the GCL. Getting a room to RCL 5 unlocks the Terminal structure, allowing the transfer of resources between rooms and placing buy and sell orders. At that point, players start to distribute resources between rooms, react resources, and dabble in automated trading.
 
-Once a bot is capable of creating and distributing "boosts" (provide significant bonuses to attacking, healing, mining, and other actions) players can focus on defense logic and sieging NPCs/bots. When the bot feels the squeeze of the 20ms CPU limit and the low-hanging optimizations have been made, it's time to expand into other shards.
-## My bot structure
+Once a bot can create and distribute "boosts" (provide significant bonuses to attacking, healing, mining, and other actions), players can focus on defense logic and sieging NPCs/bots. When the bot feels the squeeze of the 20ms CPU limit and the low-hanging optimizations have been made, it's time to expand into other shards.
 
-Over the last year, the bot evolved [my bot](https://github.com/ryanrolds/screeps) from doing depth-first processing of behavior organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels between monoliths and microservices, that's intentional.
+## Challenges
 
-Another problem emerged, CPU profiling and general debugging. I reached for the enterprise standard solutions and implemented a simple "tracer" that supports spans, logging, and profiling. At the start of each tick, some global variables (🤨) are consumed, and a new tracer is configured. The tracer is then provided to the bot's tick handler. As scheduled processes are run, sub-spans are created, logs are written, and blocks of code are timed. Metrics are stored in a document that can be accessed by external services and written to a TSDB. Logs and reports on CPU time consumed by spans may be written to the bot's console as desired. Various options are provided to filter the logs and report output.
+I enjoyed most about Screeps is the variety of problems that have to be solved. It also encouraged me to think like a PM while still addressing toil and technical debt. If we are not enjoying what we are doing, why continue to do it?
 
-## Programming challenges
+### Creep Behavior
 
-What I enjoyed most about Screeps is the variety of problems that have to be solved. It also encouraged me to think like a PM while still addressing toil and technical debt. If we are not enjoying what we are doing, why continue to do it?
+Early in development, I decided to use [Behavior Trees](https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work) to drive my creep. I considered other options - [Finite-State Machines](https://en.wikipedia.org/wiki/Finite-state_machine) (FSM) or [Goal Oriented Action Planning](https://medium.com/@vedantchaudhari/goal-oriented-action-planning-34035ed40d0b) (GOAP).
 
-### Behavior Trees
+Most of my creeps follow a simple loop:
+Get task from a queue.
+Move to a position.
+Pick up a resource.
+Move to another position.
+Perform some action with that resource.
+Go to Step 1.
+The majority of logic only needs to perform single actions (pick up, drop off), repeat an action (moving), and create sequences. Behavior trees afford these basic patterns and allow them to be composed into trees. On creation, creeps are assigned a role in determining the behavior tree used to drive the creep.
 
-Early in development, I decided to use [Behavior Trees](https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work) instead of Finite-State Machines (FSM) for driving creeps. Like all software projects, the early decisions focused on the biggest bang for the time required. The decision worked well, and I rarely think about switching to another strategy - FSM or Goal Oriented Action Planning (GOAP). The majority of my creeps follow a simple loop: get the next task from a queue, move to a position, pick up a resource, move to another position, perform some action with that resource, and repeat.
+Like all software projects, the early decisions focused on the biggest bang for the time. I have not needed anything more complex or less rigid than Behavior Trees. Not to say that when implementing advanced attack/defense logic, I won't reach for GOAP in the future. However, I rarely think about switching because behavior trees get the job done.
 
-The creep behaviors are very linear, so FSM and GOAP weren't needed. That is not to say that when implementing advanced attack/defense logic, I won't reach for GOAP. I have not had the need for anything more complex or less ridged than Behavior Trees.
+## Path Finding & Cost Matrices
 
-### Path Finding & Cost Matrices
+Playing the game requires learning about [pathfinding](https://en.wikipedia.org/wiki/Pathfinding) and cost matrices. Creeps have to move, which requires calculating a path between their current position and a destination. Use case-specific policies must be factored during the calculation: What is the maximum distance allowed? How much time can the bot spend calculating a path? Is a partial path helpful? Which rooms should not be entered? Do destructible walls block the path? Are there areas or hostile creeps that it should avoid?
 
-Playing the game requires learning about [pathfinding](https://en.wikipedia.org/wiki/Pathfinding) and cost matrices. Creeps have to move, which requires calculating a path between their current position and a destination. Use case-specific policies have to be factored during the calculation: What is the maximum distance allowed? How much time can the bot spend calculating a path? Is a partial path useful? Which rooms should not be entered? Do destructible walls block the path? Are there areas or hostile creeps that it should avoided?
-
-Thankfully Screeps provides a [sophisticated pathfinding API](https://docs.screeps.com/api/#PathFinder). One of the most important concepts to understand when using this API is [cost matrices](https://docs.screeps.com/api/#PathFinder-CostMatrix). When calculating a path the bot will fetch a cost matrix for each room in the path. The default cost matrix includes values for the terrain (plains, swamps, indestructible walls). A callback can be provided that allows the usage of custom cost matrices. It's also possible to tell the pathfinding to ignore rooms by returning `false` instead of a cost matrix. The ability to filter rooms as well as mark areas of rooms as higher cost allows complex pathing to be implemented.
+Thankfully Screeps provides a [sophisticated pathfinding API](https://docs.screeps.com/api/#PathFinder). One of the most important concepts to understand when using this API is [cost matrices](https://docs.screeps.com/api/#PathFinder-CostMatrix). When calculating a path, the bot will fetch a cost matrix for each room in the path. The default cost matrix includes values for the terrain (plains, swamps, indestructible walls). A callback can be provided that allows the usage of custom cost matrices. It's also possible to tell the pathfinding to ignore rooms by returning `false` instead of a cost matrix. The ability to filter rooms as well as mark areas of rooms as higher cost allows complex pathing to be implemented.
 
 Two examples:
 
-* Defenders - When defending a base, a cost matrix for the base footprint is calculated and temporarily cached. Determining the footprint requires creating a cost matrix that has all walls and ramparts set to blocking and applying a [flood fill algorithm](https://en.wikipedia.org/wiki/Flood_fill) at the base's origin. A new cost matrix is created and all positions outside of the footprint are set to a higher cost. This results in defenders pooling inside of the base's walls closest to the enemy.
-* Roads - It's beneficial to build roads so that resources can be hauled at maximum speed. This requires calculating a path from the Storage structure and the source of resources. A direct path may cause the road to be close to high-traffic areas (other resources, controllers being upgraded, etc...) causing traffic jams. These areas can be given a higher cost making the path go around the high-traffic area instead of through it.
+* Defenders - A cost matrix for the base footprint is calculated and temporarily cached when defending a base. Determining the footprint requires creating a cost matrix with all walls and ramparts set to blocking and applying a [flood fill algorithm](https://en.wikipedia.org/wiki/Flood_fill) at the base's origin. Then, a new cost matrix is created, and all positions outside the footprint are set to a higher cost. This results in defenders pooling inside the base's walls closest to the enemy.
+* Roads - It's beneficial to build roads so that resources can be hauled at maximum speed. This requires calculating a path from the Storage structure and the source of resources. A direct path may cause the road to be close to high-traffic areas (other resources, controllers being upgraded, etc...), causing traffic jams. These areas can be given a higher cost making the path go around the high-traffic area instead of through it.
 
 Implementing different matrix transforms to solve problems, like base placement (distance transform) and wall placement (max-flow min-cut), has been an enjoyable diversion from the day-to-day development of web services.
 
+### Bot structure & Performance
+
+Over the last year, my bot evolved [my bot](https://github.com/ryanrolds/screeps) from doing depth-first processing of behavior organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels between monoliths and microservices, that's intentional.
+
+Another problem emerged, CPU profiling and general debugging. I reached for the enterprise standard solutions and implemented a simple "tracer" that supports spans, logging, and profiling. At the start of each tick, some global variables (🤨) are consumed, and a new tracer is configured. The tracer is then provided to the bot's tick handler. As scheduled processes are run, sub-spans are created, logs are written, and code blocks are timed. Metrics are stored in a document that can be accessed by external services and written to a TSDB. Logs and reports on CPU time consumed by spans may be written to the bot's console as desired. Various options are provided to filter the logs and report output.
+
 ## Final Comments
 
-If you enjoy programming and want a challenge outside of your day job, check this game out. Don't worry about hostile bots; Shard 3 is pretty chill. If you do get wiped, you still have your code and GCL. It's easy to claim another starting room and try again. Also, there are newbie and restart areas that are walled off from from the established bots for up to 2 weeks.
+Check out this game if you enjoy programming and want a challenge outside of your day job. Don't worry about hostile bots; Shard 3 is pretty chill. If you do get wiped, you still have your code and GCL. It's easy to claim another starting room and try again. Also, there are newbie and restart areas walled off from the established bots for up to 2 weeks.
 
-If you have questions, join [Screeps' Official Discord](https://discord.com/invite/screeps). The community is helpful and friendly.
+Join [Screeps' Official Discord](https://discord.com/invite/screeps). The community is helpful and friendly.
