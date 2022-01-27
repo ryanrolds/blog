@@ -8,19 +8,19 @@ It's been a crazy couple of years. We bought a house right before the pandemic, 
 Screeps asks programmers to create a bot that plays a massive persistent Real-time Strategy (RTS) game. Think StarCraft/Warcraft, but with a grid of maps and over 2000 players. The bot contains logic that drives units, builds bases, defends against attacks, and raids NPCs/bots. The major languages (JavaScript, TypeScript, Rust, Kotlin, and Python) have starter kits. Any language that compiles to WASM is technically supported. If you've ever been playing an RTS and wished to write a bot that would play the game, Screeps is for you.
 ## Getting started
 
-The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim/tutorial/1), which doesn't require purchasing the game. It's an on-ramp to the game's concepts rather than an example of how to write your bot. As you complete the tutorial, you will frequently be referencing the [game docs](https://docs.screeps.com/index.html) and [API docs](https://docs.screeps.com/api/). The documentation is well done and there is a [community-managed wiki](https://wiki.screepspl.us/index.php/Getting_Started) with some of the meta.
+The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim/tutorial/1), which doesn't require purchasing the game. It's an on-ramp to the game's concepts rather than an example of how to write your bot. As you complete the tutorial, you will frequently reference the [game docs](https://docs.screeps.com/index.html) and [API docs](https://docs.screeps.com/api/). The documentation is well done and there is a [community-managed wiki](https://wiki.screepspl.us/index.php/Getting_Started) with some of the meta.
 
 ## Progression
 
-The tutorial introduces you to writing logic for "creeps" (the units in the game), upgrading your room, automatically spawning creeps, and defending your room. Do the tutorial, write a bot to get a room to RCL 4, and protect against NPC invaders. Once you have that initial bot, claim a room in Shard 3. The starting shard, Shard 3, limits the CPU time of all bots to 20ms per tick.
+The tutorial introduces you to writing logic for "creeps" (the units in the game), upgrading your room, automatically spawning creeps, and defending your room. Do the tutorial, write a bot to get a room to RCL 4, and protect against NPC invaders. Once you have that initial bot, claim a room in the starting shard, Shard 3. The shard enforces 20ms [soft-limit](https://docs.screeps.com/cpu-limit.html) on CPU time.
 
-The number of rooms a bot can claim is determined by their Global Control Level (GCL); GCL 1 allows 1 room, and GCL 7 allows 7 rooms. The energy put into room controllers also upgrades the GCL. Rooms not claimed by a bot can have their energy mined and hauled to a nearby claimed room. This process is called "remote mining" and allows collecting more energy, accelerating the growth of RCL & GCL. Getting a room to RCL 5 unlocks the Terminal structure, allowing the transfer of resources between rooms and placing buy and sell orders. At that point, players start to distribute resources across rooms, react resources, and dabble in automated trading.
+The number of rooms a bot can claim is determined by their Global Control Level (GCL); GCL 1 allows 1 room, and GCL 7 allows 7 rooms. The energy put into room controllers also upgrades the GCL. Rooms not claimed by a bot can have their energy collected and hauled to a nearby claimed room. This process is called "remote mining" and helps accelerate the growth of RCL & GCL. Getting a room to RCL 5 allows the building of Terminal structure, supports transfer of resources between rooms and placing market orders. At that point, players start to distribute resources across rooms, react resources, and dabble in automated trading.
 
 Once a bot can create and distribute "boosts" (materials that give significant bonuses to attacking, healing, mining, and other actions), players can focus on defense logic and sieging NPCs/bots. When the bot feels the squeeze of the 20ms CPU limit and the low-hanging optimizations have been made, it's time to expand into other shards.
 
 ## Challenges
 
-I enjoy the variety of problems that have to be solved and learning new techniques. The game encouraged me to think like a PM while still addressing toil and technical debt. If we are not enjoying the game, why continue to do it? Here are just a few of the more interesting challenges I had to solve.
+I enjoy the variety of problems that have to be solved and learning new techniques. The game encouraged me to think like a PM while still addressing toil and technical debt. If we are not enjoying the game, why continue to do it?
 
 ### Creep Behavior
 
@@ -28,12 +28,12 @@ Early in development, I decided to use [Behavior Trees](https://www.gamedevelope
 
 Most of my creeps follow a simple loop:
 
-1. Get task from a queue.
-2. Move to a position.
-3. Pick up a resource.
-4. Move to another position.
-5. Perform some action with that resource.
-6. Go to Step 1.
+1. Get task from a queue
+2. Move to a position
+3. Pick up a resource
+4. Move to another position
+5. Perform some action with that resource
+6. Go to Step 1
 
 The majority of logic only needs to perform single actions (pick up, drop off), repeat an action (moving), and create sequences. Behavior Trees afford these basic patterns and allow them to be composed into trees. On creation, creeps are assigned a role that determines the behavior tree used to drive the creep.
 
