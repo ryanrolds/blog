@@ -27,6 +27,7 @@ I enjoy the variety of problems that have to be solved and learning new techniqu
 Early in development, I decided to use [Behavior Trees](https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work) to drive my creep. I considered other options - [Finite-State Machines](https://en.wikipedia.org/wiki/Finite-state_machine) (FSM) or [Goal Oriented Action Planning](https://medium.com/@vedantchaudhari/goal-oriented-action-planning-34035ed40d0b) (GOAP).
 
 Most of my creeps follow a simple loop:
+
 1. Get task from a queue.
 2. Move to a position.
 3. Pick up a resource.
@@ -53,7 +54,7 @@ Implementing different matrix transforms to solve problems, like base placement 
 
 ### Bot structure & Performance
 
-Over the last year, my bot evolved [my bot](https://github.com/ryanrolds/screeps) from doing depth-first processing of behavior organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels between monoliths and microservices, that's intentional.
+Over the last year, I evolved [my bot](https://github.com/ryanrolds/screeps) from doing depth-first processing of behavior organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels between monoliths and microservices, that's intentional.
 
 Another problem emerged, CPU profiling and general debugging. I reached for the enterprise standard solutions and implemented a simple "tracer" that supports spans, logging, and profiling. At the start of each tick, some global variables (🤨) are consumed, and a new tracer is configured. The tracer is then provided to the bot's tick handler. As scheduled processes are run, sub-spans are created, logs are written, and code blocks are timed. Metrics are stored in a document that can be accessed by external services and written to a Time Series DB (TSDB). Logs and reports on CPU time consumed by spans may be written to the bot's console as desired. Various options are provided to filter the logs and report output.
 
