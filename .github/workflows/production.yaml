@@ -1,4 +1,4 @@
-    name: listener
+name: listener
 on:
   push:
     branches: [ master ]
