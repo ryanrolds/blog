@@ -5,7 +5,7 @@ intro: It's been a crazy couple of years. One of the things that have helped me 
 ---
 It's been a crazy couple of years. We bought a house right before the pandemic, sister-in-law moved in for a while, learned to take care of a house, and changed employers. One of the things that have helped me keep my sanity in these interesting times is [Screeps](https://screeps.com/), an MMO for programmers.
 
-Screeps asks programmers to create a bot that plays a massive persistent RTS (think StarCraft/Warcraft, but with a grid of maps and over 2000 bots). Players write logic that drives units, builds bases, defends against attacks, and raids NPCs/bots. The major languages (JavaScript, TypeScript, Rust, Kotlin, and Python) have starter kits. Any language that compiles to WASM is technically supported. If you've ever been playing an RTS and wished that you could write a bot that would play the game for you, Screeps is for you.
+Screeps asks programmers to create a bot that plays a massive persistent Real-time Strategy (RTS) game. Think StarCraft/Warcraft, but with a grid of maps and over 2000 players. The bot contains logic that drives units, builds bases, defends against attacks, and raids NPCs/bots. The major languages (JavaScript, TypeScript, Rust, Kotlin, and Python) have starter kits. Any language that compiles to WASM is technically supported. If you've ever been playing an RTS and wished to write a bot that would play the game for you, Screeps is for you.
 
 The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim/tutorial/1), which does not require purchasing the game. It's an on-ramp to the concepts rather than an example of how to write your bot. As you complete the tutorial, you will frequently be referencing the [game docs](https://docs.screeps.com/index.html) and [API docs](https://docs.screeps.com/api/). The documentation is well done, and there is a [community-managed wiki](https://wiki.screepspl.us/index.php/Getting_Started) with some of the meta.
 
@@ -23,7 +23,7 @@ Once a bot can create and distribute "boosts" (provide significant bonuses to at
 
 ## Challenges
 
-I enjoyed most about Screeps is the variety of problems that have to be solved. It also encouraged me to think like a PM while still addressing toil and technical debt. If we are not enjoying what we are doing, why continue to do it?
+I enjoy the variety of problems that have to be solved and learning new techniques. The game encouraged me to think like a PM while still addressing toil and technical debt. If we are not enjoying the game, why continue to do it?
 
 ### Creep Behavior
 
@@ -57,7 +57,7 @@ Implementing different matrix transforms to solve problems, like base placement 
 
 Over the last year, my bot evolved [my bot](https://github.com/ryanrolds/screeps) from doing depth-first processing of behavior organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels between monoliths and microservices, that's intentional.
 
-Another problem emerged, CPU profiling and general debugging. I reached for the enterprise standard solutions and implemented a simple "tracer" that supports spans, logging, and profiling. At the start of each tick, some global variables (🤨) are consumed, and a new tracer is configured. The tracer is then provided to the bot's tick handler. As scheduled processes are run, sub-spans are created, logs are written, and code blocks are timed. Metrics are stored in a document that can be accessed by external services and written to a TSDB. Logs and reports on CPU time consumed by spans may be written to the bot's console as desired. Various options are provided to filter the logs and report output.
+Another problem emerged, CPU profiling and general debugging. I reached for the enterprise standard solutions and implemented a simple "tracer" that supports spans, logging, and profiling. At the start of each tick, some global variables (🤨) are consumed, and a new tracer is configured. The tracer is then provided to the bot's tick handler. As scheduled processes are run, sub-spans are created, logs are written, and code blocks are timed. Metrics are stored in a document that can be accessed by external services and written to a Time Series DB (TSDB). Logs and reports on CPU time consumed by spans may be written to the bot's console as desired. Various options are provided to filter the logs and report output.
 
 ## Final Comments
 
