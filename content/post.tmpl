@@ -1,7 +1,7 @@
 {{ template "preamble.tmpl" . }}
 <div class="content">
-  <h1>{{.Title}}</h1>
-  <div id="published-at">{{.PublishedAt | FormatDate}}</div>
+  <h1 aria-label="Title">{{.Title}}</h1>
+  <div id="published-at" aria-label="Published At">📝&nbsp;{{.PublishedAt | FormatDate}}</div>
   {{.Content}}
   <div id="disqus_thread"></div>
   <script>
