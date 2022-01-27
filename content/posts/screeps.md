@@ -1,6 +1,6 @@
 ---
 title: Screeps after playing 1 year
-published: 2022-01-27T01:16:19Z
+published: 2022-01-26T22:16:19Z
 intro: It's been a crazy couple of years. One of the things that have helped me keep my sanity is Screeps, an MMO for programmers.
 ---
 I have not posted in a long time. It's been a crazy couple of years. We bought a house right before the pandemic, sister-in-law moved in for a while, learned to take care of a house, and changed employers. One of the things that have helped me keep my sanity in these interesting time is [Screeps](https://screeps.com/), an MMO for programmers.
