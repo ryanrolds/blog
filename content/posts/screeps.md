@@ -38,7 +38,7 @@ The majority of logic only needs to perform single actions (pick up, drop off), 
 
 Like all software projects, the early decisions focused on the biggest bang for the time. I have not needed anything more complex or less rigid than Behavior Trees. Not to say that when implementing advanced attack/defense logic, I won't reach for GOAP in the future. However, I rarely think about switching because behavior trees get the job done.
 
-## Path Finding & Cost Matrices
+### Path Finding & Cost Matrices
 
 Playing the game requires learning about [pathfinding](https://en.wikipedia.org/wiki/Pathfinding) and cost matrices. Creeps have to move, which requires calculating a path between their current position and a destination. Use case-specific policies must be factored during the calculation: What is the maximum distance allowed? How much time can the bot spend calculating a path? Is a partial path helpful? Which rooms should not be entered? Do destructible walls block the path? Are there areas or hostile creeps that it should avoid?
 
