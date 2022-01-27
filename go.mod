@@ -3,23 +3,18 @@ module github.com/ryanrolds/pedantic_orderliness
 go 1.12
 
 require (
-	github.com/Depado/bfchroma v1.2.0
-	github.com/alecthomas/chroma v0.7.2
-	github.com/antchfx/htmlquery v1.2.3
-	github.com/canthefason/go-watcher v0.2.4 // indirect
-	github.com/dlclark/regexp2 v1.2.0 // indirect
-	github.com/fatih/color v1.9.0 // indirect
-	github.com/gernest/front v0.0.0-20181129160812-ed80ca338b88
-	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.4
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
+	github.com/Depado/bfchroma v1.3.0
+	github.com/alecthomas/chroma v0.10.0
+	github.com/antchfx/htmlquery v1.2.4
+	github.com/felixge/httpsnoop v1.0.2 // indirect
+	github.com/gernest/front v0.0.0-20210301115436-8a0b0a782d0a
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/gorilla/handlers v1.5.1
+	github.com/gorilla/mux v1.8.0
 	github.com/pkg/errors v0.9.1
-	github.com/russross/blackfriday/v2 v2.0.1
-	github.com/sirupsen/logrus v1.5.0
-	github.com/stretchr/objx v0.1.1 // indirect
-	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79 // indirect
-	golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5
-	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
-	golang.org/x/text v0.3.2 // indirect
-	gopkg.in/yaml.v2 v2.2.8 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0
+	github.com/sirupsen/logrus v1.8.1
+	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
