@@ -13,7 +13,7 @@ The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim
 
 ## Progression
 
-The tutorial introduces you to writing logic for "creeps" (the units in the game), upgrading your room, automatically spawning creeps, and defending your room. Do the tutorial, write a bot to get a room to RCL 4, and protect against NPC invaders. Once you have that initial bot, claim a room in the starting shard, Shard 3. The shard enforces 20ms [soft-limit](https://docs.screeps.com/cpu-limit.html) on CPU time.
+The tutorial introduces you to writing logic for "creeps" (the units in the game), upgrading your room, automatically spawning creeps, and defending your room. Do the tutorial, write a bot to get a room to RCL 4, and protect against NPC invaders. Once you have that initial bot, claim a room in the starting shard, Shard 3. The shard enforces a 20ms [soft-limit](https://docs.screeps.com/cpu-limit.html) on CPU time.
 
 The number of rooms a bot can claim is determined by their Global Control Level (GCL); GCL 1 allows 1 room, and GCL 7 allows 7 rooms. The energy put into room controllers also upgrades the GCL. Rooms not claimed by a bot can have their energy collected and hauled to a nearby claimed room. This process is called "remote mining" and helps accelerate the growth of RCL & GCL. Getting a room to RCL 5 allows the building of Terminal structure, supports the transfer of resources between rooms and placing market orders. At that point, players start to distribute resources across rooms, react resources, and dabble in automated trading.
 
