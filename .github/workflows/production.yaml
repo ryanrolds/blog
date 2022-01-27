@@ -12,17 +12,16 @@ jobs:
       with:
         go-version: ^1.17
       id: go
+
     - name: Check out code
       uses: actions/checkout@v2
+
     - name: Get deps
       run: make install
+
     - name: Build
       run: make build
-  deploy:
-    needs: build
-    name: Deploy production
-    runs-on: ubuntu-latest
-    steps:
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:

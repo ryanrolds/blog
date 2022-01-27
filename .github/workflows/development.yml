@@ -12,17 +12,16 @@ jobs:
       with:
         go-version: ^1.17
       id: go
+
     - name: Check out code
       uses: actions/checkout@v2
+
     - name: Get deps
       run: make install
+
     - name: Build
       run: make build
-  deploy:
-    needs: build
-    name: Development deploy
-    runs-on: ubuntu-latest
-    steps:
+
     - name: Build and push Docker images
       uses: docker/build-push-action@v1.1.0
       with:
@@ -31,6 +30,7 @@ jobs:
         password: ${{ secrets.DOCKER_REG_PASS }}
         repository: pedantic
         tags: ${{ github.sha }},latest
+
     - name: Deploy
       run: |
         curl --fail -X PUT -H "X-Access-Token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}" "https://actions.pedanticorderliness.com/deploy?repo=$GITHUB_REPOSITORY&tag=$GITHUB_SHA"
