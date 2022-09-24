@@ -1,6 +1,7 @@
 ---
 title: Screeps after one year
 published: 2022-01-26T22:16:19Z
+editied: 2022-09-24T23:41:00Z
 intro: It's been a crazy couple of years. One of the things that have helped me keep my sanity is Screeps, an MMO for programmers.
 ---
 It's been a crazy couple of years. We bought a house right before the pandemic, sister-in-law moved in for a while, learned to take care of a house, and changed employers. One of the things that have helped me keep my sanity in these interesting times is [Screeps](https://screeps.com/), an MMO for programmers.
@@ -55,7 +56,7 @@ Implementing different matrix transforms to solve problems, like base placement 
 
 ### Bot structure & Performance
 
-Over the last year, I evolved [my bot](https://github.com/ryanrolds/screeps-bot) from doing depth-first processing of procedures organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels with monoliths and microservices, that's intentional.
+Over the last year, I evolved [my bot](https://github.com/ryanrolds/screeps-bot-choreographer) from doing depth-first processing of procedures organized in a tree to the scheduling of "processes" that share tasks & data via priority queues and event streams. The game is single-threaded, so the notion of processes and IPC feels like overkill. However, as the bot grew to dozens of procedures dependent on the state of other procedures, a complex and tightly coupled dependency graph emerged. By cutting direct data access to other procedures and sharing data/state updates via topics/queues, the scope of changes shrank, refactoring became more manageable, and I deployed broken versions of the bot less. If you see parallels with monoliths and microservices, that's intentional.
 
 Another problem emerged, CPU profiling and general debugging. I reached for the enterprise standard solutions and implemented a simple "tracer" that supports spans, logging, and profiling. At the start of each tick, some global variables (🤨) are consumed, and a new tracer is configured. The tracer is then provided to the bot's tick handler. As scheduled processes are run, sub-spans are created, logs are written, and code blocks are timed. Metrics are stored in a document that can be accessed by external services and written to a Time Series DB (TSDB). Logs and reports on CPU time consumed by spans may be written to the bot's console as desired. Various options are provided to filter the logs and report output.
 
