@@ -1,9 +1,17 @@
 # K8s files
 
+> TODO move to Helm chart
+
 ```
 export ENV=test
-export TAG_NAME=latest
-envsubst < deployment.yaml | kubectl apply -f -
-envsubst < service.yaml | kubectl apply -f -
-kubectl apply -f ingress-test.yaml
+envsubst < k8s/namespace.yaml | kubectl apply -f -
+
+docker build .
+export TAG_NAME=$(docker images --format='{{.ID}}' | head -1)
+docker tag $TAG_NAME docker.pedanticorderliness.com/pedantic-orderliness:$TAG_NAME
+docker push docker.pedanticorderliness.com/pedantic-orderliness:$TAG_NAME
+envsubst < k8s/deployment.yaml | kubectl apply -f -
+
+envsubst < k8s/service.yaml | kubectl apply -f -
+envsubst < k8s/ingress.yaml | kubectl apply -f -
 ```

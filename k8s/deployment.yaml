@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pedantic-orderliness-${ENV}
+  namespace: pedantic-orderliness-${ENV}
   labels:
     app: pedantc-orderliness
 spec:
@@ -17,12 +18,12 @@ spec:
         env: ${ENV}
     spec:
       containers:
-      - name: pedantic-orderliness
-        image: docker.pedanticorderliness.com/pedantic:${TAG_NAME}
-        ports:
-        - containerPort: 8081
-        env:
-        - name: ENV
-          value: production
+        - name: pedantic-orderliness
+          image: docker.pedanticorderliness.com/pedantic-orderliness:${TAG_NAME}
+          ports:
+            - containerPort: 8081
+          env:
+            - name: ENV
+              value: ${ENV}
       imagePullSecrets:
         - name: regcred
