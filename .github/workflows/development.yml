@@ -28,7 +28,7 @@ jobs:
           registry: docker.pedanticorderliness.com
           username: ${{ secrets.DOCKER_REG_USER }}
           password: ${{ secrets.DOCKER_REG_PASS }}
-          repository: pedantic
+          repository: blog
           tags: ${{ github.sha }},latest
 
       - name: Helm Deploy
@@ -38,7 +38,7 @@ jobs:
           namespace: pedantic-orderliness-blog-test
           chart: chart
         env:
-          KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG_FILE: ${{ secrets.KUBECONFIG_FILE }}
 
       # - name: Deploy
       #   run: |
