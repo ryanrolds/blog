@@ -25,7 +25,11 @@ GitHub Actions is configured to use Helm to deploy to a Kubernetes cluster.
 
 Apply Helm template:
 ```
-helm template test chart --set image.tag=latest --set image.repository=pedanticorderliness/pedantic_orderliness > kubectl apply -f -
+docker build .
+export TAG_NAME=$(docker images --format='{{.ID}}' | head -1)
+docker tag $TAG_NAME docker.pedanticorderliness.com/blog:$TAG_NAME
+docker push docker.pedanticorderliness.com/blog:$TAG_NAME
+helm template test chart --set image.tag=$TAG_NAME --set image.repository=docker.pedanticorderliness.com/blog > kubectl apply -f -
 ```
 
 ### Production
