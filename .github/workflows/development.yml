@@ -31,18 +31,20 @@ jobs:
           repository: blog
           tags: ${{ github.sha }},latest
 
-      - name: Helm Deploy
-        uses: vimeda/helm@v1.6.8
-        with:
-          release: test
-          namespace: pedantic-orderliness-blog-test
-          chart: chart
-          values: |
-            image:
-              tag: ${{ github.sha }}
-        env:
-          KUBECONFIG_FILE: ${{ secrets.KUBECONFIG_FILE }}
+      # Experimented with deploying via Helm, not a fan of storing kubeconfig in GH secrets
+      # and having the K8s API Server accessible from the internet.
+      # - name: Helm Deploy
+      #   uses: vimeda/helm@v1.6.8
+      #   with:
+      #     release: test
+      #     namespace: pedantic-orderliness-blog-test
+      #     chart: chart
+      #     values: |
+      #       image:
+      #         tag: ${{ github.sha }}
+      #   env:
+      #     KUBECONFIG_FILE: ${{ secrets.KUBECONFIG_FILE }}
 
-      # - name: Deploy
-      #   run: |
-      #     curl --fail -X PUT -H "X-Access-Token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}" "https://actions.pedanticorderliness.com/deploy?repo=$GITHUB_REPOSITORY&tag=$GITHUB_SHA"
+      - name: Deploy
+        run: |
+          curl --fail -X PUT -H "X-Access-Token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}" "https://actions.pedanticorderliness.com/deploy?repo=$GITHUB_REPOSITORY&tag=$GITHUB_SHA"
