@@ -1,6 +1,6 @@
 # K8s files
 
-> TODO move to Helm chart
+> These files were replaced by the Helm chart. See the `chart` directory.
 
 ```
 export ENV=test

@@ -15,17 +15,24 @@ make build
 ./pedantic_orderliness
 ```
 
-## Notes
-
-* .md files need to be `\n` not `\r\n` otherwise Blackfriday will not render code blocks correctly
-
 ## Deploying
 
-Build the image and push to K8s and update K8s:
+### PO Kubernetes
+
+GitHub Actions is configured to use Helm to deploy to a Kubernetes cluster.
+
+#### Manual Steps
+
+Apply Helm template:
 ```
-make push_k8s
-make deploy_k8s
+helm template test chart --set image.tag=latest --set image.repository=pedanticorderliness/pedantic_orderliness > kubectl apply -f -
 ```
+
+### Production
+
+GitHub Actions is configured to use Helm to deploy to ECS.
+
+#### Manual steps
 
 Build and deploy to AWS (production):
 ```
@@ -35,3 +42,7 @@ make deploy_aws
 ```
 
 > AWS to uses `latest` tag for images which is not desirable. Need to fix this sometime.
+
+## Notes
+
+* .md files need to be `\n` not `\r\n` otherwise Blackfriday will not render code blocks correctly

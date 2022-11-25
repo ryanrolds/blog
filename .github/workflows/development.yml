@@ -37,6 +37,9 @@ jobs:
           release: test
           namespace: pedantic-orderliness-blog-test
           chart: chart
+          values: |
+            image:
+              tag: ${{ github.sha }}
         env:
           KUBECONFIG_FILE: ${{ secrets.KUBECONFIG_FILE }}
 
