@@ -1,4 +1,4 @@
-# pedantic_orderliness
+# Pedantic Orderliness Blog
 
 Markdown and Go Template driven blog.
 
