@@ -31,20 +31,15 @@ jobs:
           repository: blog
           tags: ${{ github.sha }},latest
 
-      # Experimented with deploying via Helm, not a fan of storing kubeconfig in GH secrets
-      # and having the K8s API Server accessible from the internet.
-      # - name: Helm Deploy
-      #   uses: vimeda/helm@v1.6.8
-      #   with:
-      #     release: test
-      #     namespace: pedantic-orderliness-blog-test
-      #     chart: chart
-      #     values: |
-      #       image:
-      #         tag: ${{ github.sha }}
-      #   env:
-      #     KUBECONFIG_FILE: ${{ secrets.KUBECONFIG_FILE }}
+      - name: Generate a token
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.PO_APP_ID }}
+          private_key: ${{ secrets.PO_PRIVATE_KEY }}
 
-      - name: Deploy
+      - name: Update image tag in values.yaml
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
-          curl --fail -X PUT -H "X-Access-Token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}" "https://actions.pedanticorderliness.com/deploy?repo=$GITHUB_REPOSITORY&tag=$GITHUB_SHA"
+          gh workflow run image_update.yaml -R ryanrolds/infrastructure -r main -F chart=blog-test -F values_file=values.yaml -F tag_path=image.tag -F tag=${{ github.sha }}
