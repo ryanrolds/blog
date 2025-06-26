@@ -6,7 +6,6 @@ Markdown and Go Template driven blog.
 
 ```
 make install
-make build
 ```
 
 ## Running
@@ -17,11 +16,11 @@ make build
 
 ## Deploying
 
-### PO Kubernetes
+### Kubernetes
 
 GitHub Actions is configured to use Helm to deploy to a Kubernetes cluster.
 
-#### Manual Steps
+#### Manual Steps (break glass)
 
 Apply Helm template:
 ```
