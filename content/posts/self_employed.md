@@ -12,7 +12,7 @@ After leaving InVision, I've struggled to find an organization I enjoy working a
 
 Last year brought a series of personal challenges. I was diagnosed with type 2 diabetes, requiring significant lifestyle changes and ongoing management. Shortly after, I suddenly lost a grandparent, which forced me to confront mortality and what truly matters in life. Last December, my oldest cat started requiring heart medication four times a day, adding daily caregiving responsibilities.
 
-Being able to work remotely is critical to managing my own health and household obligations. The flexibility isn't a nice-to-have; it's essential for maintaining my health and caring for loved ones. The frustration with corporate environments, confidence in my ability to deliver value, and the pressing need for flexibility in my personal life - pushed me toward self-employment.
+Being able to work remotely is critical to managing my own health and household obligations. The flexibility isn't a nice-to-have; it's essential for maintaining my health and caring for loved ones. The frustration with corporate environments, confidence in my ability to deliver value, and the pressing need for flexibility in my personal life pushed me toward self-employment.
 
 I've decided to stop doing the same thing over and over again and expecting different results.
 
@@ -26,7 +26,9 @@ After adjusting for tariffs at the beginning of May, I've learned that hobbyists
 
 I'm exploring integrating Plant Ranger with Home Assistant. The integration will send data from all plant sensors supported by HA and display Plant Ranger alerts and recommendations in Home Assistant. Home Assistant's developer API is complex. All of this is going to take months to build, launch, and grow.
 
-I still need to pay bills. To do this, Digital Buttes is offering IT contracting and consulting services. I landed my first contract in early May and am committed for at least the next several months. My biggest fear right now is lead generation. Kali and I are iterating on business cards & marketing and I'm going to start attending Eugene and Portland networking events. 
+I still need to pay bills. To do this, Digital Buttes offers IT contracting and consulting services. I landed my first contract in early May and am committed for at least the next several months. My biggest fear right now is lead generation. Kali and I are iterating on business cards & marketing and I'm going to start attending Eugene and Portland networking events. 
+
+> If your team needs help updating applications, migrating to the cloud, containerizing workloads, or implementing DevOps/GitOps practices, please reach to [ryan@digitalbuttes.com](mailto:ryan@digitalbuttes.com).
 
 ## The Future
 
