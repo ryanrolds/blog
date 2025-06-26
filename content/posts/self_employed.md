@@ -1,6 +1,6 @@
 ---
 title: Deciding to be Self-Employed
-published: 2025-06-26T00:00:00Z
+published: 2025-06-26T22:26:00Z
 intro: After years of working as a software engineer, I made the decision to become self-employed.
 ---
 
