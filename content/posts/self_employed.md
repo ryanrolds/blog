@@ -28,7 +28,7 @@ I'm exploring integrating Plant Ranger with Home Assistant. The integration will
 
 I still need to pay bills. To do this, Digital Buttes offers IT contracting and consulting services. I landed my first contract in early May and am committed for at least the next several months. My biggest fear right now is lead generation. Kali and I are iterating on business cards & marketing and I'm going to start attending Eugene and Portland networking events. 
 
-> If your team needs help updating applications, migrating to the cloud, containerizing workloads, or implementing DevOps/GitOps practices, please reach to [ryan@digitalbuttes.com](mailto:ryan@digitalbuttes.com).
+> If your team needs help updating applications, migrating to the cloud, containerizing workloads, or implementing DevOps/GitOps practices, please reach out to [ryan@digitalbuttes.com](mailto:ryan@digitalbuttes.com).
 
 ## The Future
 
