@@ -12,7 +12,7 @@ After leaving InVision, I've struggled to find an organization I enjoy working a
 
 Last year brought a series of personal challenges. I was diagnosed with type 2 diabetes, requiring significant lifestyle changes and ongoing management. Shortly after, I suddenly lost a grandparent, which forced me to confront mortality and what truly matters in life. Last December, my oldest cat started requiring heart medication four times a day, adding daily caregiving responsibilities.
 
-Being able to work remotely is critical to managing my own health and household obligations. The flexibility isn't just a nice-to-have - it's essential for maintaining my health and caring for loved ones. The frustration with corporate environments, confidence in my ability to deliver value, and the pressing need for flexibility in my personal life - pushed me toward self-employment.
+Being able to work remotely is critical to managing my own health and household obligations. The flexibility isn't a nice-to-have; it's essential for maintaining my health and caring for loved ones. The frustration with corporate environments, confidence in my ability to deliver value, and the pressing need for flexibility in my personal life - pushed me toward self-employment.
 
 I've decided to stop doing the same thing over and over again and expecting different results.
 
