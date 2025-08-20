@@ -1,8 +1,13 @@
 services:
   pedantic:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
     ports:
-      - "8081:8081"
+      - "9000:8081"
     volumes:
       - ".:/pedantic_orderliness"
+    working_dir: /pedantic_orderliness
+    command: ["gow", "-e=go,mod,html,md", "run", ".", "-port", "8081"]
   

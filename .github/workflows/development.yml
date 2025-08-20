@@ -7,39 +7,41 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v2
-        with:
-          go-version: ^1.17
-        id: go
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.17
+      id: go
 
-      - name: Check out code
-        uses: actions/checkout@v2
+    - name: Check out code
+      uses: actions/checkout@v2
 
-      - name: Get deps
-        run: make install
+    - name: Get deps
+      run: make install
 
-      - name: Build
-        run: make build
+    - name: Build
+      run: make build
 
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v1.1.0
-        with:
-          registry: docker.pedanticorderliness.com
-          username: ${{ secrets.DOCKER_REG_USER }}
-          password: ${{ secrets.DOCKER_REG_PASS }}
-          repository: blog
-          tags: ${{ github.sha }},latest
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v1.1.0
+      with:
+        registry: docker.pedanticorderliness.com
+        username: ${{ secrets.DOCKER_REG_USER }}
+        password: ${{ secrets.DOCKER_REG_PASS }}
+        repository: blog
+        tags: ${{ github.sha }},latest
 
-      - name: Generate a token
-        id: generate_token
-        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
-        with:
-          app_id: ${{ secrets.PO_APP_ID }}
-          private_key: ${{ secrets.PO_PRIVATE_KEY }}
+    - name: Generate a token
+      id: generate_token
+      uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+      with:
+        app_id: ${{ secrets.PO_APP_ID }}
+        private_key: ${{ secrets.PO_PRIVATE_KEY }}
 
-      - name: Update image tag in values.yaml
-        env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: |
-          gh workflow run image_update.yaml -R ryanrolds/infrastructure -r main -F branch=main -F chart=blog-test -F values_file=values.yaml -F tag_path=image.tag -F tag=${{ github.sha }}
+    - name: Update image tag in values.yaml
+      env:
+        GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+      run: |
+        gh workflow run image_update.yaml -R ryanrolds/infrastructure \
+          -r main -F branch=main -F chart=blog-test -F values_file=test.yaml \
+          -F tag_path=image.tag -F tag=${{ github.sha }}

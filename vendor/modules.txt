@@ -59,9 +59,15 @@ github.com/gorilla/handlers
 # github.com/gorilla/mux v1.8.1
 ## explicit; go 1.20
 github.com/gorilla/mux
+# github.com/mitranim/gg v0.1.28
+## explicit; go 1.20
+# github.com/mitranim/gow v0.0.0-20250813114836-466e175ff699
+## explicit; go 1.23.0
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
+# github.com/rjeczalik/notify v0.9.3
+## explicit; go 1.11
 # github.com/russross/blackfriday/v2 v2.1.0
 ## explicit
 github.com/russross/blackfriday/v2
@@ -77,6 +83,8 @@ golang.org/x/net/html/charset
 ## explicit; go 1.23.0
 golang.org/x/sys/unix
 golang.org/x/sys/windows
+# golang.org/x/term v0.32.0
+## explicit; go 1.23.0
 # golang.org/x/text v0.26.0
 ## explicit; go 1.23.0
 golang.org/x/text/encoding

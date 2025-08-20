@@ -1,6 +1,6 @@
 module github.com/ryanrolds/pedantic_orderliness
 
-go 1.23.1
+go 1.24.6
 
 require (
 	github.com/Depado/bfchroma v1.3.0
@@ -20,7 +20,11 @@ require (
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
+	github.com/mitranim/gg v0.1.28 // indirect
+	github.com/mitranim/gow v0.0.0-20250813114836-466e175ff699 // indirect
+	github.com/rjeczalik/notify v0.9.3 // indirect
 	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/term v0.32.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
