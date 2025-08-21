@@ -43,7 +43,7 @@ jobs:
         GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
       run: |
         gh workflow run image_update.yaml -R ryanrolds/infrastructure -r main \
-          -F branch=main -F chart=blog -F values_file=production.yaml \
+          -F branch=main -F chart=blog -F values_file=prod.yaml \
           -F tag_path=image.tag -F tag=${{ github.sha }}
 
     # - name: Configure AWS credentials
