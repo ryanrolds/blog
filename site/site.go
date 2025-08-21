@@ -1,6 +1,7 @@
 package site
 
 import (
+	"embed"
 	"fmt"
 	"net/http"
 
@@ -22,6 +23,8 @@ const (
 )
 
 type Hashes map[string]string
+
+var ContentFS embed.FS
 
 type Site struct {
 	port   string
@@ -45,10 +48,14 @@ func NewSite(port string, env string, log *logrus.Entry) *Site {
 	}
 }
 
+func (s *Site) SetContentFS(fs embed.FS) {
+	ContentFS = fs
+}
+
 func (s *Site) Run() error {
 	var err error
 
-	s.assets = NewAssetManager(AssetsDir)
+	s.assets = NewAssetManager("")
 	if err := s.assets.Load(); err != nil {
 		return err
 	}
@@ -56,18 +63,18 @@ func (s *Site) Run() error {
 	s.Hashes = s.assets.GetHashes()
 
 	// Load templates that we will use to render pages and posts
-	s.templates, err = LoadTemplates(ContentDir)
+	s.templates, err = LoadTemplates("content")
 	if err != nil {
 		return err
 	}
 
-	s.posts = NewPostManager(s, PostsDir, s.templates)
+	s.posts = NewPostManager(s, "", s.templates)
 	if err := s.posts.Load(); err != nil {
 		return err
 	}
 
 	// Create caches for our various content types
-	s.pages = NewPageManager(s, PagesDir, s.templates, s.posts)
+	s.pages = NewPageManager(s, "", s.templates, s.posts)
 	if err := s.pages.Load(); err != nil {
 		return err
 	}

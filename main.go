@@ -32,6 +32,7 @@ func main() {
 	}
 
 	site := site.NewSite(port, env, log)
+	site.SetContentFS(ContentFS)
 	err = site.Run()
 	if err != nil {
 		log.Fatal(err)
