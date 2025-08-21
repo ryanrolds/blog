@@ -2,6 +2,9 @@ package site
 
 import (
 	"fmt"
+	"io/fs"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"text/template"
@@ -45,7 +48,23 @@ func LoadTemplates(templateDir string) (*template.Template, error) {
 		},
 	})
 
-	tmpl, err = tmpl.ParseGlob(templateDir + "*.tmpl")
+	err = fs.WalkDir(ContentFS, templateDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || !strings.HasSuffix(path, ".tmpl") {
+			return nil
+		}
+		
+		content, err := fs.ReadFile(ContentFS, path)
+		if err != nil {
+			return err
+		}
+		
+		name := filepath.Base(path)
+		_, err = tmpl.New(name).Parse(string(content))
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}

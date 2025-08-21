@@ -3,8 +3,9 @@ package site
 import (
 	"bytes"
 	"fmt"
-	"os"
+	"io/fs"
 	"sort"
+	"strings"
 	"text/template"
 	"time"
 
@@ -54,7 +55,7 @@ func NewPostManager(site *Site, dir string, templates *template.Template) *PostM
 }
 
 func (p *PostManager) Load() error {
-	keys, err := getKeys(p.dir, ".md")
+	keys, err := getKeys("content/posts", ".md")
 	if err != nil {
 		return err
 	}
@@ -106,17 +107,17 @@ func (p *PostManager) GetRecent(num int) []*Post {
 }
 
 func (p *PostManager) buildPost(key string) (*Post, error) {
-	filename := p.dir + key + ".md"
-	file, err := os.Open(filename)
+	filename := "content/posts/" + key + ".md"
+	fileContent, err := fs.ReadFile(ContentFS, filename)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if _, ok := err.(*fs.PathError); ok {
 			return nil, nil
 		}
 
 		return nil, errors.Wrapf(err, "problem reading file %s", filename)
 	}
 
-	front, markdown, err := p.matter.Parse(file)
+	front, markdown, err := p.matter.Parse(strings.NewReader(string(fileContent)))
 	if err != nil {
 		return nil, errors.Wrapf(err, "problem parsing file %s", filename)
 	}

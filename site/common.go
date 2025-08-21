@@ -3,9 +3,8 @@ package site
 import (
 	"crypto/md5"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"mime"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -17,7 +16,7 @@ import (
 )
 
 func getKeys(dir string, suffix string) ([]string, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := fs.ReadDir(ContentFS, dir)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +34,7 @@ func getKeys(dir string, suffix string) ([]string, error) {
 
 func getAsset(filename string) (*[]byte, string, error) {
 	// Get file contents
-	contents, err := ioutil.ReadFile(AssetsDir + filename)
+	contents, err := fs.ReadFile(ContentFS, "content/static/"+filename)
 	if err != nil {
 		return nil, "", err
 	}
@@ -48,9 +47,9 @@ func getAsset(filename string) (*[]byte, string, error) {
 
 func getCSS(key string) (*[]byte, error) {
 	// Get file contents
-	css, err := ioutil.ReadFile(key + ".css")
+	css, err := fs.ReadFile(ContentFS, key+".css")
 	if err != nil {
-		if os.IsNotExist(err) {
+		if _, ok := err.(*fs.PathError); ok {
 			return &[]byte{}, nil
 		}
 
@@ -62,9 +61,9 @@ func getCSS(key string) (*[]byte, error) {
 
 func getJavaScript(key string) (*[]byte, error) {
 	// Get file contents
-	javaScript, err := ioutil.ReadFile(key + ".js")
+	javaScript, err := fs.ReadFile(ContentFS, key+".js")
 	if err != nil {
-		if os.IsNotExist(err) {
+		if _, ok := err.(*fs.PathError); ok {
 			return &[]byte{}, nil
 		}
 
@@ -77,9 +76,9 @@ func getJavaScript(key string) (*[]byte, error) {
 func getMarkdown(key string, log *logrus.Entry) (*[]byte, error) {
 	// Get file contents
 	log.Info("Loading file ", key+".md")
-	content, err := ioutil.ReadFile(key + ".md")
+	content, err := fs.ReadFile(ContentFS, key+".md")
 	if err != nil {
-		if os.IsNotExist(err) {
+		if _, ok := err.(*fs.PathError); ok {
 			return nil, nil
 		}
 

@@ -72,13 +72,13 @@ func (p *PageManager) Get(key string) *Page {
 }
 
 func (p *PageManager) buildMarkdownFiles() error {
-	keys, err := getKeys(p.dir, ".md")
+	keys, err := getKeys("content", ".md")
 	if err != nil {
 		return err
 	}
 
 	for _, key := range keys {
-		err := p.buildPage(p.dir + key)
+		err := p.buildPage("content/" + key)
 		if err != nil {
 			return err
 		}
