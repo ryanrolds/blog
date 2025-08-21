@@ -20,6 +20,6 @@ The remainder of my time goes to my amazing wife, Kali, and two cats, Ockham and
 I hope you enjoy the site and find the content useful. 
 
 <div>
-<img src="/static/bowman_lake_glacier_np.jpg" alt="Photo of Bowman Lake, MT"/>
-<p class="subtext">Bowman Lake, MT</p>
+  <img src="/static/bowman_lake_glacier_np.jpg" alt="Photo of Bowman Lake, MT"/>
+  <p class="subtext">Bowman Lake, MT</p>
 </div>

@@ -22,45 +22,69 @@ jobs:
     - name: Build
       run: make build
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v1.1.0
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
-        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        registry: docker.pedanticorderliness.com
+        username: ${{ secrets.DOCKER_REG_USER }}
+        password: ${{ secrets.DOCKER_REG_PASS }}
+        repository: blog
+        tags: ${{ github.sha }},latest
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+    - name: Generate a token
+      id: generate_token
+      uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+      with:
+        app_id: ${{ secrets.PO_APP_ID }}
+        private_key: ${{ secrets.PO_PRIVATE_KEY }}
 
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
+    - name: Update image tag in values.yaml
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: pedantic
-        IMAGE_TAG: ${{ github.sha }}
+        GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        gh workflow run image_update.yaml -R ryanrolds/infrastructure -r main \
+          -F branch=main -F chart=blog -F values_file=production.yaml \
+          -F tag_path=image.tag -F tag=${{ github.sha }}
 
-    - name: Download task definition
-      run: |
-        aws ecs describe-task-definition --task-definition pedantic_prod --query taskDefinition > task-definition.json
+    # - name: Configure AWS credentials
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: us-west-2
+    #     role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: task-definition.json
-        container-name: pedantic_prod_container
-        image: ${{ steps.build-image.outputs.image }}
+    # - name: Login to Amazon ECR
+    #   id: login-ecr
+    #   uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        cluster: pedantic
-        service: pedantic-prod
-        wait-for-service-stability: true
+    # - name: Build, tag, and push image to Amazon ECR
+    #   id: build-image
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: pedantic
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+    # - name: Download task definition
+    #   run: |
+    #     aws ecs describe-task-definition --task-definition pedantic_prod --query taskDefinition > task-definition.json
+
+    # - name: Fill in the new image ID in the Amazon ECS task definition
+    #   id: task-def
+    #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+    #   with:
+    #     task-definition: task-definition.json
+    #     container-name: pedantic_prod_container
+    #     image: ${{ steps.build-image.outputs.image }}
+
+    # - name: Deploy Amazon ECS task definition
+    #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+    #   with:
+    #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+    #     cluster: pedantic
+    #     service: pedantic-prod
+    #     wait-for-service-stability: true

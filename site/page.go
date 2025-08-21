@@ -2,6 +2,8 @@ package site
 
 import (
 	"bytes"
+	"path"
+	"strings"
 	"text/template"
 	"time"
 
@@ -85,8 +87,8 @@ func (p *PageManager) buildMarkdownFiles() error {
 	return nil
 }
 
-func (p *PageManager) buildPage(key string) error {
-	markdown, err := getMarkdown(key, p.site.Log)
+func (p *PageManager) buildPage(pagePath string) error {
+	markdown, err := getMarkdown(pagePath, p.site.Log)
 	if err != nil {
 		return err
 	}
@@ -96,12 +98,12 @@ func (p *PageManager) buildPage(key string) error {
 		return nil
 	}
 
-	css, err := getCSS(key)
+	css, err := getCSS(pagePath)
 	if err != nil {
 		return err
 	}
 
-	javaScript, err := getJavaScript(key)
+	javaScript, err := getJavaScript(pagePath)
 	if err != nil {
 		return err
 	}
@@ -136,6 +138,10 @@ func (p *PageManager) buildPage(key string) error {
 	}
 
 	content := buf.Bytes()
+
+	// Get the key from the page path
+	keyWithExt := path.Base(pagePath)
+	key := strings.TrimSuffix(keyWithExt, path.Ext(keyWithExt))
 
 	p.cache.Set(key, &Page{
 		Content:      &content,

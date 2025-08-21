@@ -222,11 +222,10 @@ func (s *Site) Handle404(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Site) Handle500(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusInternalServerError)
-
 	page := s.pages.Get("500")
 	if page == nil {
 		s.Log.Warn("Unable to get 500 page")
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error"))
 		return
 	}
