@@ -19,4 +19,4 @@ COPY --from=builder /go/bin/gow .
 COPY --from=builder /pedantic_orderliness/pedantic_orderliness .
 COPY --from=builder /pedantic_orderliness/content content
 
-CMD ["./gow", "run", "./pedantic_orderliness"]
+CMD ["./pedantic_orderliness"]
