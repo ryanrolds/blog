@@ -106,6 +106,39 @@ func (p *PostManager) GetRecent(num int) []*Post {
 	return p.orderedList[:num]
 }
 
+func (p *PostManager) GetPaginated(page, pageSize int) ([]*Post, int, bool, bool) {
+	total := len(p.orderedList)
+	totalPages := (total + pageSize - 1) / pageSize
+	
+	if page < 1 {
+		page = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+	
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	
+	if start >= total {
+		return []*Post{}, totalPages, false, false
+	}
+	
+	if end > total {
+		end = total
+	}
+	
+	posts := p.orderedList[start:end]
+	hasNext := page < totalPages
+	hasPrev := page > 1
+	
+	return posts, totalPages, hasNext, hasPrev
+}
+
+func (p *PostManager) GetTotalCount() int {
+	return len(p.orderedList)
+}
+
 func (p *PostManager) buildPost(key string) (*Post, error) {
 	filename := "content/posts/" + key + ".md"
 	fileContent, err := fs.ReadFile(ContentFS, filename)

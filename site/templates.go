@@ -21,6 +21,16 @@ type TemplateData struct {
 	Generated   time.Time
 	PublishedAt time.Time
 	Social      *Social
+	Pagination  *PaginationData
+}
+
+type PaginationData struct {
+	CurrentPage int
+	TotalPages  int
+	HasNext     bool
+	HasPrev     bool
+	NextPage    int
+	PrevPage    int
 }
 
 type Social struct {

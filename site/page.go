@@ -15,6 +15,7 @@ const numRecent = 10
 const indexKey = "index"
 const rssLimit = 20
 const rssKey = "rss.xml"
+const postsPerPage = 10
 
 type Page struct {
 	Content      *[]byte
@@ -69,6 +70,61 @@ func (p *PageManager) Get(key string) *Page {
 	}
 
 	return item.(*Page)
+}
+
+func (p *PageManager) GetPaginated(key string, pageNum int) *Page {
+	if key != "index" {
+		return p.Get(key)
+	}
+	
+	posts, totalPages, hasNext, hasPrev := p.posts.GetPaginated(pageNum, postsPerPage)
+	
+	if pageNum > totalPages && totalPages > 0 {
+		return nil
+	}
+	
+	nextPage := pageNum + 1
+	prevPage := pageNum - 1
+	if prevPage < 1 {
+		prevPage = 1
+	}
+	if nextPage > totalPages {
+		nextPage = totalPages
+	}
+	
+	paginationData := &PaginationData{
+		CurrentPage: pageNum,
+		TotalPages:  totalPages,
+		HasNext:     hasNext,
+		HasPrev:     hasPrev,
+		NextPage:    nextPage,
+		PrevPage:    prevPage,
+	}
+	
+	buf := &bytes.Buffer{}
+	err := p.templates.ExecuteTemplate(buf, "index.tmpl", &TemplateData{
+		Title:      "Home",
+		CSS:        "",
+		JavaScript: "",
+		Content:    "",
+		Posts:      &posts,
+		Social:     &Social{},
+		Site:       p.site,
+		Generated:  time.Now(),
+		Pagination: paginationData,
+	})
+	if err != nil {
+		return nil
+	}
+	
+	body := buf.Bytes()
+	
+	return &Page{
+		Content:      &body,
+		Etag:         getEtag(&body),
+		Mime:         "text/html; charset=utf-8",
+		CacheControl: "public, must-revalidate",
+	}
 }
 
 func (p *PageManager) buildMarkdownFiles() error {
@@ -154,8 +210,17 @@ func (p *PageManager) buildPage(pagePath string) error {
 }
 
 func (p *PageManager) buildIndex() error {
-	// Build index/home
-	posts := p.posts.GetRecent(numRecent)
+	// Build index/home with pagination for page 1
+	posts, totalPages, hasNext, hasPrev := p.posts.GetPaginated(1, postsPerPage)
+	
+	paginationData := &PaginationData{
+		CurrentPage: 1,
+		TotalPages:  totalPages,
+		HasNext:     hasNext,
+		HasPrev:     hasPrev,
+		NextPage:    2,
+		PrevPage:    1,
+	}
 
 	// Run markdown through page template
 	buf := &bytes.Buffer{}
@@ -168,6 +233,7 @@ func (p *PageManager) buildIndex() error {
 		Social:     &Social{},
 		Site:       p.site,
 		Generated:  time.Now(),
+		Pagination: paginationData,
 	})
 	if err != nil {
 		return err
