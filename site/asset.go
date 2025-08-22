@@ -21,7 +21,7 @@ func NewAssetManager(dir string) *AssetManager {
 }
 
 func (p *AssetManager) Load() error {
-	keys, err := getKeys(p.dir, "")
+	keys, err := getKeys("content/static", "")
 	if err != nil {
 		return err
 	}

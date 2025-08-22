@@ -3,8 +3,9 @@ package site
 import (
 	"bytes"
 	"fmt"
-	"os"
+	"io/fs"
 	"sort"
+	"strings"
 	"text/template"
 	"time"
 
@@ -54,7 +55,7 @@ func NewPostManager(site *Site, dir string, templates *template.Template) *PostM
 }
 
 func (p *PostManager) Load() error {
-	keys, err := getKeys(p.dir, ".md")
+	keys, err := getKeys("content/posts", ".md")
 	if err != nil {
 		return err
 	}
@@ -105,18 +106,51 @@ func (p *PostManager) GetRecent(num int) []*Post {
 	return p.orderedList[:num]
 }
 
+func (p *PostManager) GetPaginated(page, pageSize int) ([]*Post, int, bool, bool) {
+	total := len(p.orderedList)
+	totalPages := (total + pageSize - 1) / pageSize
+	
+	if page < 1 {
+		page = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+	
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	
+	if start >= total {
+		return []*Post{}, totalPages, false, false
+	}
+	
+	if end > total {
+		end = total
+	}
+	
+	posts := p.orderedList[start:end]
+	hasNext := page < totalPages
+	hasPrev := page > 1
+	
+	return posts, totalPages, hasNext, hasPrev
+}
+
+func (p *PostManager) GetTotalCount() int {
+	return len(p.orderedList)
+}
+
 func (p *PostManager) buildPost(key string) (*Post, error) {
-	filename := p.dir + key + ".md"
-	file, err := os.Open(filename)
+	filename := "content/posts/" + key + ".md"
+	fileContent, err := fs.ReadFile(ContentFS, filename)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if _, ok := err.(*fs.PathError); ok {
 			return nil, nil
 		}
 
 		return nil, errors.Wrapf(err, "problem reading file %s", filename)
 	}
 
-	front, markdown, err := p.matter.Parse(file)
+	front, markdown, err := p.matter.Parse(strings.NewReader(string(fileContent)))
 	if err != nil {
 		return nil, errors.Wrapf(err, "problem parsing file %s", filename)
 	}

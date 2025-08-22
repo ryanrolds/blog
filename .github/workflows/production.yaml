@@ -31,6 +31,14 @@ jobs:
         repository: blog
         tags: ${{ github.sha }},latest
 
+    - name: Test built image
+      run: |
+        docker run -d --name blog-test -p 8081:8081 docker.pedanticorderliness.com/blog:${{ github.sha }}
+        sleep 10
+        curl -f http://localhost:8081 || (docker logs blog-test && exit 1)
+        docker stop blog-test
+        docker rm blog-test
+
     - name: Generate a token
       id: generate_token
       uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
