@@ -11,5 +11,23 @@
       </div>
     </a>
   {{ end }}
+  
+  {{ if .Pagination }}
+    {{ if gt .Pagination.TotalPages 1 }}
+      <div class="pagination">
+        {{ if .Pagination.HasPrev }}
+          <a href="/?page={{ .Pagination.PrevPage }}" class="pagination-prev">← Previous</a>
+        {{ end }}
+        
+        <span class="pagination-info">
+          Page {{ .Pagination.CurrentPage }} of {{ .Pagination.TotalPages }}
+        </span>
+        
+        {{ if .Pagination.HasNext }}
+          <a href="/?page={{ .Pagination.NextPage }}" class="pagination-next">Next →</a>
+        {{ end }}
+      </div>
+    {{ end }}
+  {{ end }}
 </div>
 {{ template "epilogue.tmpl" . }}

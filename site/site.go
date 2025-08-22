@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	//"strings"
 	"text/template"
@@ -118,6 +119,33 @@ func (s *Site) pageHandler(w http.ResponseWriter, r *http.Request) {
 	// The root page uses the "index" key
 	if key == "" {
 		key = "index"
+		
+		// Handle pagination for index page
+		pageParam := r.URL.Query().Get("page")
+		if pageParam != "" {
+			pageNum, err := strconv.Atoi(pageParam)
+			if err != nil || pageNum < 1 {
+				pageNum = 1
+			}
+			
+			page := s.pages.GetPaginated("index", pageNum)
+			if page == nil {
+				s.Handle404(w, r)
+				return
+			}
+			
+			if r.Header.Get("If-None-Match") == page.Etag {
+				w.WriteHeader(http.StatusNotModified)
+				return
+			}
+
+			w.Header().Set("Content-Type", page.Mime)
+			w.Header().Set("Cache-Control", page.CacheControl)
+			w.Header().Set("Etag", page.Etag)
+			w.WriteHeader(http.StatusOK)
+			w.Write(*page.Content)
+			return
+		}
 	}
 
 	// Try to get cache page
