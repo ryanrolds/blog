@@ -1,6 +1,6 @@
 module github.com/ryanrolds/pedantic_orderliness
 
-go 1.24.6
+go 1.24.11
 
 require (
 	github.com/Depado/bfchroma v1.3.0
