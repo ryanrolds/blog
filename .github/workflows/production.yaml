@@ -22,18 +22,34 @@ jobs:
     - name: Build
       run: make build
 
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v1.1.0
+    - name: Log in to Docker registry
+      uses: docker/login-action@v3
       with:
         registry: docker.pedanticorderliness.com
         username: ${{ secrets.DOCKER_REG_USER }}
         password: ${{ secrets.DOCKER_REG_PASS }}
-        repository: blog
-        tags: ${{ github.sha }},latest
+
+    - name: Log in to Zot registry
+      uses: docker/login-action@v3
+      with:
+        registry: zot.pedanticorderliness.com
+        username: ${{ secrets.ZOT_REG_USER }}
+        password: ${{ secrets.ZOT_REG_PASS }}
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: |
+          docker.pedanticorderliness.com/blog:${{ github.sha }}
+          docker.pedanticorderliness.com/blog:latest
+          zot.pedanticorderliness.com/blog:${{ github.sha }}
+          zot.pedanticorderliness.com/blog:latest
 
     - name: Test built image
       run: |
-        docker run -d --name blog-test -p 8081:8081 docker.pedanticorderliness.com/blog:${{ github.sha }}
+        docker run -d --name blog-test -p 8081:8081 zot.pedanticorderliness.com/blog:${{ github.sha }}
         sleep 10
         curl -f http://localhost:8081 || (docker logs blog-test && exit 1)
         docker stop blog-test
