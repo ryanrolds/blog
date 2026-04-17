@@ -22,13 +22,6 @@ jobs:
     - name: Build
       run: make build
 
-    - name: Log in to Docker registry
-      uses: docker/login-action@v3
-      with:
-        registry: docker.pedanticorderliness.com
-        username: ${{ secrets.DOCKER_REG_USER }}
-        password: ${{ secrets.DOCKER_REG_PASS }}
-
     - name: Log in to Zot registry
       uses: docker/login-action@v3
       with:
@@ -42,8 +35,6 @@ jobs:
         context: .
         push: true
         tags: |
-          docker.pedanticorderliness.com/blog:${{ github.sha }}
-          docker.pedanticorderliness.com/blog:latest
           zot.pedanticorderliness.com/blog:${{ github.sha }}
           zot.pedanticorderliness.com/blog:latest
 
