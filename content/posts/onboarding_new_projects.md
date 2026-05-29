@@ -1,5 +1,5 @@
 ---
-title: Onboarding developers quickly
+title: Onboarding Developers Quickly
 published: 2019-04-06T19:09:00Z
 intro: Onboarding developers can require a significant amount of time, but it doesn't have to. This article goes over a minimal set of tools that provide a uniform developer environment and workflow for all major operating systems.
 ---
@@ -21,7 +21,7 @@ The learning curve of Git and GitHub is initially a little steep. It's not uncom
 
 Ok, everyone can check out the repo. Great! But the project requires some initial setup. Docker and Docker Compose will make it easy for developers to stand up their development environment, including databases and other dependencies. Docker also allows easy publishing of images to the cloud for deployment. The earlier a team sets up Docker the sooner they will benefit from the improved velocity, standardized developer environments, and retention of maintainers and collaborators. The benefits are cumulative, if you wait until after you burn people out or they struggle to get onboard you've already lost valuable time and energy.
 
-## Dockerizing a project
+## Dockerizing a Project
 
 First, if you're using a common platform, like WordPress, someone else has already created the Docker-related files. You only need to find them, confirm they work, check them into your repo, and update the project's `README.md`.
 
@@ -80,7 +80,7 @@ With both of these files, we can now start and stop the entire stack with `docke
 
 One last thing, many platforms require setting up a database schema. This is trivial with Docker Compose. After defining the above files and start the containers we run our platforms DB migration tool inside of the frontend container with `docker-compose run frontend rake db:setup`. When you have all of these files defined and tested make sure to update your `README.md` with the setup instructions.
 
-## Onboarding and workflow
+## Onboarding and Workflow
 
 It's time to onboard new developers. The first thing a developer should do is clone the repo:
 

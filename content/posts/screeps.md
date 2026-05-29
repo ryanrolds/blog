@@ -1,5 +1,5 @@
 ---
-title: Screeps after one year
+title: Screeps After One Year
 published: 2022-01-26T22:16:19Z
 editied: 2022-09-24T23:41:00Z
 intro: It's been a crazy couple of years. One of the things that have helped me keep my sanity is Screeps, an MMO for programmers.
@@ -8,7 +8,7 @@ It's been a crazy couple of years. We bought a house right before the pandemic, 
 
 Screeps asks programmers to create a bot that plays a massive persistent Real-time Strategy (RTS) game. Think StarCraft/Warcraft, but with a grid of maps and over 2000 players. The bot contains logic that drives units, builds bases, defends against attacks, and raids NPCs/bots. The major languages (JavaScript, TypeScript, Rust, Kotlin, and Python) have starter kits. Any language that compiles to WASM is technically supported. If you've ever been playing an RTS and wished to write a bot that would play the game, Screeps is for you.
 
-## Getting started
+## Getting Started
 
 The best introduction to the game is the [tutorial](https://screeps.com/a/#!/sim/tutorial/1), which doesn't require purchasing the game. It's an on-ramp to the game's concepts rather than an example of how to write your bot. As you complete the tutorial, you will frequently reference the [game docs](https://docs.screeps.com/index.html) and [API docs](https://docs.screeps.com/api/). The documentation is well done, and there is a [community-managed wiki](https://wiki.screepspl.us/index.php/Getting_Started) with some of the meta.
 

@@ -7,7 +7,7 @@ This post goes over the architecture of the code used to serve this blog. The go
 
 > You don't need to know [Go](https://golang.org/) to understand this post. If you want to learn Go the best place to start is the [Go Tour](https://tour.golang.org). Once you're done with the tour, look at this project's `main.go` file and follow the code.
 
-## Project structure
+## Project Structure
 
 The source code can be found at [ryanrolds/pedantic_orderliness](https://github.com/ryanrolds/pedantic_orderliness). Despite there being about 3 dozen files, there isn't that much code. Two dozen of the files are assets and HTML templates. Only about 9 of the files actually contain Go code.
 
@@ -61,11 +61,11 @@ github.com/ryanrolds/pedantic_orderliness
 
 > The above tree was made using the `tree` command. It's available on all major operating systems via a package manager (`apt-get install tree`, `yum install tree`, and `brew install tree`). If you're on Windows 10 you can install the Windows Subsystem for Linux, which will give you a decent version of Bash. This post is being written in `vim` on the WSL.
 
-## Content directory
+## Content Directory
 
 The `content` directory holds templates, some basic pages (Home, 404, 500), the `posts` directory (contains the Markdown files that will be made into posts), and finally, the `static` directory (contains all CSS, JS, images, and the robots.txt files). During service startup, all of these files are read into a Map (associative array, dictionary). Some of the files, templates (`.tmpl`) and Markdown (`.md`), are parsed and rendered. The rendered pages and posts are also stored in their maps/caches.
 
-## Site directory
+## Site Directory
 
 The `site` package is the primary package in the project. It initiates the loading of the `content` directory's files into their respective maps, sets up the HTTP endpoints and their handlers, and binds the HTTP server to port 8080 (or whatever port is provided by the `PORT` environment variable).
 

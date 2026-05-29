@@ -1,5 +1,5 @@
 ---
-title: Bare metal Kubernetes at home
+title: Bare Metal Kubernetes at Home
 published: 3019-01-22T00:16:19Z
 intro: How I've setup my bare metal K8s cluster using Kubeadm, ...
 ---
@@ -15,7 +15,7 @@ This post will cover what is Kubernetes, how I built and configured my cluster, 
 
 Kubernetes are an orchastration platform that supports managing containers cross multiple nodes (servers). The platform comes in many flavors and is interacted with via a CLI tool called `kubectl`. Once the K8s cluster is setup and running, `kubectl` is used to deploy new pods, deployments, services, volumes, and more. It's also used to get cluster status information and drain/flag nodes for maintence.
 
-### Major objects in the K8s ecosystem
+### Major Objects in the K8s Ecosystem
 
 * Pods
 * Nodes
@@ -33,9 +33,9 @@ Kubernetes are an orchastration platform that supports managing containers cross
 
 #### Volumes
 
-### Major services in the K8s ecosystem
+### Major Services in the K8s Ecosystem
 
-#### Container hosting nodes
+#### Container Hosting Nodes
 
 * `kubelet` - Receives pod specifications and ensures the node
 * `kube-proxy` -
@@ -51,10 +51,10 @@ Kubernetes are an orchastration platform that supports managing containers cross
 
 ### Parts
 
-### Network configuration
+### Network Configuration
 
 ### Kubeadm
 
-## Managing the cluster
+## Managing the Cluster
 
 ## Conclusion

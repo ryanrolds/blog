@@ -1,5 +1,5 @@
 ---
-title: Efficient HTTP caching
+title: Efficient HTTP Caching
 published: 2019-01-04T01:27:25Z
 editied: 2020-05-02T02:32:00Z
 intro: Caching related HTTP headers are critical to high performance websites. Learn about HTTP headers, requests, responses and how to avoid unneccary requests to your site.
